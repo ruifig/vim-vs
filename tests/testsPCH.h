@@ -13,6 +13,7 @@
 #include <vector>
 #include <string>
 #include <queue>
+#include <regex>
 
 #include "Semaphore.h"
 

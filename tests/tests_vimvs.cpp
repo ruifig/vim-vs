@@ -44,17 +44,15 @@ bool beginsWith(const std::wstring& str, const std::wstring& begins)
 }
 
 
-bool beginsWith(const std::wstring& str, const std::wstring& begins)
+bool beginsWith(const std::wstring& str, const wchar_t* begins)
 {
-	const size_t beginsLength = wcslen(begin);
-    if (str.length() >= begins.length()) {
+	const size_t beginsLength = wcslen(begins);
+    if (str.length() >= beginsLength) {
         return (0 == str.compare(0, beginsLength, begins));
     } else {
         return false;
     }
 }
-
-bool contains(const std::wstring)
 
 struct FileInfo
 {
@@ -80,17 +78,29 @@ private:
 	std::unordered_map<std::wstring, FileInfo> m_files;
 };
 
+class NodeParser;
+class Parser
+{
+public:
+	Parser(Database& db);
+	void parse(std::string line);
+private:
+
+	friend class NodeParser;
+	Database& m_db;
+	std::unordered_map<int, std::shared_ptr<NodeParser>> m_nodes;
+};
+
 class NodeParser
 {
 public:
-	explicit NodeParser(Database& db, std::wstring prjName=L"") : m_db(db)
+
+	explicit NodeParser(Parser& outer, std::wstring prjName=L"") : m_outer(outer)
 	{
 	}
 
 	void parseLine(std::wstring line)
 	{
-		m_str = std::move(line);
-		m_it = m_str.begin();
 	}
 
 private:
@@ -109,43 +119,36 @@ private:
 		FinalizeBuildStatus
 	};
 
-	Database& m_db;
+	Parser m_outer;
 	State m_state = State::Initial;
-	std::wstring m_str;
 	std::wstring m_prjName;
-	std::wstring::iterator m_it;
 };
 
-
-class Parser
+//////////////////////////////////////////////////////////////////////////
+Parser::Parser(Database& db) : m_db(db)
 {
-public:
-	explicit Parser(Database& db) : m_db(db)
+	m_nodes[0] = std::make_shared<NodeParser>(*this);
+}
+
+void Parser::parse(std::string line)
+{
+	// Original: \s*((\d*)>)?Project \".+\" \(\d\) is building \"(.+)\.vcxproj\" \((\d)\) on node \d
+	//https://regex101.com/
+	const char* prjNode = "[[:space:]]*(([[:digit:]]+)>)?Project \".*\" \\([[:digit:]]+\\) is building \"(.*).vcxproj\" \\(([[:digit:]])\\) on node .*";
+	printf("RE: %s\n", prjNode);
+	std::regex rgx(prjNode, std::regex_constants::egrep | std::regex::optimize);
+
+	printf("  Matching: %s\n", line.c_str());
+	std::smatch matches;
+	if (std::regex_match(line, matches, rgx))
 	{
-	}
-
-	void parse(std::wstring line)
-	{
-		if (!m_currNode)
+		printf("    %d matches\n", static_cast<int>(matches.size()));
+		for (int i=0; i<matches.size(); i++)
 		{
-			if (beginsWith(line, L"Project ") && )
-			if (beginsWith(line, L"Build started "))
-				
-
-
-		}
-
-
-		if (m_currNode)
-		{
+			printf("      %d:%s:%s\n", i, matches[i].matched ? "TRUE " : "FALSE", matches[i].str().c_str());
 		}
 	}
-
-private:
-	Database& m_db;
-	NodeParser* m_currNode = nullptr;
-	std::unordered_map<int, NodeParser> m_nodes;
-};
+}
 
 }
 }
@@ -156,6 +159,15 @@ SUITE(scratchpad)
 
 TEST(1)
 {
+	using namespace cz::vimvs;
+	Database db;
+	Parser parser(db);
+
+	parser.parse("Project \"C:\\Work\\tests.vcxproj.metaproj\" (3) is building \"C:\\Work\\tests.vcxproj\" (8) on node 1 (default targets).");
+	parser.parse(" Project \"C:\\Work\\tests.vcxproj.metaproj\" (3) is building \"C:\\Work\\tests.vcxproj\" (8) on node 1 (default targets).");
+	parser.parse("	3>Project \"C:\\Work\\tests.vcxproj.metaproj\" (3) is building \"C:\\Work\\tests.vcxproj\" (8) on node 1 (default targets).");
+	parser.parse("	34>Project \"C:\\Work\\tests.vcxproj.metaproj\" (3) is building \"C:\\Work\\tests.vcxproj\" (8) on node 1 (default targets).");
+
 	printf("Hello world\n!");
 }
 

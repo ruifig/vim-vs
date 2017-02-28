@@ -5,6 +5,7 @@ ucm_add_files(
 	"Semaphore.h"
 	"targetver.h"
 	"tests.cpp"
+	"tests_vimvs.cpp"
 	TO TESTS_SRC
 	)
 
