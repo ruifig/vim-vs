@@ -12,6 +12,102 @@ namespace cz
 namespace vimvs
 {
 
+std::pair<std::wstring, std::wstring> splitFolderAndFile(const std::wstring& str)
+{
+	auto i = std::find_if(str.rbegin(), str.rend(), [](const wchar_t& ch)
+	{
+		return ch == '/' || ch == '\\';
+	});
+
+	std::pair < std::wstring, std::wstring> res;
+	res.first = std::wstring(str.begin(), i.base());
+	res.second = std::wstring(i.base(), str.end());
+	return res;
+}
+
+void ensureTrailingSlash(std::wstring& str)
+{
+	if (str.size() && !(str[str.size() - 1] == '\\' || str[str.size() - 1] == '/'))
+		str += '\\';
+}
+
+//
+// Converts a string from UTF-8 to UTF-16.
+//
+std::wstring toUTF16(const std::string& utf8)
+{
+	if (utf8.empty())
+		return std::wstring();
+
+	// Get length (in wchar_t's), so we can reserve the size we need before the
+	// actual conversion
+	const int length = ::MultiByteToWideChar(CP_UTF8,             // convert from UTF-8
+		0,                   // default flags
+		utf8.data(),         // source UTF-8 string
+		(int)utf8.length(),  // length (in chars) of source UTF-8 string
+		NULL,                // unused - no conversion done in this step
+		0                    // request size of destination buffer, in wchar_t's
+	);
+	if (length == 0)
+		throw std::exception("Can't get length of UTF-16 string");
+
+	std::wstring utf16;
+	utf16.resize(length);
+
+	// Do the actual conversion
+	if (!::MultiByteToWideChar(CP_UTF8,             // convert from UTF-8
+		0,                   // default flags
+		utf8.data(),         // source UTF-8 string
+		(int)utf8.length(),  // length (in chars) of source UTF-8 string
+		&utf16[0],           // destination buffer
+		(int)utf16.length()  // size of destination buffer, in wchar_t's
+	))
+	{
+		throw std::exception("Can't convert string from UTF-8 to UTF-16");
+	}
+
+	return utf16;
+}
+
+std::string toUTF8(const std::wstring& utf16)
+{
+	if (utf16.empty())
+		return std::string();
+
+	// Get length (in wchar_t's), so we can reserve the size we need before the
+	// actual conversion
+	const int utf8_length = ::WideCharToMultiByte(CP_UTF8,              // convert to UTF-8
+	                                              0,                    // default flags
+	                                              utf16.data(),         // source UTF-16 string
+	                                              (int)utf16.length(),  // source string length, in wchar_t's,
+	                                              NULL,                 // unused - no conversion required in this step
+	                                              0,                    // request buffer size
+	                                              NULL,
+	                                              NULL  // unused
+	                                              );
+
+	if (utf8_length == 0)
+		throw "Can't get length of UTF-8 string";
+
+	std::string utf8;
+	utf8.resize(utf8_length);
+
+	// Do the actual conversion
+	if (!::WideCharToMultiByte(CP_UTF8,              // convert to UTF-8
+	                           0,                    // default flags
+	                           utf16.data(),         // source UTF-16 string
+	                           (int)utf16.length(),  // source string length, in wchar_t's,
+	                           &utf8[0],             // destination buffer
+	                           (int)utf8.length(),   // destination buffer size, in chars
+	                           NULL,
+	                           NULL  // unused
+	                           ))
+	{
+		throw "Can't convert from UTF-16 to UTF-8";
+	}
+
+	return utf8;
+}
 
 static bool isSpace(int a)
 {
@@ -149,6 +245,12 @@ public:
 		auto it = m_files.find(filename);
 		return it == m_files.end() ? nullptr : &it->second;
 	}
+
+	auto& files() const
+	{
+		return m_files;
+	}
+
 private:
 	std::unordered_map<std::wstring, File> m_files;
 };
@@ -414,6 +516,37 @@ TEST(1)
 	CHECK(ifs.is_open());
 	auto content = std::string(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
 	parser.inject(widen(content));
+
+	std::string commonParams;
+	commonParams += "-std=c++14 ";
+	commonParams += "-x ";
+	commonParams += "c++ ";
+	commonParams += "-Wall ";
+	commonParams += "-Wextra ";
+	commonParams += "-fexceptions ";
+	commonParams += "-DCINTERFACE "; // To let Clang parse VS's combaseapi.h, otherwise we get an error "unknown type name 'IUnknown'
+	// system includes
+	commonParams += "-isystem \"C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" ";
+	commonParams += "-isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" ";
+	commonParams += "-isystem \"C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" ";
+	commonParams += "-isystem \"C:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" ";
+	commonParams += "-isystem \"C:/Program Files (x86)/Windows Kits/8.1/Include/um\" ";
+	commonParams += "-isystem \"C:/Program Files (x86)/Windows Kits/8.1/Include/shared\" ";
+	commonParams += "-isystem \"C:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" ";
+
+	std::ostringstream out;
+	std::ofstream out("../../compile_commands.json")
+	out << "[" << std::endl;
+	out << "    {" << std::endl;
+	for (auto&& f : db.files())
+	{
+		auto ff = splitFolderAndFile(f.second.name);
+		out << "        \"directory\": \"" << toUTF8(ff.first) << "\"" << std::endl;
+		out << "        \"command\": \" /usr/bin/clang++ " << toUTF8(ff.first) << "\"" << std::endl;
+
+	}
+	out << "    }," << std::endl;
+	out << "]" << std::endl;
 
 #if 0
 	parser.inject(L"Hi");
