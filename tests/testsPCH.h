@@ -23,6 +23,7 @@
 #include <regex>
 #include <fstream>
 #include <assert.h>
+#include <algorithm>
 
 #include "Semaphore.h"
 

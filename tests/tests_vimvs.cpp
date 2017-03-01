@@ -12,6 +12,39 @@ namespace cz
 namespace vimvs
 {
 
+
+static bool isSpace(int a)
+{
+	return a == ' ' || a == '\t' || a == 0xA || a == 0xD;
+}
+
+static bool notSpace(int a)
+{
+	return !isSpace(a);
+}
+
+// trim from start
+template<class StringType>
+static inline StringType ltrim(const StringType &s_) {
+	StringType s = s_;
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(), notSpace));
+	return s;
+}
+
+// trim from end
+template<class StringType>
+static inline StringType rtrim(const StringType &s_) {
+	StringType s = s_;
+	s.erase(std::find_if(s.rbegin(), s.rend(), notSpace).base(), s.end());
+	return s;
+}
+
+// trim from both ends
+template<class StringType>
+static inline StringType trim(const StringType &s) {
+	return ltrim(rtrim(s));
+}
+
 //
 // Converts a string from UTF-8 to UTF-16.
 //
@@ -48,11 +81,6 @@ std::wstring widen(const std::string& utf8)
 	}
 
 	return utf16;
-}
-
-static bool isSpace(int a)
-{
-	return a == ' ' || a == '\t' || a == 0xA || a == 0xD;
 }
 
 bool endsWith(const std::wstring& str, const std::wstring& ending)
@@ -140,22 +168,25 @@ class NodeParser
 {
 public:
 
-	explicit NodeParser(Parser& outer, int number, std::wstring prjName=L"")
+	explicit NodeParser(Parser& outer, int number, std::wstring prjName = L"")
 		: m_outer(outer)
 		, m_number(number)
 		, m_prjName(prjName)
 	{
 	}
 
-	void parseLine(std::wstring line)
+	void parseLine(const std::wstring& line)
 	{
 		if (tryPrjNodeCreation(line))
+			return;
+
+		if (tryCompile(line))
 			return;
 	}
 
 private:
 
-	bool tryPrjNodeCreation(const std::wstring str)
+	bool tryPrjNodeCreation(const std::wstring& str)
 	{
 		// G1 - Project path (without the .vcxproj )
 		// G2 - Node number used to build the project
@@ -173,6 +204,80 @@ private:
 		return true;
 	}
 
+	bool tryCompile(const std::wstring& line)
+	{
+		if (trim(line) == L"ClCompile:")
+		{
+			m_state = State::ClCompile;
+			return true;
+		}
+		if (m_state != State::ClCompile)
+			return false;
+
+		// Check if its a call to cl.exe
+		{
+			const wchar_t* re = L".*\\\\CL\\.exe .*";
+			static std::wregex rgx(re, std::regex_constants::egrep | std::regex::optimize);
+			std::wsmatch matches;
+			if (!std::regex_match(line, matches, rgx))
+				return false;
+		}
+
+
+		//
+		// Extract all defines
+		//
+		std::vector<std::wstring> defines;
+		{
+			static std::wregex rgx(L"\\/D \"?([[:graph:]]*)\"?");
+			for (
+				std::wsregex_iterator i = std::wsregex_iterator(line.begin(), line.end(), rgx);
+				i != std::wsregex_iterator();
+				++i)
+			{
+				auto&& m = (*i)[1];
+				defines.push_back(m.str());
+			}
+		}
+
+		//
+		// Extract all defines
+		//
+		std::vector<std::wstring> includes;
+		{
+			static std::wregex rgx(L"\\/I\"([[:graph:]]*)\"");
+			for (
+				std::wsregex_iterator i = std::wsregex_iterator(line.begin(), line.end(), rgx);
+				i != std::wsregex_iterator();
+				++i)
+			{
+				auto&& m = (*i)[1];
+				includes.push_back(m.str());
+			}
+		}
+
+		//
+		// Extract the files to compile. Those are always at the end
+		//
+		std::vector<std::wstring> files;
+		{
+			auto e = line.end() - 1;
+			while (*e == '"')
+			{
+				--e;
+				auto s = e;
+				while (*s != '"') --s;
+				files.push_back(std::wstring(s + 1, e));
+				e = s - 1;
+				while (isSpace(*e)) --e;
+			}
+
+			std::reverse(files.begin(), files.end());
+		}
+
+		return true;
+	}
+
 	std::vector<FileInfo> parseCompileString(std::wstring str)
 	{
 		std::vector<FileInfo> res;
@@ -183,8 +288,7 @@ private:
 	{
 		Initial,
 		ClCompile,
-		Other, 
-		FinalizeBuildStatus
+		Other 
 	};
 
 	Parser& m_outer;
@@ -238,9 +342,8 @@ void Parser::parse(std::wstring line)
 	}
 
 	// Detect what node to pass this to
-	// Remove the "N>" if 
+	// Remove the "N>" if present
 	{
-		//                                         G2            G3
 		static std::wregex rgx(L"[[:space:]]*(([[:digit:]]+)>)?(.*)", std::regex_constants::egrep | std::regex::optimize);
 		std::wsmatch matches;
 		assert(std::regex_match(line, matches, rgx));
