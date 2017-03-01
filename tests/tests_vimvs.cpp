@@ -122,28 +122,35 @@ bool beginsWith(const std::wstring& str, const wchar_t* begins)
     }
 }
 
-struct FileInfo
+struct Params
 {
-	std::wstring filename;
-	std::vector<std::pair<std::wstring, std::wstring>> defines;
-	std::vector<std::wstring> includepaths;
+	std::vector<std::wstring> defines;
+	std::vector<std::wstring> includes;
+};
+
+struct File
+{
+	std::wstring name;
+	std::wstring prjPath;
+	std::wstring prjName;
+	std::shared_ptr<Params> params;
 };
 
 class Database
 {
 public:
-	void addFile(std::wstring filename, FileInfo info)
+	void addFile(File file)
 	{
-		m_files[filename] = std::move(info);
+		m_files[file.name] = std::move(file);
 	}
 
-	FileInfo* getFile(const std::wstring& filename)
+	File* getFile(const std::wstring& filename)
 	{
 		auto it = m_files.find(filename);
 		return it == m_files.end() ? nullptr : &it->second;
 	}
 private:
-	std::unordered_map<std::wstring, FileInfo> m_files;
+	std::unordered_map<std::wstring, File> m_files;
 };
 
 class NodeParser;
@@ -168,9 +175,10 @@ class NodeParser
 {
 public:
 
-	explicit NodeParser(Parser& outer, int number, std::wstring prjName = L"")
+	explicit NodeParser(Parser& outer, int number, std::wstring prjPath, std::wstring prjName)
 		: m_outer(outer)
 		, m_number(number)
+		, m_prjPath(prjPath)
 		, m_prjName(prjName)
 	{
 	}
@@ -191,16 +199,20 @@ private:
 		// G1 - Project path (without the .vcxproj )
 		// G2 - Node number used to build the project
 		//                                                                     G1                   G2
-		const wchar_t* re = L"Project \".*\" \\([[:digit:]]+\\) is building \"(.*).vcxproj\" \\(([[:digit:]])\\) on node .*";
+		//const wchar_t* re = L"Project \".*\" \\([[:digit:]]+\\) is building \"(.*).vcxproj\" \\(([[:digit:]])\\) on node .*";
+		//                                                                     G1      G2                   G3
+		const wchar_t* re = L"Project \".*\" \\([[:digit:]]+\\) is building \"(.*)\\\\(.*).vcxproj\" \\(([[:digit:]])\\) on node .*";
 		static std::wregex rgx(re, std::regex_constants::egrep | std::regex::optimize);
 		std::wsmatch matches;
 		if (!std::regex_match(str, matches, rgx))
 			return false;
-		wprintf(L"PRJ %s\n", matches[1].str().c_str());
-		int n = std::stoi(matches[2].str());
-		m_outer.m_nodes[n] = std::make_shared<NodeParser>(m_outer, n, matches[1].str());
+		auto prjPath = matches[1].str();
+		auto prjName = matches[2].str();
+		int node = std::stoi(matches[3].str());
+		wprintf(L"%s , %s, %d\n", prjPath.c_str(), prjName.c_str(), node);
+		m_outer.m_nodes[node] = std::make_shared<NodeParser>(m_outer, node, std::move(prjPath), std::move(prjName));
 		if (!m_outer.m_mp)
-			m_outer.m_currParser = m_outer.m_nodes[n];
+			m_outer.m_currParser = m_outer.m_nodes[node];
 		return true;
 	}
 
@@ -224,10 +236,11 @@ private:
 		}
 
 
+		auto params = std::make_shared<Params>();
+
 		//
 		// Extract all defines
 		//
-		std::vector<std::wstring> defines;
 		{
 			static std::wregex rgx(L"\\/D \"?([[:graph:]]*)\"?");
 			for (
@@ -236,14 +249,13 @@ private:
 				++i)
 			{
 				auto&& m = (*i)[1];
-				defines.push_back(m.str());
+				params->defines.push_back(m.str());
 			}
 		}
 
 		//
 		// Extract all defines
 		//
-		std::vector<std::wstring> includes;
 		{
 			static std::wregex rgx(L"\\/I\"([[:graph:]]*)\"");
 			for (
@@ -252,14 +264,13 @@ private:
 				++i)
 			{
 				auto&& m = (*i)[1];
-				includes.push_back(m.str());
+				params->includes.push_back(m.str());
 			}
 		}
 
 		//
-		// Extract the files to compile. Those are always at the end
+		// Extract the files to compile. Those are always at the end of the line
 		//
-		std::vector<std::wstring> files;
 		{
 			auto e = line.end() - 1;
 			while (*e == '"')
@@ -267,21 +278,18 @@ private:
 				--e;
 				auto s = e;
 				while (*s != '"') --s;
-				files.push_back(std::wstring(s + 1, e));
+				File f;
+				f.name = std::wstring(s + 1, e);
+				f.prjPath = m_prjPath;
+				f.prjName = m_prjName;
+				f.params = params;
+				m_outer.m_db.addFile(std::move(f));
 				e = s - 1;
 				while (isSpace(*e)) --e;
 			}
-
-			std::reverse(files.begin(), files.end());
 		}
 
 		return true;
-	}
-
-	std::vector<FileInfo> parseCompileString(std::wstring str)
-	{
-		std::vector<FileInfo> res;
-		return res;
 	}
 
 	enum class State
@@ -294,6 +302,7 @@ private:
 	Parser& m_outer;
 	int m_number;
 	State m_state = State::Initial;
+	std::wstring m_prjPath;
 	std::wstring m_prjName;
 };
 
@@ -336,7 +345,7 @@ void Parser::parse(std::wstring line)
 		if (!std::regex_match(line, matches, rgx))
 			return;
 		m_mp = matches[1].matched;
-		m_currParser = std::make_shared<NodeParser>(*this, 1);
+		m_currParser = std::make_shared<NodeParser>(*this, 1, L"", L"");
 		m_nodes[1] = m_currParser;
 		return;
 	}
@@ -353,7 +362,7 @@ void Parser::parse(std::wstring line)
 			auto it = m_nodes.find(n);
 			if (it == m_nodes.end())
 			{
-				m_currParser = std::make_shared<NodeParser>(*this, n);
+				m_currParser = std::make_shared<NodeParser>(*this, n, L"", L"");
 				m_nodes[n] = m_currParser;
 			}
 			else
