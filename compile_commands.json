@@ -1,0 +1,132 @@
+[
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\Win32\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\Win32\\TimeHelpers.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\TestRunner.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\XmlTestReporter.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\TimeConstraint.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\ThrowingTestReporter.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\DeferredTestResult.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\TestList.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DNOMINMAX\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/source/.\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\tests\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\tests\\tests_vimvs.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\TestResults.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\TestReporterStdout.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\TestReporter.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DNOMINMAX\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/source/.\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\tests\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\tests\\tests.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\DeferredTestReporter.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\TestDetails.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\Test.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\RequiredCheckTestReporter.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\RequiredCheckException.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\ReportAssert.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\MemoryOutStream.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\CurrentTest.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\CompositeTestReporter.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\Checks.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\UnitTest++\\UnitTest++\\AssertException.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/source/.\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\source\\crazygaze\\vimvs\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\source\\crazygaze\\vimvs\\vimvs.cpp"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/source/.\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\source\\sqlite\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\source\\sqlite\\sqlite3.c"
+    },
+    {
+        "command": "-std=c++14 -x c++ -Wall -Wextra -fexceptions -DCINTERFACE \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" \"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" \"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" \"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" \"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" \"-DWIN32\" \"-D_WINDOWS\" \"-D_CRT_SECURE_NO_WARNINGS\" \"-D_DEBUG\" \"-DNOMINMAX\" \"-DCMAKE_INTDIR=\\\"Debug\\\"\" \"-D_MBCS\" \"-IC:/Work/crazygaze/vim-vs/source/.\" \"-IC:/Work/crazygaze/vim-vs/UnitTest++\" ",
+        "directory": "C:\\Work\\crazygaze\\vim-vs\\tests\\",
+        "file": "C:\\Work\\crazygaze\\vim-vs\\tests\\testsPCH.cpp"
+    }
+]

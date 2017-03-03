@@ -11,6 +11,8 @@ int main()
 	);
 #endif
 
+	printf("%s\n", CMAKE_INTDIR);
 	auto res = UnitTest::RunAllTests();
 	return res == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
+

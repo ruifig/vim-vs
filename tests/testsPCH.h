@@ -26,6 +26,7 @@
 #include <algorithm>
 
 #include "Semaphore.h"
+#include "json.hpp"
 
 //
 // UnitTest++

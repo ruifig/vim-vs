@@ -1,0 +1,210 @@
+Microsoft (R) Build Engine version 14.0.25420.1
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Build started 02/03/2017 17:08:09.
+     1>Project "C:\Work\crazygaze\vim-vs\build\vim-vs.sln" on node 1 (default targets).
+     1>ValidateSolutionConfiguration:
+         Building solution configuration "Debug|X64".
+       ValidateProjects:
+         The project "ALL_BUILD" is not selected for building in solution configuration "Debug|x64".
+     1>Project "C:\Work\crazygaze\vim-vs\build\vim-vs.sln" (1) is building "C:\Work\crazygaze\vim-vs\build\UnitTest++\UnitTest++.vcxproj.metaproj" (2) on node 1 (default targets).
+     2>Project "C:\Work\crazygaze\vim-vs\build\UnitTest++\UnitTest++.vcxproj.metaproj" (2) is building "C:\Work\crazygaze\vim-vs\build\ZERO_CHECK.vcxproj" (5) on node 2 (default targets).
+     5>InitializeBuildStatus:
+         Creating "x64\Debug\ZERO_CHECK\ZERO_CHECK.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       CustomBuild:
+         Checking Build System
+         CMake does not need to re-run because C:/Work/crazygaze/vim-vs/build/CMakeFiles/generate.stamp is up-to-date.
+         CMake does not need to re-run because C:/Work/crazygaze/vim-vs/build/source/CMakeFiles/generate.stamp is up-to-date.
+         CMake does not need to re-run because C:/Work/crazygaze/vim-vs/build/UnitTest++/CMakeFiles/generate.stamp is up-to-date.
+         CMake does not need to re-run because C:/Work/crazygaze/vim-vs/build/tests/CMakeFiles/generate.stamp is up-to-date.
+       FinalizeBuildStatus:
+         Deleting file "x64\Debug\ZERO_CHECK\ZERO_CHECK.tlog\unsuccessfulbuild".
+         Touching "x64\Debug\ZERO_CHECK\ZERO_CHECK.tlog\ZERO_CHECK.lastbuildstate".
+     5>Done Building Project "C:\Work\crazygaze\vim-vs\build\ZERO_CHECK.vcxproj" (default targets).
+     2>Project "C:\Work\crazygaze\vim-vs\build\UnitTest++\UnitTest++.vcxproj.metaproj" (2) is building "C:\Work\crazygaze\vim-vs\build\UnitTest++\UnitTest++.vcxproj" (6) on node 2 (default targets).
+     6>InitializeBuildStatus:
+         Creating "UnitTest++.dir\Debug\UnitTest++.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       CustomBuild:
+         Building Custom Rule C:/Work/crazygaze/vim-vs/UnitTest++/CMakeLists.txt
+         CMake does not need to re-run because C:\Work\crazygaze\vim-vs\build\UnitTest++\CMakeFiles\generate.stamp is up-to-date.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\CL.exe /c /I"C:\Work\crazygaze\vim-vs\UnitTest++" /Zi /nologo /W3 /WX- /MP /Od /Ob0 /D WIN32 /D _WINDOWS /D _CRT_SECURE_NO_WARNINGS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"UnitTest++.dir\Debug\\" /Fd"UnitTest++.dir\Debug\UnitTest++.pdb" /Gd /TP /errorReport:queue  /bigobj "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\AssertException.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\Checks.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\CompositeTestReporter.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\CurrentTest.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\DeferredTestReporter.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\DeferredTestResult.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\MemoryOutStream.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\ReportAssert.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\RequiredCheckException.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\RequiredCheckTestReporter.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\Test.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\TestDetails.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\TestList.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\TestReporter.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\TestReporterStdout.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\TestResults.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\TestRunner.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\ThrowingTestReporter.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\TimeConstraint.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\XmlTestReporter.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\Win32\TimeHelpers.cpp"
+         AssertException.cpp
+         Checks.cpp
+         CompositeTestReporter.cpp
+         CurrentTest.cpp
+         DeferredTestReporter.cpp
+         DeferredTestResult.cpp
+         MemoryOutStream.cpp
+         ReportAssert.cpp
+         RequiredCheckException.cpp
+         RequiredCheckTestReporter.cpp
+         Test.cpp
+         TestDetails.cpp
+         TestList.cpp
+         TestReporter.cpp
+         TestReporterStdout.cpp
+         TestResults.cpp
+         TestRunner.cpp
+         ThrowingTestReporter.cpp
+         TimeConstraint.cpp
+         XmlTestReporter.cpp
+         TimeHelpers.cpp
+     1>Project "C:\Work\crazygaze\vim-vs\build\vim-vs.sln" (1) is building "C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj.metaproj" (3) on node 1 (default targets).
+     3>Project "C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj.metaproj" (3) is building "C:\Work\crazygaze\vim-vs\build\source\vimvslib.vcxproj.metaproj" (4) on node 1 (default targets).
+     4>Project "C:\Work\crazygaze\vim-vs\build\source\vimvslib.vcxproj.metaproj" (4) is building "C:\Work\crazygaze\vim-vs\build\source\vimvslib.vcxproj" (7) on node 1 (default targets).
+     7>InitializeBuildStatus:
+         Creating "vimvslib.dir\Debug\vimvslib.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       CustomBuild:
+         Building Custom Rule C:/Work/crazygaze/vim-vs/source/CMakeLists.txt
+         CMake does not need to re-run because C:\Work\crazygaze\vim-vs\build\source\CMakeFiles\generate.stamp is up-to-date.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\CL.exe /c /I"C:\Work\crazygaze\vim-vs\source\." /Zi /nologo /W3 /WX- /MP /Od /Ob0 /D WIN32 /D _WINDOWS /D _CRT_SECURE_NO_WARNINGS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"vimvslib.dir\Debug\\" /Fd"vimvslib.dir\Debug\vimvslib.pdb" /Gd /TP /errorReport:queue  /bigobj "C:\Work\crazygaze\vim-vs\source\crazygaze\vimvs\vimvs.cpp"
+         vimvs.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\CL.exe /c /I"C:\Work\crazygaze\vim-vs\source\." /Zi /nologo /W3 /WX- /MP /Od /Ob0 /D WIN32 /D _WINDOWS /D _CRT_SECURE_NO_WARNINGS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"vimvslib.dir\Debug\\" /Fd"vimvslib.dir\Debug\vimvslib.pdb" /Gd /TC /errorReport:queue  /bigobj "C:\Work\crazygaze\vim-vs\source\sqlite\sqlite3.c"
+         sqlite3.c
+     6>Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\Lib.exe /OUT:"C:\Work\crazygaze\vim-vs\build\lib\UnitTest++_x64_Debug.lib" /LIBPATH:"C:\Program Files (x86)\Visual Leak Detector\lib\Win64" /NOLOGO /MACHINE:X64  /machine:x64 UnitTest++.dir\Debug\AssertException.obj
+         UnitTest++.dir\Debug\Checks.obj
+         UnitTest++.dir\Debug\CompositeTestReporter.obj
+         UnitTest++.dir\Debug\CurrentTest.obj
+         UnitTest++.dir\Debug\DeferredTestReporter.obj
+         UnitTest++.dir\Debug\DeferredTestResult.obj
+         UnitTest++.dir\Debug\MemoryOutStream.obj
+         UnitTest++.dir\Debug\ReportAssert.obj
+         UnitTest++.dir\Debug\RequiredCheckException.obj
+         UnitTest++.dir\Debug\RequiredCheckTestReporter.obj
+         UnitTest++.dir\Debug\Test.obj
+         UnitTest++.dir\Debug\TestDetails.obj
+         UnitTest++.dir\Debug\TestList.obj
+         UnitTest++.dir\Debug\TestReporter.obj
+         UnitTest++.dir\Debug\TestReporterStdout.obj
+         UnitTest++.dir\Debug\TestResults.obj
+         UnitTest++.dir\Debug\TestRunner.obj
+         UnitTest++.dir\Debug\ThrowingTestReporter.obj
+         UnitTest++.dir\Debug\TimeConstraint.obj
+         UnitTest++.dir\Debug\XmlTestReporter.obj
+         UnitTest++.dir\Debug\TimeHelpers.obj
+         UnitTest++.vcxproj -> C:\Work\crazygaze\vim-vs\build\lib\UnitTest++_x64_Debug.lib
+       FinalizeBuildStatus:
+         Deleting file "UnitTest++.dir\Debug\UnitTest++.tlog\unsuccessfulbuild".
+         Touching "UnitTest++.dir\Debug\UnitTest++.tlog\UnitTest++.lastbuildstate".
+     6>Done Building Project "C:\Work\crazygaze\vim-vs\build\UnitTest++\UnitTest++.vcxproj" (default targets).
+     2>Done Building Project "C:\Work\crazygaze\vim-vs\build\UnitTest++\UnitTest++.vcxproj.metaproj" (default targets).
+     7>Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\Lib.exe /OUT:"C:\Work\crazygaze\vim-vs\build\lib\vimvslib_x64_Debug.lib" /LIBPATH:"C:\Program Files (x86)\Visual Leak Detector\lib\Win64" /NOLOGO /MACHINE:X64  /machine:x64 vimvslib.dir\Debug\vimvs.obj
+         vimvslib.dir\Debug\sqlite3.obj
+         vimvslib.vcxproj -> C:\Work\crazygaze\vim-vs\build\lib\vimvslib_x64_Debug.lib
+       FinalizeBuildStatus:
+         Deleting file "vimvslib.dir\Debug\vimvslib.tlog\unsuccessfulbuild".
+         Touching "vimvslib.dir\Debug\vimvslib.tlog\vimvslib.lastbuildstate".
+     7>Done Building Project "C:\Work\crazygaze\vim-vs\build\source\vimvslib.vcxproj" (default targets).
+     4>Done Building Project "C:\Work\crazygaze\vim-vs\build\source\vimvslib.vcxproj.metaproj" (default targets).
+     3>Project "C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj.metaproj" (3) is building "C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj" (8) on node 1 (default targets).
+     8>InitializeBuildStatus:
+         Creating "tests.dir\Debug\tests.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+       CustomBuild:
+         Building Custom Rule C:/Work/crazygaze/vim-vs/tests/CMakeLists.txt
+         CMake does not need to re-run because C:\Work\crazygaze\vim-vs\build\tests\CMakeFiles\generate.stamp is up-to-date.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\CL.exe /c /I"C:\Work\crazygaze\vim-vs\source\." /I"C:\Work\crazygaze\vim-vs\UnitTest++" /Zi /nologo /W3 /WX- /MP /Od /Ob0 /D WIN32 /D _WINDOWS /D _CRT_SECURE_NO_WARNINGS /D _DEBUG /D NOMINMAX /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Yc"testsPCH.h" /Fp"tests.dir\Debug\/testsPCH.pch" /Fo"tests.dir\Debug\\" /Fd"tests.dir\Debug\vc140.pdb" /Gd /TP /errorReport:queue  /bigobj "C:\Work\crazygaze\vim-vs\tests\testsPCH.cpp"
+         testsPCH.cpp
+     8>C:\Work\crazygaze\vim-vs\source\json.hpp(6681): warning C4244: '=': conversion from 'std::_Array_iterator<_Ty,64>::difference_type' to 'long', possible loss of data [C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj]
+                 with
+                 [
+                     _Ty=char
+                 ]
+         C:\Work\crazygaze\vim-vs\source\json.hpp(6646): note: while compiling class template member function 'void nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::serializer::dump_float(double)'
+         C:\Work\crazygaze\vim-vs\source\json.hpp(6359): note: see reference to function template instantiation 'void nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::serializer::dump_float(double)' being compiled
+         C:\Work\crazygaze\vim-vs\source\json.hpp(2605): note: see reference to class template instantiation 'nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::serializer' being compiled
+         C:\Work\crazygaze\vim-vs\source\json.hpp(2603): note: while compiling class template member function 'std::basic_string<char,std::char_traits<char>,std::allocator<char>> nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::dump(const int) const'
+         C:\Work\crazygaze\vim-vs\source\json.hpp(13025): note: see reference to function template instantiation 'std::basic_string<char,std::char_traits<char>,std::allocator<char>> nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::dump(const int) const' being compiled
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\type_traits(639): note: see reference to class template instantiation 'nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>' being compiled
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\type_traits(668): note: see reference to class template instantiation 'std::is_nothrow_constructible<_Ty,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer> &&>' being compiled
+                 with
+                 [
+                     _Ty=nlohmann::json
+                 ]
+         C:\Work\crazygaze\vim-vs\source\json.hpp(13005): note: see reference to class template instantiation 'std::is_nothrow_move_constructible<nlohmann::json>' being compiled
+     8>C:\Work\crazygaze\vim-vs\tests\testsPCH.cpp(1): warning C4503: 'nlohmann::detail::conjunction<nlohmann::detail::negation<std::is_same<void,CompatibleObjectType>>,nlohmann::detail::negation<nlohmann::detail::is_compatible_object_type<BasicJsonType,CompatibleObjectType>>,nlohmann::detail::negation<std::is_constructible<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,CompatibleArrayType>>,nlohmann::detail::negation<nlohmann::detail::is_basic_json_nested_type<BasicJsonType,std::unique_ptr<T,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>,nlohmann::detail::has_value_type<CompatibleArrayType>,nlohmann::detail::has_iterator<CompatibleArrayType>>': decorated name length exceeded, name was truncated [C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj]
+                 with
+                 [
+                     CompatibleObjectType=std::unique_ptr<std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>,
+                     BasicJsonType=nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,
+                     CompatibleArrayType=std::unique_ptr<std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>,
+                     T=std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>
+                 ]
+     8>C:\Work\crazygaze\vim-vs\tests\testsPCH.cpp(1): warning C4503: 'std::conditional<true,nlohmann::detail::conjunction<nlohmann::detail::negation<nlohmann::detail::is_compatible_object_type<BasicJsonType,_Ty>>,nlohmann::detail::negation<std::is_constructible<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,CompatibleArrayType>>,nlohmann::detail::negation<nlohmann::detail::is_basic_json_nested_type<BasicJsonType,std::unique_ptr<T,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>,nlohmann::detail::has_value_type<CompatibleArrayType>,nlohmann::detail::has_iterator<CompatibleArrayType>>,B1>': decorated name length exceeded, name was truncated [C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj]
+                 with
+                 [
+                     BasicJsonType=nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,
+                     _Ty=std::unique_ptr<std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>,
+                     CompatibleArrayType=std::unique_ptr<std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>,
+                     T=std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,
+                     B1=nlohmann::detail::negation<std::is_same<void,std::unique_ptr<std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>
+                 ]
+     8>C:\Work\crazygaze\vim-vs\tests\testsPCH.cpp(2): warning C4503: 'nlohmann::detail::conjunction<nlohmann::detail::negation<nlohmann::detail::is_compatible_object_type<BasicJsonType,_Ty>>,nlohmann::detail::negation<std::is_constructible<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,CompatibleArrayType>>,nlohmann::detail::negation<nlohmann::detail::is_basic_json_nested_type<BasicJsonType,std::unique_ptr<T,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>,nlohmann::detail::has_value_type<CompatibleArrayType>,nlohmann::detail::has_iterator<CompatibleArrayType>>': decorated name length exceeded, name was truncated [C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj]
+                 with
+                 [
+                     BasicJsonType=nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,
+                     _Ty=std::unique_ptr<std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>,
+                     CompatibleArrayType=std::unique_ptr<std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>,
+                     T=std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>
+                 ]
+     8>C:\Work\crazygaze\vim-vs\tests\testsPCH.cpp(2): warning C4503: 'nlohmann::detail::conjunction<nlohmann::detail::negation<std::is_same<void,CompatibleObjectType>>,nlohmann::detail::negation<nlohmann::detail::is_compatible_object_type<BasicJsonType,CompatibleObjectType>>,nlohmann::detail::negation<std::is_constructible<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,CompatibleArrayType>>,nlohmann::detail::negation<nlohmann::detail::is_basic_json_nested_type<BasicJsonType,std::unique_ptr<T,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>,nlohmann::detail::has_value_type<CompatibleArrayType>,nlohmann::detail::has_iterator<CompatibleArrayType>>': decorated name length exceeded, name was truncated [C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj]
+                 with
+                 [
+                     CompatibleObjectType=std::unique_ptr<std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>,
+                     BasicJsonType=nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,
+                     CompatibleArrayType=std::unique_ptr<std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>,
+                     T=std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>
+                 ]
+     8>C:\Work\crazygaze\vim-vs\tests\testsPCH.cpp(2): warning C4503: 'std::conditional<true,nlohmann::detail::conjunction<nlohmann::detail::negation<nlohmann::detail::is_compatible_object_type<BasicJsonType,_Ty>>,nlohmann::detail::negation<std::is_constructible<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,CompatibleArrayType>>,nlohmann::detail::negation<nlohmann::detail::is_basic_json_nested_type<BasicJsonType,std::unique_ptr<T,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>,nlohmann::detail::has_value_type<CompatibleArrayType>,nlohmann::detail::has_iterator<CompatibleArrayType>>,B1>': decorated name length exceeded, name was truncated [C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj]
+                 with
+                 [
+                     BasicJsonType=nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,
+                     _Ty=std::unique_ptr<std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>,
+                     CompatibleArrayType=std::unique_ptr<std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>,
+                     T=std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,
+                     B1=nlohmann::detail::negation<std::is_same<void,std::unique_ptr<std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>
+                 ]
+     8>C:\Work\crazygaze\vim-vs\tests\testsPCH.cpp(2): warning C4503: 'std::conditional<true,nlohmann::detail::conjunction<nlohmann::detail::negation<std::is_constructible<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,CompatibleArrayType>>,nlohmann::detail::negation<nlohmann::detail::is_basic_json_nested_type<nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::unique_ptr<T,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>,nlohmann::detail::has_value_type<CompatibleArrayType>,nlohmann::detail::has_iterator<CompatibleArrayType>>,B1>': decorated name length exceeded, name was truncated [C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj]
+                 with
+                 [
+                     CompatibleArrayType=std::unique_ptr<std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>,
+                     T=std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,
+                     B1=nlohmann::detail::negation<nlohmann::detail::is_compatible_object_type<nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::unique_ptr<std::map<std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::less<std::string>,std::allocator<std::pair<const std::string,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>>>>,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>
+                 ]
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\CL.exe /c /I"C:\Work\crazygaze\vim-vs\source\." /I"C:\Work\crazygaze\vim-vs\UnitTest++" /Zi /nologo /W3 /WX- /MP /Od /Ob0 /D WIN32 /D _WINDOWS /D _CRT_SECURE_NO_WARNINGS /D _DEBUG /D NOMINMAX /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Yu"testsPCH.h" /Fp"tests.dir\Debug\/testsPCH.pch" /Fo"tests.dir\Debug\\" /Fd"tests.dir\Debug\vc140.pdb" /Gd /TP /FItestsPCH.h /errorReport:queue  /bigobj "C:\Work\crazygaze\vim-vs\tests\tests.cpp" "C:\Work\crazygaze\vim-vs\tests\tests_vimvs.cpp"
+         tests.cpp
+         tests_vimvs.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Work\crazygaze\vim-vs\build\bin\tests_x64_Debug.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib ..\lib\vimvslib_x64_Debug.lib ..\lib\UnitTest++_x64_Debug.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Work/crazygaze/vim-vs/build/bin/tests_x64_Debug.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Work/crazygaze/vim-vs/build/lib/tests_x64_Debug.lib" /MACHINE:X64  /machine:x64 tests.dir\Debug\tests.obj
+         tests.dir\Debug\tests_vimvs.obj
+         tests.dir\Debug\testsPCH.obj
+         tests.vcxproj -> C:\Work\crazygaze\vim-vs\build\bin\tests_x64_Debug.exe
+       FinalizeBuildStatus:
+         Deleting file "tests.dir\Debug\tests.tlog\unsuccessfulbuild".
+         Touching "tests.dir\Debug\tests.tlog\tests.lastbuildstate".
+     8>Done Building Project "C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj" (default targets).
+     3>Done Building Project "C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj.metaproj" (default targets).
+     1>Done Building Project "C:\Work\crazygaze\vim-vs\build\vim-vs.sln" (default targets).
+
+Build succeeded.
+
+       "C:\Work\crazygaze\vim-vs\build\vim-vs.sln" (default target) (1) ->
+       "C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj.metaproj" (default target) (3) ->
+       "C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj" (default target) (8) ->
+       (ClCompile target) -> 
+         C:\Work\crazygaze\vim-vs\source\json.hpp(6681): warning C4244: '=': conversion from 'std::_Array_iterator<_Ty,64>::difference_type' to 'long', possible loss of data [C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj]
+         C:\Work\crazygaze\vim-vs\tests\testsPCH.cpp(1): warning C4503: 'nlohmann::detail::conjunction<nlohmann::detail::negation<std::is_same<void,CompatibleObjectType>>,nlohmann::detail::negation<nlohmann::detail::is_compatible_object_type<BasicJsonType,CompatibleObjectType>>,nlohmann::detail::negation<std::is_constructible<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,CompatibleArrayType>>,nlohmann::detail::negation<nlohmann::detail::is_basic_json_nested_type<BasicJsonType,std::unique_ptr<T,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>,nlohmann::detail::has_value_type<CompatibleArrayType>,nlohmann::detail::has_iterator<CompatibleArrayType>>': decorated name length exceeded, name was truncated [C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj]
+         C:\Work\crazygaze\vim-vs\tests\testsPCH.cpp(1): warning C4503: 'std::conditional<true,nlohmann::detail::conjunction<nlohmann::detail::negation<nlohmann::detail::is_compatible_object_type<BasicJsonType,_Ty>>,nlohmann::detail::negation<std::is_constructible<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,CompatibleArrayType>>,nlohmann::detail::negation<nlohmann::detail::is_basic_json_nested_type<BasicJsonType,std::unique_ptr<T,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>,nlohmann::detail::has_value_type<CompatibleArrayType>,nlohmann::detail::has_iterator<CompatibleArrayType>>,B1>': decorated name length exceeded, name was truncated [C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj]
+         C:\Work\crazygaze\vim-vs\tests\testsPCH.cpp(2): warning C4503: 'nlohmann::detail::conjunction<nlohmann::detail::negation<nlohmann::detail::is_compatible_object_type<BasicJsonType,_Ty>>,nlohmann::detail::negation<std::is_constructible<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,CompatibleArrayType>>,nlohmann::detail::negation<nlohmann::detail::is_basic_json_nested_type<BasicJsonType,std::unique_ptr<T,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>,nlohmann::detail::has_value_type<CompatibleArrayType>,nlohmann::detail::has_iterator<CompatibleArrayType>>': decorated name length exceeded, name was truncated [C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj]
+         C:\Work\crazygaze\vim-vs\tests\testsPCH.cpp(2): warning C4503: 'nlohmann::detail::conjunction<nlohmann::detail::negation<std::is_same<void,CompatibleObjectType>>,nlohmann::detail::negation<nlohmann::detail::is_compatible_object_type<BasicJsonType,CompatibleObjectType>>,nlohmann::detail::negation<std::is_constructible<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,CompatibleArrayType>>,nlohmann::detail::negation<nlohmann::detail::is_basic_json_nested_type<BasicJsonType,std::unique_ptr<T,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>,nlohmann::detail::has_value_type<CompatibleArrayType>,nlohmann::detail::has_iterator<CompatibleArrayType>>': decorated name length exceeded, name was truncated [C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj]
+         C:\Work\crazygaze\vim-vs\tests\testsPCH.cpp(2): warning C4503: 'std::conditional<true,nlohmann::detail::conjunction<nlohmann::detail::negation<nlohmann::detail::is_compatible_object_type<BasicJsonType,_Ty>>,nlohmann::detail::negation<std::is_constructible<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,CompatibleArrayType>>,nlohmann::detail::negation<nlohmann::detail::is_basic_json_nested_type<BasicJsonType,std::unique_ptr<T,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>,nlohmann::detail::has_value_type<CompatibleArrayType>,nlohmann::detail::has_iterator<CompatibleArrayType>>,B1>': decorated name length exceeded, name was truncated [C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj]
+         C:\Work\crazygaze\vim-vs\tests\testsPCH.cpp(2): warning C4503: 'std::conditional<true,nlohmann::detail::conjunction<nlohmann::detail::negation<std::is_constructible<std::basic_string<char,std::char_traits<char>,std::allocator<char>>,CompatibleArrayType>>,nlohmann::detail::negation<nlohmann::detail::is_basic_json_nested_type<nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>,std::unique_ptr<T,nlohmann::basic_json<std::map,std::vector,std::string,bool,int64_t,uint64_t,double,std::allocator,nlohmann::adl_serializer>::create::<lambda_c38a38b68d6ea276b19edf5e032814c4>>>>,nlohmann::detail::has_value_type<CompatibleArrayType>,nlohmann::detail::has_iterator<CompatibleArrayType>>,B1>': decorated name length exceeded, name was truncated [C:\Work\crazygaze\vim-vs\build\tests\tests.vcxproj]
+
+    7 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:05.91

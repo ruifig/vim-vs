@@ -22,4 +22,5 @@ message( "CMAKE_CXX_FLAGS_RELWITHDEBINFO = " ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
 add_executable(tests ${TESTS_SRC})
 cz_set_postfix()
 target_link_libraries(tests vimvslib UnitTest++)
+target_compile_definitions(tests PRIVATE NOMINMAX)
 

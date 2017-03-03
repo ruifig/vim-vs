@@ -12,6 +12,32 @@ namespace cz
 namespace vimvs
 {
 
+
+std::wstring replace(const std::wstring& s, wchar_t from, wchar_t to)
+{
+	std::wstring res = s;
+	for (auto&& ch : res)
+	{
+		if (ch == from)
+			ch = to;
+	}
+	return res;
+}
+
+std::wstring replace(const std::wstring& str, const std::wstring& from, const std::wstring& to)
+{
+	if (from.empty())
+		return L"";
+	size_t start_pos = 0;
+	auto res = str;
+	while ((start_pos = res.find(from, start_pos)) != std::string::npos)
+	{
+		res.replace(start_pos, from.length(), to);
+		start_pos += to.length();  // In case 'to' contains 'from', like replacing 'x' with 'yx'
+	}
+	return res;
+}
+
 std::pair<std::wstring, std::wstring> splitFolderAndFile(const std::wstring& str)
 {
 	auto i = std::find_if(str.rbegin(), str.rend(), [](const wchar_t& ch)
@@ -222,6 +248,20 @@ struct Params
 {
 	std::vector<std::wstring> defines;
 	std::vector<std::wstring> includes;
+	std::string readyParams;
+	const std::string& getReadyParams()
+	{
+		if (readyParams.size())
+			return readyParams;
+
+		for (auto&& i : defines)
+			readyParams += "\"-D" + toUTF8(i) + "\" ";
+
+		for (auto&& i : includes)
+			readyParams += "\"-I" + toUTF8(i) + "\" ";
+
+		return readyParams;
+	}
 };
 
 struct File
@@ -351,12 +391,22 @@ private:
 				++i)
 			{
 				auto&& m = (*i)[1];
-				params->defines.push_back(m.str());
+
+				// CMake generated projects can add a macro CMAKE_INTDIR="Debug" to the preprocessor defines, 
+				// which msbuild will log as:
+				//		/D "CMAKE_INTDIR=\"Debug\"" 
+				// The regular expression being used leaves the " at the end (if using "). I'm not an expert at regular
+				// expressions, so no idea how to remove that, so removing it manually
+				auto s = m.str();
+				if (s.back() == '"')
+					s.pop_back();
+				//params->defines.push_back(replace(s, L"\\\"", L"\""));
+				params->defines.push_back(s);
 			}
 		}
 
 		//
-		// Extract all defines
+		// Extract all includes
 		//
 		{
 			static std::wregex rgx(L"\\/I\"([[:graph:]]*)\"");
@@ -366,7 +416,7 @@ private:
 				++i)
 			{
 				auto&& m = (*i)[1];
-				params->includes.push_back(m.str());
+				params->includes.push_back(replace(m.str(), '\\', '/'));
 			}
 		}
 
@@ -381,7 +431,7 @@ private:
 				auto s = e;
 				while (*s != '"') --s;
 				File f;
-				f.name = std::wstring(s + 1, e);
+				f.name = std::wstring(s + 1, e+1);
 				f.prjPath = m_prjPath;
 				f.prjName = m_prjName;
 				f.params = params;
@@ -512,7 +562,7 @@ TEST(1)
 	parser.parse(L"	34>Project \"C:\\Work\\tests.vcxproj.metaproj\" (3) is building \"C:\\Work\\tests.vcxproj\" (8) on node 1 (default targets).");
 #endif
 
-	std::ifstream ifs("../../data/test2.log");
+	std::ifstream ifs("../../data/vim-vs.msbuild.log");
 	CHECK(ifs.is_open());
 	auto content = std::string(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
 	parser.inject(widen(content));
@@ -526,27 +576,30 @@ TEST(1)
 	commonParams += "-fexceptions ";
 	commonParams += "-DCINTERFACE "; // To let Clang parse VS's combaseapi.h, otherwise we get an error "unknown type name 'IUnknown'
 	// system includes
-	commonParams += "-isystem \"C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" ";
-	commonParams += "-isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" ";
-	commonParams += "-isystem \"C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" ";
-	commonParams += "-isystem \"C:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" ";
-	commonParams += "-isystem \"C:/Program Files (x86)/Windows Kits/8.1/Include/um\" ";
-	commonParams += "-isystem \"C:/Program Files (x86)/Windows Kits/8.1/Include/shared\" ";
-	commonParams += "-isystem \"C:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" ";
+	commonParams += "\"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include\" ";
+	commonParams += "\"-isystemC:/Program Files (x86)/Windows Kits/10/Include/10.0.10150.0/ucrt\" ";
+	commonParams += "\"-isystemC:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include\" ";
+	commonParams += "\"-isystemC:/Program Files (x86)/Windows Kits/NETFXSDK/4.6/include/um\" ";
+	commonParams += "\"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/um\" ";
+	commonParams += "\"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/shared\" ";
+	commonParams += "\"-isystemC:/Program Files (x86)/Windows Kits/8.1/Include/winrt\" ";
 
-	std::ostringstream out;
-	std::ofstream out("../../compile_commands.json")
-	out << "[" << std::endl;
-	out << "    {" << std::endl;
+	std::ofstream out("../../compile_commands.json");
+	using namespace nlohmann;
+	json j;
+	//nlohmann::basic_json json;
 	for (auto&& f : db.files())
 	{
 		auto ff = splitFolderAndFile(f.second.name);
-		out << "        \"directory\": \"" << toUTF8(ff.first) << "\"" << std::endl;
-		out << "        \"command\": \" /usr/bin/clang++ " << toUTF8(ff.first) << "\"" << std::endl;
-
+		j.push_back({
+			{"directory", toUTF8(ff.first)},
+			{"command", commonParams + f.second.params->getReadyParams()},
+			{"file", toUTF8(f.second.name)}
+		});
+		//out << "        \"directory\": \"" << json::escape_string(toUTF8(ff.first)) << "\"" << std::endl;
+		//out << "        \"command\": \"" << json::escape_string("/usr/bin/clang++ " + toUTF8(ff.first)) << "\"" << std::endl;
 	}
-	out << "    }," << std::endl;
-	out << "]" << std::endl;
+	out << std::setw(4) << j << std::endl;
 
 #if 0
 	parser.inject(L"Hi");
