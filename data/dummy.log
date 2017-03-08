@@ -1,0 +1,35 @@
+Microsoft (R) Build Engine version 14.0.25420.1
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Building the projects in this solution one at a time. To enable parallel build, please add the "/m" switch.
+Build started 08/03/2017 17:20:30.
+Project "c:\Work\crazygaze\vim-vs\build\vim-vs.sln" on node 1 (default targets).
+ValidateSolutionConfiguration:
+  Building solution configuration "Debug|X64".
+ValidateProjects:
+  The project "ALL_BUILD" is not selected for building in solution configuration "Debug|x64".
+Project "c:\Work\crazygaze\vim-vs\build\vim-vs.sln" (1) is building "c:\Work\crazygaze\vim-vs\build\UnitTest++\UnitTest++.vcxproj.metaproj" (2) on node 1 (default targets).
+Project "c:\Work\crazygaze\vim-vs\build\UnitTest++\UnitTest++.vcxproj.metaproj" (2) is building "c:\Work\crazygaze\vim-vs\build\ZERO_CHECK.vcxproj" (3) on node 1 (default targets).
+InitializeBuildStatus:
+  Creating "x64\Debug\ZERO_CHECK\ZERO_CHECK.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+CustomBuild:
+  Checking Build System
+  CMake does not need to re-run because C:/Work/crazygaze/vim-vs/build/UnitTest++/CMakeFiles/generate.stamp is up-to-date.
+  CMake does not need to re-run because C:/Work/crazygaze/vim-vs/build/tests/CMakeFiles/generate.stamp is up-to-date.
+FinalizeBuildStatus:
+  Deleting file "x64\Debug\ZERO_CHECK\ZERO_CHECK.tlog\unsuccessfulbuild".
+  Touching "x64\Debug\ZERO_CHECK\ZERO_CHECK.tlog\ZERO_CHECK.lastbuildstate".
+Done Building Project "c:\Work\crazygaze\vim-vs\build\ZERO_CHECK.vcxproj" (default targets).
+Project "c:\Work\crazygaze\vim-vs\build\UnitTest++\UnitTest++.vcxproj.metaproj" (2) is building "c:\Work\crazygaze\vim-vs\build\UnitTest++\UnitTest++.vcxproj" (4) on node 1 (default targets).
+InitializeBuildStatus:
+  Creating "UnitTest++.dir\Debug\UnitTest++.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+CustomBuild:
+  Building Custom Rule C:/Work/crazygaze/vim-vs/UnitTest++/CMakeLists.txt
+  CMake does not need to re-run because C:\Work\crazygaze\vim-vs\build\UnitTest++\CMakeFiles\generate.stamp is up-to-date.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\amd64\CL.exe /c /I"C:\Work\crazygaze\vim-vs\UnitTest++" /Zi /nologo /W3 /WX- /MP /Od /Ob0 /D WIN32 /D _WINDOWS /D _CRT_SECURE_NO_WARNINGS /D _DEBUG /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"UnitTest++.dir\Debug\\" /Fd"UnitTest++.dir\Debug\UnitTest++.pdb" /Gd /TP /showIncludes /errorReport:queue  /bigobj "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\AssertException.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\Checks.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\CompositeTestReporter.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\CurrentTest.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\DeferredTestReporter.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\DeferredTestResult.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\MemoryOutStream.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\ReportAssert.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\RequiredCheckException.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\RequiredCheckTestReporter.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\Test.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\TestDetails.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\TestList.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\TestReporter.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\TestReporterStdout.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\TestResults.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\TestRunner.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\ThrowingTestReporter.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\TimeConstraint.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\XmlTestReporter.cpp" "C:\Work\crazygaze\vim-vs\UnitTest++\UnitTest++\Win32\TimeHelpers.cpp"
+cl : Command line warning D9030: '/showIncludes' is incompatible with multiprocessing; ignoring /MP switch [c:\Work\crazygaze\vim-vs\build\UnitTest++\UnitTest++.vcxproj]
+  AssertException.cpp
+  Note: including file: c:\work\crazygaze\vim-vs\unittest++\unittest++\AssertException.h
+  Note: including file:   C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\type_traits
+  Note: including file:    C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xstddef

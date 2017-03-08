@@ -332,6 +332,9 @@ public:
 
 		if (tryCompile(line))
 			return;
+
+		if (tryInclude(line))
+			return;
 	}
 
 private:
@@ -377,14 +380,13 @@ private:
 				return false;
 		}
 
-
-		auto params = std::make_shared<Params>();
+		m_currClCompileParams = std::make_shared<Params>();
 
 		//
 		// Extract all defines
 		//
 		{
-			static std::wregex rgx(L"\\/D \"?([[:graph:]]*)\"?");
+			static std::wregex rgx(L"\\/D \"?([[:graph:]]*)\"?", std::regex::optimize);
 			for (
 				std::wsregex_iterator i = std::wsregex_iterator(line.begin(), line.end(), rgx);
 				i != std::wsregex_iterator();
@@ -400,8 +402,7 @@ private:
 				auto s = m.str();
 				if (s.back() == '"')
 					s.pop_back();
-				//params->defines.push_back(replace(s, L"\\\"", L"\""));
-				params->defines.push_back(s);
+				m_currClCompileParams->defines.push_back(s);
 			}
 		}
 
@@ -409,14 +410,14 @@ private:
 		// Extract all includes
 		//
 		{
-			static std::wregex rgx(L"\\/I\"([[:graph:]]*)\"");
+			static std::wregex rgx(L"\\/I\"([[:graph:]]*)\"", std::regex::optimize);
 			for (
 				std::wsregex_iterator i = std::wsregex_iterator(line.begin(), line.end(), rgx);
 				i != std::wsregex_iterator();
 				++i)
 			{
 				auto&& m = (*i)[1];
-				params->includes.push_back(replace(m.str(), '\\', '/'));
+				m_currClCompileParams->includes.push_back(replace(m.str(), '\\', '/'));
 			}
 		}
 
@@ -434,13 +435,40 @@ private:
 				f.name = std::wstring(s + 1, e+1);
 				f.prjPath = m_prjPath;
 				f.prjName = m_prjName;
-				f.params = params;
+				f.params = m_currClCompileParams;
 				m_outer.m_db.addFile(std::move(f));
 				e = s - 1;
 				while (isSpace(*e)) --e;
 			}
 		}
 
+		return true;
+	}
+
+	bool tryInclude(const std::wstring& line)
+	{
+		if (m_state != State::ClCompile)
+			return false;
+
+		static std::wregex rgx(L"Note: including file:[[:space:]]*(.*)", std::regex_constants::egrep | std::regex::optimize);
+		std::wsmatch matches;
+		if (!std::regex_match(line, matches, rgx))
+			return false;
+
+		// At this point, we should have compile parameters set, since we are compiling a file
+		assert(m_currClCompileParams);
+		auto fname = matches[1].str();
+
+		// Check if this file was already in the database
+		if (m_outer.m_db.getFile(fname) != nullptr)
+			return true;
+
+		File f;
+		f.name = fname;
+		f.prjPath = m_prjPath;
+		f.prjName = m_prjName;
+		f.params = m_currClCompileParams;
+		m_outer.m_db.addFile(std::move(f));
 		return true;
 	}
 
@@ -454,6 +482,7 @@ private:
 	Parser& m_outer;
 	int m_number;
 	State m_state = State::Initial;
+	std::shared_ptr<Params> m_currClCompileParams;
 	std::wstring m_prjPath;
 	std::wstring m_prjName;
 };
@@ -562,7 +591,8 @@ TEST(1)
 	parser.parse(L"	34>Project \"C:\\Work\\tests.vcxproj.metaproj\" (3) is building \"C:\\Work\\tests.vcxproj\" (8) on node 1 (default targets).");
 #endif
 
-	std::ifstream ifs("../../data/vim-vs.msbuild.log");
+	//std::ifstream ifs("../../data/vim-vs.msbuild.log");
+	std::ifstream ifs("../../data/showincludes.log");
 	CHECK(ifs.is_open());
 	auto content = std::string(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
 	parser.inject(widen(content));
