@@ -4,6 +4,9 @@
     <ClCompile>
       <ShowIncludes>true</ShowIncludes>
     </ClCompile>
+    <PreBuildEvent>
+      <Command>rem vim-vs: ProjectName="$(ProjectName)", ProjectFileName="$(ProjectFileName)", IncludePath=$(IncludePath)</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
 </Project>
 

@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.5)
 project(tests)
 
 ucm_add_files(
+	"Parameters.h"
+	"Parameters.cpp"
 	"Semaphore.h"
 	"targetver.h"
 	"tests.cpp"
@@ -21,6 +23,6 @@ message( "CMAKE_CXX_FLAGS_RELWITHDEBINFO = " ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
 
 add_executable(tests ${TESTS_SRC})
 cz_set_postfix()
+cz_add_common_libs()
 target_link_libraries(tests vimvslib UnitTest++)
 target_compile_definitions(tests PRIVATE NOMINMAX)
-
