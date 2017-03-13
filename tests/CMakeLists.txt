@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.5)
 project(tests)
 
 ucm_add_files(
-	"Parameters.h"
-	"Parameters.cpp"
-	"Semaphore.h"
 	"targetver.h"
 	"tests.cpp"
 	"tests_vimvs.cpp"
@@ -13,16 +10,8 @@ ucm_add_files(
 
 ADD_MSVC_PRECOMPILED_HEADER("testsPCH.h" "testsPCH.cpp" TESTS_SRC)
 
-message( "CMAKE_EXE_LINKER_FLAGS = " ${CMAKE_EXE_LINKER_FLAGS})
-message( "COMPILER FLAGS USED")
-message( "CMAKE_CXX_FLAGS                = " ${CMAKE_CXX_FLAGS})
-message( "CMAKE_CXX_FLAGS_DEBUG          = " ${CMAKE_CXX_FLAGS_DEBUG})
-message( "CMAKE_CXX_FLAGS_RELEASE        = " ${CMAKE_CXX_FLAGS_RELEASE})
-message( "CMAKE_CXX_FLAGS_MINSIZEREL     = " ${CMAKE_CXX_FLAGS_MINSIZEREL})
-message( "CMAKE_CXX_FLAGS_RELWITHDEBINFO = " ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
-
 add_executable(tests ${TESTS_SRC})
 cz_set_postfix()
 cz_add_common_libs()
-target_link_libraries(tests vimvslib UnitTest++)
+target_link_libraries(tests UnitTest++)
 target_compile_definitions(tests PRIVATE NOMINMAX)

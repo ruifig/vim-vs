@@ -11,7 +11,6 @@
 	#include <Shlwapi.h>
 #endif
 
-
 // If set to 1, and running on Debug and Windows, it will enable some more CRT memory debug things
 #define ENABLE_MEM_DEBUG 0
 
@@ -23,10 +22,14 @@
 #include <fstream>
 #include <assert.h>
 #include <algorithm>
+#include <mutex>
+#include <unordered_map>
 
-//
-// UnitTest++
-//
-#include "UnitTest++/UnitTest++.h"
-#include "UnitTest++/CurrentTest.h"
-
+#pragma warning( push )
+// Disable : "decorated name length exceeded, name was truncated"
+// https://msdn.microsoft.com/en-us/library/074af4b6.aspx
+#pragma warning(disable:4503)
+// Disable:	'=': conversion from 'std::_Array_iterator<_Ty,64>::difference_type' to 'long', possible loss of data
+#pragma warning(disable:4244)
+#include "3rdparty/json.hpp"
+#pragma warning( pop )

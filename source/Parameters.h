@@ -1,6 +1,5 @@
 #pragma once
 
-
 class Parameters
 {
 public:
@@ -27,6 +26,7 @@ public:
 	bool Has(const std::wstring& name) const;
 	const std::wstring& Get(const wchar_t *name) const;
 	const std::wstring& Get(const std::wstring& name) const;
+
 #if 0
 	std::pair<bool, int> GetAsInt(const wchar_t *name, int defaultVal=0) const;
 	std::pair<bool, int> GetAsInt(const std::wstring& name, int defaultVal=0) const;

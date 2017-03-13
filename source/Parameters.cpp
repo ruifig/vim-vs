@@ -1,4 +1,4 @@
-#include "testsPCH.h"
+#include "vimvsPCH.h"
 #include "Parameters.h"
 
 std::wstring Parameters::ms_empty;

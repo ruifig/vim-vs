@@ -1,13 +1,33 @@
 cmake_minimum_required(VERSION 3.5)
-project(vimvslib)
+project(vimvs)
 
-ucm_add_files("crazygaze/vimvs/vimvs.h" TO VIMVSLIB_SRC)
-ucm_add_files("crazygaze/vimvs/vimvs.cpp" TO VIMVSLIB_SRC)
-ucm_add_files("sqlite/sqlite3.h" TO VIMVSLIB_SRC)
-ucm_add_files("sqlite/sqlite3.c" TO VIMVSLIB_SRC)
+ucm_add_files(
+	"3rdparty/json.hpp"
+	"Logging.cpp"
+	"Logging.h"
+	"Parameters.cpp"
+	"Parameters.h"
+	"Parser.cpp"
+	"Parser.h"
+	"targetver.h"
+	"Utils.cpp"
+	"Utils.h"
+	"vimvs.cpp"
+	 TO VIMVS_SRC
+	 )
 
-add_library(vimvslib STATIC ${VIMVSLIB_SRC})
-target_include_directories(vimvslib PUBLIC ".")
+ADD_MSVC_PRECOMPILED_HEADER("vimvsPCH.h" "vimvsPCH.cpp" VIMVS_SRC)
+
+ucm_add_files(
+	"3rdparty/sqlite/sqlite3.h"
+	"3rdparty/sqlite/sqlite3.c"
+	TO VIMVS_SRC
+	)
+
+add_executable(vimvs ${VIMVS_SRC})
+cz_set_postfix()
+cz_add_common_libs()
+target_compile_definitions(vimvs PRIVATE NOMINMAX)
 
 if (MSVC)
 	#
