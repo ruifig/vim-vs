@@ -372,10 +372,13 @@ public:
 	void parse(std::wstring line);
 private:
 
+	bool tryVimVsBegin(std::wstring& line);
+	bool tryVimVsEnd(std::wstring& line);
+
 	friend class NodeParser;
 	Database& m_db;
 	std::unordered_map<int, std::shared_ptr<NodeParser>> m_nodes;
-	std::shared_ptr<NodeParser> m_currParser;
+	int m_currNode = 0;
 	bool m_mp = false;
 	std::wstring m_line;
 };
@@ -384,23 +387,35 @@ class NodeParser
 {
 public:
 
-	explicit NodeParser(Parser& outer, int number, std::wstring prjPath, std::wstring prjFileName, std::wstring prjName)
-		: m_outer(outer)
-		, m_number(number)
-		, m_prjPath(prjPath)
-		, m_prjFileName(prjFileName)
-		, m_prjName(prjName)
+	NodeParser(Parser& outer) : m_outer(outer)
 	{
+	}
+
+	void init(std::wstring prjName, std::wstring prjFileName, std::wstring prjPath, std::shared_ptr<SystemIncludes> systemIncludes)
+	{
+		m_prjName = prjName;
+		m_prjFileName = prjFileName;
+		m_prjPath = prjPath;
+		m_systemIncludes = systemIncludes;
+	}
+
+	void finish()
+	{
+		m_state = State::Finished;
+	}
+
+	bool isFinished() const
+	{
+		return m_state == State::Finished;
+	}
+	
+	const std::wstring& getName() const
+	{
+		return m_prjName;
 	}
 
 	void parseLine(const std::wstring& line)
 	{
-		if (tryPrjNodeCreation(line))
-			return;
-
-		if (tryPrjIncludePath(line))
-			return;
-
 		if (tryCompile(line))
 			return;
 
@@ -409,76 +424,6 @@ public:
 	}
 
 private:
-
-	bool tryPrjNodeCreation(const std::wstring& str)
-	{
-		// G1 - Project path (without the .vcxproj )
-		// G2 - Node number used to build the project
-		//                                                                     G1                   G2
-		//const wchar_t* re = L"Project \".*\" \\([[:digit:]]+\\) is building \"(.*).vcxproj\" \\(([[:digit:]])\\) on node .*";
-		//                                                                     G1      G2                   G3
-		const wchar_t* re = L"Project \".*\" \\([[:digit:]]+\\) is building \"(.*)\\\\(.*).vcxproj\" \\(([[:digit:]])\\) on node .*";
-		static std::wregex rgx(re, std::regex_constants::egrep | std::regex::optimize);
-		std::wsmatch matches;
-		if (!std::regex_match(str, matches, rgx))
-			return false;
-		auto prjPath = matches[1].str();
-		ensureTrailingSlash(prjPath);
-		auto prjFileName = matches[2].str();
-		int node = std::stoi(matches[3].str());
-		wprintf(L"%s , %s, %d\n", prjPath.c_str(), prjFileName.c_str(), node);
-		m_outer.m_nodes[node] = std::make_shared<NodeParser>(m_outer, node, std::move(prjPath), prjFileName, prjFileName);
-		if (!m_outer.m_mp)
-			m_outer.m_currParser = m_outer.m_nodes[node];
-
-		return true;
-	}
-
-	bool tryPrjIncludePath(const std::wstring& line)
-	{
-		if (trim(line) == L"PreBuildEvent:")
-		{
-			m_state = State::PreBuildEvent;
-			return true;
-		}
-
-		if (m_state != State::PreBuildEvent)
-			return false;
-
-		//static std::wregex rgx(L"[[:space:]]*rem IncludePath=(.+)", std::regex_constants::egrep | std::regex::optimize);
-		static std::wregex rgx(L"[[:space:]]*rem vim-vs: ProjectName=\"(.+)\", ProjectFileName=\"(.+)\", IncludePath=(.+)", std::regex_constants::egrep | std::regex::optimize);
-		std::wsmatch matches;
-		if (!std::regex_match(line, matches, rgx))
-			return false;
-
-		assert(!m_systemIncludes);
-		m_systemIncludes = std::make_shared<SystemIncludes>();
-
-		auto prjName = matches[1].str();
-		auto prjFileName = matches[2].str();
-		auto dirs = matches[3].str();
-
-		size_t s = 0;
-		size_t e = 0;
-		while (e!=std::wstring::npos)
-		{
-			e = dirs.find(';', s);
-			std::wstring str;
-			if (e == std::wstring::npos)
-				str = dirs.substr(s);
-			else
-			{
-				str = dirs.substr(s, e - s);
-				e++;
-			}
-			str = trim(str);
-			if (str.size())
-				m_systemIncludes->dirs.push_back(replace(trim(str), '\\', '/'));
-			s = e;
-		}
-
-		return true;
-	}
 
 	bool tryCompile(const std::wstring& line)
 	{
@@ -529,7 +474,21 @@ private:
 		// Extract all includes
 		//
 		{
-			static std::wregex rgx(L"\\/I\"([[:graph:]]*)\"", std::regex::optimize);
+			wprintf(L"%s\n", line.c_str());
+			//static std::wregex rgx(L"\\/I\"([[:graph:]]*)\"", std::regex::optimize);
+			static std::wregex rgx(L"[[:space:]]\\/I\"([^\"]+)\"", std::regex::optimize);
+			for (
+				std::wsregex_iterator i = std::wsregex_iterator(line.begin(), line.end(), rgx);
+				i != std::wsregex_iterator();
+				++i)
+			{
+				auto&& m = (*i)[1];
+				m_currClCompileParams->includes.push_back(replace(m.str(), '\\', '/'));
+			}
+		}
+		{
+			//static std::wregex rgx(L"\\/I\"([[:graph:]]*)\"", std::regex::optimize);
+			static std::wregex rgx(L"[[:space:]]\\/I([^\\s,^\"]+)", std::regex::optimize);
 			for (
 				std::wsregex_iterator i = std::wsregex_iterator(line.begin(), line.end(), rgx);
 				i != std::wsregex_iterator();
@@ -653,13 +612,11 @@ private:
 	enum class State
 	{
 		Initial,
-		PreBuildEvent,
 		ClCompile,
-		Other 
+		Finished
 	};
 
 	Parser& m_outer;
-	int m_number;
 	State m_state = State::Initial;
 	std::shared_ptr<Params> m_currClCompileParams;
 	std::shared_ptr<SystemIncludes> m_systemIncludes;
@@ -700,64 +657,112 @@ void Parser::inject(const std::wstring& data)
 	}
 }
 
+bool Parser::tryVimVsBegin(std::wstring& line)
+{
+	static std::wregex rgx(
+		L"[[:space:]]*rem vim-vs-begin: ProjectName=\"(.+)\", ProjectFileName=\"(.+)\", ProjectDir=\"(.+)\", IncludePath=(.+)",
+		std::regex_constants::egrep | std::regex::optimize);
+	std::wsmatch matches;
+	if (!std::regex_match(line, matches, rgx))
+		return false;
+
+	auto systemIncludes = std::make_shared<SystemIncludes>();
+
+	auto projectName = matches[1].str();
+	auto projectFileName = matches[2].str();
+	auto projectDir = matches[3].str();
+	auto includePath = matches[4].str();
+
+	size_t s = 0;
+	size_t e = 0;
+	while (e != std::wstring::npos)
+	{
+		e = includePath.find(';', s);
+		std::wstring str;
+		if (e == std::wstring::npos)
+			str = includePath.substr(s);
+		else
+		{
+			str = includePath.substr(s, e - s);
+			e++;
+		}
+		str = trim(str);
+		if (str.size())
+			systemIncludes->dirs.push_back(replace(trim(str), '\\', '/'));
+		s = e;
+	}
+
+	if (!m_mp)
+		m_currNode++;
+	auto node = std::make_shared<NodeParser>(*this);
+	m_nodes[m_currNode] = node;
+	node->init(projectName, projectFileName, projectDir, systemIncludes);
+
+	return true;
+}
+
+bool Parser::tryVimVsEnd(std::wstring& line)
+{
+	static std::wregex rgx(
+		L"[[:space:]]*rem vim-vs-end: ProjectName=\"(.+)\"",
+		std::regex_constants::egrep | std::regex::optimize);
+	std::wsmatch matches;
+	if (!std::regex_match(line, matches, rgx))
+		return false;
+
+	auto projectName = matches[1].str();
+	auto it = m_nodes.find(m_currNode);
+	if (it == m_nodes.end())
+	{
+		printf("");
+	}
+	if (it->second->getName() != projectName)
+	{
+		printf("");
+	}
+
+	CHECK(it != m_nodes.end() && it->second->getName() == projectName);
+	it->second->finish();
+
+	return true;
+}
+
 void Parser::parse(std::wstring line)
 {
-	//wprintf(L"%s\n", line.c_str());
-	if (m_nodes.size()==0)
+	if (m_currNode==0)
 	{
 		static std::wregex rgx(L"[[:space:]]*(1>)?Project \".*\" on node 1.*", std::regex_constants::egrep | std::regex::optimize);
 		std::wsmatch matches;
 		if (!std::regex_match(line, matches, rgx))
 			return;
 		m_mp = matches[1].matched;
-		m_currParser = std::make_shared<NodeParser>(*this, 1, L"", L"", L"");
-		m_nodes[1] = m_currParser;
+		m_currNode = 1;
 		return;
 	}
 
 	// Detect what node to pass this to
 	// Remove the "N>" if present
-	{
-		static std::wregex rgx(L"[[:space:]]*(([[:digit:]]+)>)?(.*)", std::regex_constants::egrep | std::regex::optimize);
-		std::wsmatch matches;
-		if (!std::regex_match(line, matches, rgx))
-		{
-			assert(0);
-		}
-
-		if (matches[2].matched)
-		{
-			int n = std::stoi(matches[2].str());
-			auto it = m_nodes.find(n);
-			if (it == m_nodes.end())
-			{
-				m_currParser = std::make_shared<NodeParser>(*this, n, L"", L"", L"");
-				m_nodes[n] = m_currParser;
-			}
-			else
-			{
-				m_currParser = it->second;
-			}
-		}
-		m_currParser->parseLine(matches[3].str());
-	}
-
-#if 0
-	const wchar_t* prjNode = L"[[:space:]]*(([[:digit:]]+)>)?Project \".*\" \\([[:digit:]]+\\) is building \"(.*).vcxproj\" \\(([[:digit:]])\\) on node .*";
-	wprintf(L"RE: %s\n", prjNode);
-	static std::wregex rgx(prjNode, std::regex_constants::egrep | std::regex::optimize);
-
-	wprintf(L"  Matching: %s\n", line.c_str());
+	static std::wregex rgx(L"[[:space:]]*(([[:digit:]]+)>)?(.*)", std::regex_constants::egrep | std::regex::optimize);
 	std::wsmatch matches;
-	if (std::regex_match(line, matches, rgx))
+	CHECK(std::regex_match(line, matches, rgx));
+	if (matches[2].matched) // The node number
 	{
-		wprintf(L"    %d matches\n", static_cast<int>(matches.size()));
-		for (int i=0; i<matches.size(); i++)
-		{
-			wprintf(L"      %d:%s:%s\n", i, matches[i].matched ? L"TRUE " : L"FALSE", matches[i].str().c_str());
-		}
+		auto n = std::stoi(matches[2].str()); // # TODO : Remove this
+		m_currNode = std::stoi(matches[2].str());
 	}
-#endif
+
+	line = matches[3].str();
+	if (tryVimVsBegin(line))
+		return;
+	if (tryVimVsEnd(line))
+		return;
+
+	auto it = m_nodes.find(m_currNode);
+	if (it != m_nodes.end() && !it->second->isFinished())
+	{
+		it->second->parseLine(line);
+	}
+
 }
 
 }
@@ -824,7 +829,8 @@ TEST(1)
 			{"directory", toUTF8(ff.first)},
 			{"command", commonParams + f.second.systemIncludes->getIncludes() + f.second.params->getReadyParams()},
 			{"file", toUTF8(f.second.name)}
-		});
+			//,{"project", toUTF8(f.second.prjName)}
+			});
 		//out << "        \"directory\": \"" << json::escape_string(toUTF8(ff.first)) << "\"" << std::endl;
 		//out << "        \"command\": \"" << json::escape_string("/usr/bin/clang++ " + toUTF8(ff.first)) << "\"" << std::endl;
 	}
