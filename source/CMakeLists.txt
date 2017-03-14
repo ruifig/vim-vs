@@ -34,6 +34,9 @@ cz_set_postfix()
 cz_add_common_libs()
 target_compile_definitions(vimvs PRIVATE NOMINMAX)
 
+# By defining these macros, the Visual Studio generator picks it up, and sets the project to use Unicode
+target_compile_definitions(vimvs PRIVATE UNICODE _UNICODE)
+
 target_link_libraries(vimvs Psapi.lib)
 
 cz_set_postfix()

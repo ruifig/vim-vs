@@ -1,7 +1,7 @@
 
 #include "vimvsPCH.h"
 #include "ChildProcessLauncher.h"
-#include "common/utf8conv.h"
+#include "Utils.h"
 
 namespace cz {
 
@@ -65,17 +65,17 @@ int ChildProcessLauncher::ErrorMessage(PTSTR lpszFunction)
 }
 
 
-void ChildProcessLauncher::addOutput(const char* str, int nbytesread)
+void ChildProcessLauncher::addOutput(const wchar_t* str, int nbytesread)
 {
-	m_output += UTF8String(str, str+nbytesread);
+	auto tmp = std::wstring(str, str+(nbytesread / sizeof(wchar_t)));
+	m_output += tmp;
 	if (m_logfunc)
 	{
-		cz::UTF8String s(str, str+nbytesread);
-		m_logfunc(false, s);
+		m_logfunc(false, tmp);
 	}
 }
 
-int ChildProcessLauncher::launch(const UTF8String& name, const UTF8String& params, const std::function<void(bool, const UTF8String& str)>& logfunc)
+int ChildProcessLauncher::launch(const std::wstring& name, const std::wstring& params, const std::function<void(bool, const std::wstring& str)>& logfunc)
 {
 	m_name = name;
 	m_params = params;
@@ -190,7 +190,7 @@ int ChildProcessLauncher::launch(const UTF8String& name, const UTF8String& param
 		ErrorMessage(TEXT("CloseHandle"));
 
 	if (m_errmsg.size())
-		addOutput(m_errmsg.data(), m_errmsg.sizeBytes());
+		addOutput(m_errmsg.data(), static_cast<int>(m_errmsg.size() * sizeof(m_errmsg[0])));
 
 	return m_errmsg.size() ? 1 : exitcode;
 }
@@ -215,23 +215,19 @@ int ChildProcessLauncher::PrepAndLaunchRedirectedChild(
 	// Note that dwFlags must include STARTF_USESHOWWINDOW if you want to
 	// use the wShowWindow flags.
 
-	UTF8String cmdline = UTF8String("\"") + m_name + "\" " + m_params;
+	std::wstring cmdline = std::wstring(L"\"") + m_name + L"\" " + m_params;
 
-	std::wstring wcmdline = cmdline.widen();
-
-	m_logfunc(true, cmdline + "\n");
+	m_logfunc(true, cmdline + L"\n");
 	// Launch the process that you want to redirect (in this case,
 	// Child.exe). Make sure Child.exe is in the same directory as
 	// redirect.c launch redirect from a command line to prevent location
 	// confusion.
-if (!CreateProcess(NULL, (LPWSTR)wcmdline.c_str(), NULL, NULL, TRUE,
+	if (!CreateProcess(NULL, (LPWSTR)cmdline.c_str(), NULL, NULL, TRUE,
 		CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
 		ErrorMessage(TEXT("CreateProcess"));
 
-
 	// Set global child process handle to cause threads to exit.
 	m_hChildProcess = pi.hProcess;
-
 
 	// Close any unnecessary handles.
 	if (!CloseHandle(pi.hThread)) ErrorMessage(TEXT("CloseHandle"));
@@ -266,7 +262,8 @@ int ChildProcessLauncher::ReadAndHandleOutput(HANDLE hPipeRead)
 					   nBytesRead,&nCharsWritten,NULL))
 		ErrorMessage(("WriteConsole"));
 		*/
-	 addOutput(lpBuffer, nBytesRead);
+	 std::string s(lpBuffer, lpBuffer + nBytesRead);
+	 addOutput(widen(s).c_str(), nBytesRead);
 
   }
 

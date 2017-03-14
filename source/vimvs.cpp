@@ -3,6 +3,7 @@
 #include "Parameters.h"
 #include "IniFile.h"
 #include "Logging.h"
+#include "ChildProcessLauncher.h"
 
 
 #define VIMVS_CFG_FILE L".vimvs_conf.ini"
@@ -26,11 +27,26 @@ private:
 
 struct Config
 {
+	std::wstring exeRoot;
+	std::wstring root;
 	std::wstring slnfile; // full path to the solution file to use
+
+	std::wstring getUtilityPath(const wchar_t* name)
+	{
+		auto s = exeRoot + L"../../bin/" + name;
+		fullPath(s, s, L"");
+		if (!isExistingFile(s))
+		{
+			CZ_LOG(logDefault, Fatal, L"vim-vs utility '%s' not found", name);
+			return L"";
+		}
+		return s;
+	}
 
 	bool load()
 	{
-		std::wstring root;
+		exeRoot = getProcessPath();
+
 		auto found = findConfigFile(root);
 		if (!found)
 		{
@@ -85,6 +101,17 @@ void tests()
 	ConsoleLogger logger;
 	Config cfg;
 	cfg.load();
+
+	ChildProcessLauncher launcher;
+	auto exitCode = launcher.launch(cfg.getUtilityPath(L"vim-vs.msbuild.bat"), L"/?",
+		[](bool res, const std::wstring& str)
+	{
+		wprintf(str.c_str());
+	});
+
+	wprintf(L"Exit code = %d\n", exitCode);
+	wprintf(L"Launch error message= %s\n", launcher.getLaunchErrorMsg().c_str());
+
 }
 
 

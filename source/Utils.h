@@ -52,7 +52,7 @@ std::wstring getCWD();
 
 bool isExistingFile(const std::wstring& filename);
 
-std::wstring getProcessPath(std::wstring* fname);
+std::wstring getProcessPath(std::wstring* fname = nullptr);
 
 
 // Canonicalizes a path (converts relative to absolute, and converts all '/' characters to '\'
