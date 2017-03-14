@@ -1,17 +1,22 @@
 #pragma once
 
+#define WIDEN2(x) L ## x
+#define WIDEN(x) WIDEN2(x)
+#define __WFILE__ WIDEN(__FILE__)
+
+
 #if NDEBUG
 	#define CZ_ASSERT(expression) ((void)0)
 	#define CZ_ASSERT_F(expression, fmt, ...) ((void)0)
 	#define CZ_CHECK(expression) expression
-	#define CZ_UNEXPECTED() ::cz::_doAssert(__FILE__, __LINE__, "Unexpected code path")
+	#define CZ_UNEXPECTED() ::cz::_doAssert(__WFILE__, __LINE__, "Unexpected code path")
 #else
 
 /*! Checks if the expression is true/false and causes an assert if it's false.
  @hideinitializer
  Depending on the build configuration, asserts might be enabled for release build too
  */
-	#define CZ_ASSERT(expression) if (!(expression)) { ::cz::_doAssert(__FILE__, __LINE__, #expression); }
+	#define CZ_ASSERT(expression) if (!(expression)) { ::cz::_doAssert(__WFILE__, __LINE__, L#expression); }
 	//#define CZ_ASSERT(expression) (void(0))
 
 /*! Checks if the expression is true/false and causes an assert if it's false.
@@ -20,7 +25,7 @@ The difference between this and \link CZ_ASSERT \endlink is that it's suitable t
 \param expression Expression to check
 \param fmt printf style format string
 */
-	#define CZ_ASSERT_F(expression, fmt, ...) if (!(expression)) { ::cz::_doAssert(__FILE__, __LINE__, fmt, ##__VA_ARGS__); } // By using ##__VA_ARGS__ , it will remove the last comma, if __VA_ARGS__ is empty
+	#define CZ_ASSERT_F(expression, fmt, ...) if (!(expression)) { ::cz::_doAssert(__WFILE__, __LINE__, fmt, ##__VA_ARGS__); } // By using ##__VA_ARGS__ , it will remove the last comma, if __VA_ARGS__ is empty
 
 /*! Evaluates the expression, and asserts if asserts are enabled.
  @hideinitializer
@@ -30,16 +35,16 @@ The difference between this and \link CZ_ASSERT \endlink is that it's suitable t
  CZ_CHECK( doSomethingCritical()==true );
  \endcode
  */
-	#define CZ_CHECK(expression) if (!(expression)) { ::cz::_doAssert(__FILE__, __LINE__, #expression); }
+	#define CZ_CHECK(expression) if (!(expression)) { ::cz::_doAssert(__WFILE__, __LINE__, L#expression); }
 
-	#define CZ_UNEXPECTED() ::cz::_doAssert(__FILE__, __LINE__, "Unexpected code path")
-	#define CZ_UNEXPECTED_F(fmt, ...) ::cz::_doAssert(__FILE__, __LINE__, fmt, ##__VA_ARGS__)
+	#define CZ_UNEXPECTED() ::cz::_doAssert(__WFILE__, __LINE__, "Unexpected code path")
+	#define CZ_UNEXPECTED_F(fmt, ...) ::cz::_doAssert(__WFILE__, __LINE__, fmt, ##__VA_ARGS__)
 #endif
 
 namespace cz
 {
 
-void _doAssert(const char* file, int line, const char* fmt, ...);
+void _doAssert(const wchar_t* file, int line, const wchar_t* fmt, ...);
 
 void ensureTrailingSlash(std::wstring& str);
 

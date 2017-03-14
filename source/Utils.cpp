@@ -5,7 +5,7 @@
 namespace cz
 {
 
-void _doAssert(const char* file, int line, const char* fmt, ...)
+void _doAssert(const wchar_t* file, int line, const wchar_t* fmt, ...)
 {
 	static bool executing;
 
@@ -14,19 +14,13 @@ void _doAssert(const char* file, int line, const char* fmt, ...)
 		__debugbreak();
 	executing = true;
 
-	char buf[1024];
+	wchar_t buf[1024];
 	va_list args;
 	va_start(args, fmt);
-	_vsnprintf(buf, 1024, fmt, args);
+	_vsnwprintf(buf, 1024, fmt, args);
 	va_end(args);
 
-	wchar_t wbuf[1024];
-	wchar_t wfile[1024];
-
-	mbstowcs(wbuf, buf, 1024);
-	mbstowcs(wfile, file, 1024);
-
-	CZ_LOG(logDefault, Error, "ASSERT: %s,%d: %s\n", file, line, buf);
+	CZ_LOG(logDefault, Error, L"ASSERT: %s,%d: %s\n", file, line, buf);
 	if (::IsDebuggerPresent())
 	{
 		__debugbreak(); // This will break in all builds

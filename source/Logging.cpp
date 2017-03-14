@@ -19,7 +19,7 @@ CZ_DEFINE_LOG_CATEGORY(logDefault)
 LogCategoryLogNone logNone;
 #endif
 
-LogCategoryBase::LogCategoryBase(const char* name, LogVerbosity verbosity, LogVerbosity compileTimeVerbosity) : m_name(name)
+LogCategoryBase::LogCategoryBase(const wchar_t* name, LogVerbosity verbosity, LogVerbosity compileTimeVerbosity) : m_name(name)
 , m_verbosity(verbosity)
 , m_compileTimeVerbosity(compileTimeVerbosity)
 {
@@ -53,13 +53,13 @@ LogOutput::~LogOutput()
 	data->outputs.erase(std::find(data->outputs.begin(), data->outputs.end(), this));
 }
 
-void LogOutput::logToAll(const char* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const char* fmt, ...)
+void LogOutput::logToAll(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const wchar_t* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
 
-	char buf[1024];
-	auto count = _vsnprintf_s(buf, sizeof(buf), fmt, args);
+	wchar_t buf[1024];
+	auto count = _vsnwprintf_s(buf, sizeof(buf), fmt, args);
 	if (!(count>=0 && count<sizeof(buf)))
 		buf[sizeof(buf) - 1] = 0;
 
