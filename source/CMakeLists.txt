@@ -3,6 +3,8 @@ project(vimvs)
 
 ucm_add_files(
 	"3rdparty/json.hpp"
+	"ChildProcessLauncher.cpp"
+	"ChildProcessLauncher.h"
 	"Database.h"
 	"IniFile.cpp"
 	"IniFile.h"
@@ -32,13 +34,7 @@ cz_set_postfix()
 cz_add_common_libs()
 target_compile_definitions(vimvs PRIVATE NOMINMAX)
 
-if (MSVC)
-	#
-elseif (MINGW)
-	#
-elseif(CMAKE_COMPILER_IS_GNUCXX OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
-	target_link_libraries(vimvslib INTERFACE pthread )
-endif()
+target_link_libraries(vimvs Psapi.lib)
 
 cz_set_postfix()
 

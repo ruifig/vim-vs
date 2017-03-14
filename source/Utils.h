@@ -50,6 +50,11 @@ void ensureTrailingSlash(std::wstring& str);
 
 std::wstring getCWD();
 
+bool isExistingFile(const std::wstring& filename);
+
+std::wstring getProcessPath(std::wstring* fname);
+
+
 // Canonicalizes a path (converts relative to absolute, and converts all '/' characters to '\'
 // "root" is used to process relative paths. If it's not specified, it will assume the current working Directory
 bool fullPath(std::wstring& dst, const std::wstring& path, std::wstring root);

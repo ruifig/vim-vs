@@ -1,7 +1,11 @@
 #include "vimvsPCH.h"
 #include "Parser.h"
 #include "Parameters.h"
+#include "IniFile.h"
+#include "Logging.h"
 
+
+#define VIMVS_CFG_FILE L".vimvs_conf.ini"
 /*
 Links with information about msbuild
 	https://msdn.microsoft.com/en-us/library/ms164311.aspx
@@ -10,9 +14,86 @@ Good regular expression builder
 */
 
 using namespace cz;
+
+class ConsoleLogger : LogOutput
+{
+private:
+	virtual void log(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity LogVerbosity, const wchar_t* msg)
+	{
+		wprintf(L"%s: %s", category->getName().c_str(), msg);
+	}
+};
+
+struct Config
+{
+	std::wstring slnfile; // full path to the solution file to use
+
+	bool load()
+	{
+		std::wstring root;
+		auto found = findConfigFile(root);
+		if (!found)
+		{
+			CZ_LOG(logDefault, Fatal, L"Could not find configuration file");
+			return false;
+		}
+
+		CZ_LOG(logDefault, Log, L"Config file found at %s", root.c_str());
+
+		IniFile cfg;
+		cfg.open((root + VIMVS_CFG_FILE).c_str());
+		auto str = cfg.getValue<const wchar_t*>(L"General", L"solution", L"");
+		if (!fullPath(slnfile, str, root) || !isExistingFile(slnfile))
+		{
+			CZ_LOG(logDefault, Fatal, L"Invalid solution path (%s)", str);
+			return false;
+		}
+
+		return true;
+	}
+
+	static bool findConfigFile(std::wstring& dir)
+	{
+		std::wstring d = getCWD();
+		std::wstring previous;
+		std::wstring f;
+		do
+		{
+			ensureTrailingSlash(d);
+			if (isExistingFile(d + VIMVS_CFG_FILE))
+			{
+				dir = d;
+				return true;
+			}
+			previous = d;
+		} while (fullPath(d, d + L"..", L"") && d != previous);
+		return false;
+	}
+};
+
+
+void tests()
+{
+	std::wstring exename;
+	auto p = getProcessPath(&exename);
+
+	const int bufferLength = MAX_PATH;
+	wchar_t buf[bufferLength + 1];
+	// Change Current directory to where the executable is
+	CZ_CHECK(GetModuleFileNameExW(GetCurrentProcess(), NULL, buf, bufferLength) != 0);
+
+	ConsoleLogger logger;
+	Config cfg;
+	cfg.load();
+}
+
+
 int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 {
 	Parameters params(Parameters::Auto);
+	tests();
+	return EXIT_SUCCESS;
+
 
 	Database db;
 	Parser parser(db);

@@ -9,6 +9,7 @@
 	#include <windows.h>
 	#include <shellapi.h>
 	#include <Shlwapi.h>
+	#include <Psapi.h>
 #endif
 
 // If set to 1, and running on Debug and Windows, it will enable some more CRT memory debug things
@@ -24,6 +25,7 @@
 #include <algorithm>
 #include <mutex>
 #include <unordered_map>
+#include <Strsafe.h>
 
 #pragma warning( push )
 // Disable : "decorated name length exceeded, name was truncated"

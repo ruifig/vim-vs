@@ -49,6 +49,33 @@ std::wstring getCWD()
 	return res + L"\\";
 }
 
+bool isExistingFile(const std::wstring& filename)
+{
+	DWORD dwAttrib = GetFileAttributesW(filename.c_str());
+	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
+		!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+std::wstring getProcessPath(std::wstring* fname)
+{
+	wchar_t buf[MAX_PATH];
+	GetModuleFileNameW(NULL, buf, MAX_PATH);
+
+	std::wstring result(buf);
+	std::wstring::size_type index = result.rfind(L"\\");
+
+	if (index != std::wstring::npos)
+	{
+		if (fname)
+			*fname = result.substr(index + 1);
+		result = result.substr(0, index + 1);
+	}
+	else
+		return L"";
+
+	return result;
+}
+
 bool fullPath(std::wstring& dst, const std::wstring& path, std::wstring root)
 {
 	wchar_t fullpathbuf[MAX_PATH + 1];
