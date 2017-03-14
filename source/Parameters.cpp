@@ -8,11 +8,11 @@ Parameters::Parameters(Dummy)
 	auto cmd = GetCommandLine();
 	int argc;
 	LPWSTR* argv = ::CommandLineToArgvW(::GetCommandLineW(), &argc);
-	Set(argc, argv);
+	set(argc, argv);
 	LocalFree(argv);
 }
 
-void Parameters::Set(int argc, wchar_t* argv[])
+void Parameters::set(int argc, wchar_t* argv[])
 {
 	if (argc<=1)
 		return;
@@ -49,7 +49,7 @@ const Parameters::Param* Parameters::end() const
 	return begin() + m_args.size();
 }
 
-bool Parameters::Has(const wchar_t* name ) const
+bool Parameters::has(const wchar_t* name ) const
 {
 	for(auto &i: m_args)
 	{
@@ -61,12 +61,12 @@ bool Parameters::Has(const wchar_t* name ) const
 	return false;
 }
 
-bool Parameters::Has(const std::wstring& name) const
+bool Parameters::has(const std::wstring& name) const
 {
-	return Has(name.c_str());
+	return has(name.c_str());
 }
 
-const std::wstring& Parameters::Get(const wchar_t *name) const
+const std::wstring& Parameters::get(const wchar_t *name) const
 {
 	for (auto &i: m_args)
 	{
@@ -76,34 +76,17 @@ const std::wstring& Parameters::Get(const wchar_t *name) const
 	return ms_empty;
 }
 
-const std::wstring& Parameters::Get(const std::wstring& name) const
+const std::wstring& Parameters::get(const std::wstring& name) const
 {
-	return Get(name.c_str());
+	return get(name.c_str());
 }
 
-#if 0
-std::pair<bool,int> Parameters::GetAsInt(const wchar_t *name, int defaultVal) const
-{
-	std::pair<bool, int> res{ false, defaultVal};
-	res.first = Has(name);
-	if (res.first)
-		res.second = std::atoi(ToUTF8(Get(name)).c_str());
-	return res;
-}
-
-std::pair<bool,int> Parameters::GetAsInt(const std::wstring& name, int defaultVal) const
-{
-	return GetAsInt(name.c_str(), defaultVal);
-}
-
-#endif
-
-int Parameters::Count() const
+int Parameters::count() const
 {
 	return static_cast<int>(m_args.size());
 }
 
-void Parameters::Clear()
+void Parameters::clear()
 {
 	m_args.clear();
 }

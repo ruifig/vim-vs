@@ -31,7 +31,7 @@ struct Config
 	std::wstring root;
 	std::wstring slnfile; // full path to the solution file to use
 
-	std::wstring getUtilityPath(const wchar_t* name)
+	std::wstring getUtilityPath(const wchar_t* name, bool quote=false)
 	{
 		auto s = exeRoot + L"../../bin/" + name;
 		fullPath(s, s, L"");
@@ -40,7 +40,10 @@ struct Config
 			CZ_LOG(logDefault, Fatal, L"vim-vs utility '%s' not found", name);
 			return L"";
 		}
-		return s;
+		if (quote)
+			return std::wstring(L"\"") + s + L"\"";
+		else
+			return s;
 	}
 
 	bool load()
@@ -87,41 +90,94 @@ struct Config
 	}
 };
 
+Parameters gParams(Parameters::Auto);
+Config gCfg;
 
-void tests()
+std::wstring genParams(std::vector<std::wstring> p)
 {
-	std::wstring exename;
-	auto p = getProcessPath(&exename);
-
-	const int bufferLength = MAX_PATH;
-	wchar_t buf[bufferLength + 1];
-	// Change Current directory to where the executable is
-	CZ_CHECK(GetModuleFileNameExW(GetCurrentProcess(), NULL, buf, bufferLength) != 0);
-
-	ConsoleLogger logger;
-	Config cfg;
-	cfg.load();
-
-	ChildProcessLauncher launcher;
-	auto exitCode = launcher.launch(cfg.getUtilityPath(L"vim-vs.msbuild.bat"), L"/?",
-		[](bool res, const std::wstring& str)
+	std::wstring res;
+	for (auto s : p)
 	{
-		wprintf(str.c_str());
-	});
-
-	wprintf(L"Exit code = %d\n", exitCode);
-	wprintf(L"Launch error message= %s\n", launcher.getLaunchErrorMsg().c_str());
-
+		res += L"\"";
+		res += s;
+		res += L"\" ";
+	}
+	return res;
 }
 
+int buildCompileDatabase()
+{
+	Database db;
+	Parser parser(db);
+
+	wprintf(L"Generating compile database\n");
+
+	ChildProcessLauncher launcher;
+	auto exitCode = launcher.launch(
+		gCfg.getUtilityPath(L"vim-vs.msbuild.bat"),
+		genParams(
+			{gCfg.slnfile,
+			std::wstring(L"/p:ForceImportBeforeCppTargets=")+gCfg.getUtilityPath(L"gen.props", true),
+			L"/t:Rebuild"
+			, L"/maxcpucount"
+		}),
+		[&](bool iscmdline, const std::wstring& str)
+	{
+		if (iscmdline)
+			wprintf(L"CMD: %s\n", str.c_str());
+		else
+			parser.inject(str);
+	});
+
+	if (exitCode)
+	{
+		CZ_LOG(logDefault, Error, L"build failed");
+		wprintf(launcher.getFullOutput().c_str());
+		//return EXIT_FAILURE;
+	}
+
+	std::string commonParams;
+	commonParams += "-std=c++14 ";
+	commonParams += "-x ";
+	commonParams += "c++ ";
+	commonParams += "-Wall ";
+	commonParams += "-Wextra ";
+	commonParams += "-fexceptions ";
+	commonParams += "-DCINTERFACE "; // To let Clang parse VS's combaseapi.h, otherwise we get an error "unknown type name 'IUnknown'
+
+	std::ofstream out(gCfg.root + L"compile_commands.json");
+	using namespace nlohmann;
+	json j;
+	for (auto&& f : db.files())
+	{
+		auto ff = splitFolderAndFile(f.second.name);
+		j.push_back({
+			{"directory", toUTF8(ff.first)},
+			{"command", commonParams + f.second.systemIncludes->getIncludes() + f.second.params->getReadyParams()},
+			{"file", toUTF8(f.second.name)}
+			//,{"project", toUTF8(f.second.prjName)}
+			});
+		//out << "        \"directory\": \"" << json::escape_string(toUTF8(ff.first)) << "\"" << std::endl;
+		//out << "        \"command\": \"" << json::escape_string("/usr/bin/clang++ " + toUTF8(ff.first)) << "\"" << std::endl;
+	}
+	out << std::setw(4) << j << std::endl;
+
+	return EXIT_SUCCESS;
+}
 
 int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 {
-	Parameters params(Parameters::Auto);
-	tests();
+	ConsoleLogger logger;
+	if (!gCfg.load())
+		return EXIT_FAILURE;
+
+	if (gParams.has(L"generate_compile_database"))
+		return buildCompileDatabase();
+
+	//tests();
 	return EXIT_SUCCESS;
 
-
+#if 0
 	Database db;
 	Parser parser(db);
 
@@ -163,6 +219,8 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 		//out << "        \"command\": \"" << json::escape_string("/usr/bin/clang++ " + toUTF8(ff.first)) << "\"" << std::endl;
 	}
 	out << std::setw(4) << j << std::endl;
+
+#endif
 
 	return EXIT_SUCCESS;
 }

@@ -17,7 +17,6 @@ for /f "usebackq tokens=1* delims=: " %%i in (`%~dp0\vswhere -latest -requires M
 
 if exist "%InstallDir%\MSBuild\15.0\Bin\MSBuild.exe" set msBuildExe=%InstallDir%\MSBuild\15.0\Bin\MSBuild.exe
 
-
 if not exist "%msBuildExe%" (
 	echo MSBuild not found
 ) else (

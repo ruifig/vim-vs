@@ -64,14 +64,25 @@ int ChildProcessLauncher::ErrorMessage(PTSTR lpszFunction)
 	return 1;
 }
 
-
-void ChildProcessLauncher::addOutput(const wchar_t* str, int nbytesread)
+void ChildProcessLauncher::addOutput(const std::wstring& str)
 {
-	auto tmp = std::wstring(str, str+(nbytesread / sizeof(wchar_t)));
-	m_output += tmp;
-	if (m_logfunc)
+	for(auto c : str)
 	{
-		m_logfunc(false, tmp);
+		if (c == 0xA)
+		{
+			if (m_tmpline.size() && m_tmpline.back() == 0xD)
+				m_tmpline.pop_back();
+
+			m_tmpline.push_back(c);
+			m_output += m_tmpline;
+			if (m_logfunc)
+				m_logfunc(false, m_tmpline);
+			m_tmpline.clear();
+		}
+		else
+		{
+			m_tmpline.push_back(c);
+		}
 	}
 }
 
@@ -190,7 +201,12 @@ int ChildProcessLauncher::launch(const std::wstring& name, const std::wstring& p
 		ErrorMessage(TEXT("CloseHandle"));
 
 	if (m_errmsg.size())
-		addOutput(m_errmsg.data(), static_cast<int>(m_errmsg.size() * sizeof(m_errmsg[0])));
+		addOutput(m_errmsg.data());
+
+	// If for some reason the last output wasn't a EOL, then write one, so the caller gets all the output
+	if (m_tmpline.size())
+		addOutput(L"\n");
+	CZ_CHECK(m_tmpline.size() == 0);
 
 	return m_errmsg.size() ? 1 : exitcode;
 }
@@ -263,7 +279,7 @@ int ChildProcessLauncher::ReadAndHandleOutput(HANDLE hPipeRead)
 		ErrorMessage(("WriteConsole"));
 		*/
 	 std::string s(lpBuffer, lpBuffer + nBytesRead);
-	 addOutput(widen(s).c_str(), nBytesRead);
+	 addOutput(widen(s));
 
   }
 

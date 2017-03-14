@@ -80,7 +80,10 @@ flags = [
 #
 # Most projects will NOT need to set this to anything; you can just change the
 # 'flags' list of compilation flags. Notice that YCM itself uses that approach.
-compilation_database_folder = 'c:/work/crazygaze/vim-vs'
+#compilation_database_folder = 'c:/work/crazygaze/vim-vs'
+
+# Get the path of the this script, according to: http://stackoverflow.com/questions/4934806/how-can-i-find-scripts-directory-with-python
+compilation_database_folder = os.path.dirname(os.path.realpath(__file__))
 
 if os.path.exists( compilation_database_folder ):
   database = ycm_core.CompilationDatabase( compilation_database_folder )

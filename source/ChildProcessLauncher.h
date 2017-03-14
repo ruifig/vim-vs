@@ -29,11 +29,16 @@ public:
 		return m_errmsg;
 	}
 
+	const std::wstring& getFullOutput() const
+	{
+		return m_output;
+	}
+
 private:
 	int PrepAndLaunchRedirectedChild(HANDLE hChildStdOut, HANDLE hChildStdIn, HANDLE hChildStdErr);
 	int ReadAndHandleOutput(HANDLE hPipeRead);
 	int ErrorMessage(PTSTR lpszFunction);
-	void addOutput(const wchar_t* str, int nbytesread);
+	void addOutput(const std::wstring& str);
 	std::wstring m_errmsg;
 	std::wstring m_name;
 	HANDLE m_hStdIn;
@@ -41,6 +46,7 @@ private:
 	BOOL m_bRunThread;
 	std::wstring m_params;
 	std::wstring m_output;
+	std::wstring m_tmpline;
 	std::function<void(bool isLaunchCmd, const std::wstring& str)> m_logfunc;
 };
 
