@@ -33,6 +33,35 @@ void _doAssert(const wchar_t* file, int line, const wchar_t* fmt, ...)
 	}
 }
 
+wchar_t* getTemporaryString()
+{
+	// Use several static strings, and keep picking the next one, so that callers can hold the string for a while
+	// without risk of it being changed by another call.
+	__declspec(thread) static wchar_t bufs[kTemporaryStringMaxNesting][kTemporaryStringMaxSize];
+	__declspec(thread) static wchar_t nBufIndex = 0;
+	wchar_t* buf = bufs[nBufIndex];
+	nBufIndex++;
+	if (nBufIndex == kTemporaryStringMaxNesting)
+		nBufIndex = 0;
+	return buf;
+}
+
+const wchar_t* formatString(const wchar_t* format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	const wchar_t* str = formatStringVA(format, args);
+	va_end(args);
+	return str;
+}
+
+const wchar_t* formatStringVA(const wchar_t* format, va_list argptr)
+{
+	wchar_t* buf = getTemporaryString();
+	_vsnwprintf_s(buf, kTemporaryStringMaxSize, _TRUNCATE, format, argptr);
+	return buf;
+}
+
 void ensureTrailingSlash(std::wstring& str)
 {
 	if (str.size() && !(str[str.size() - 1] == '\\' || str[str.size() - 1] == '/'))

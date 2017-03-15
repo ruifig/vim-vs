@@ -10,6 +10,9 @@
 #include "vimvsPCH.h"
 #include "Logging.h"
 
+#define LOG_TIME 1
+#define LOG_VERBOSITY 1
+
 namespace cz
 {
 
@@ -58,9 +61,27 @@ void LogOutput::logToAll(const wchar_t* file, int line, const LogCategoryBase* c
 	va_list args;
 	va_start(args, fmt);
 
+	const wchar_t* prefix = L"";
+#if LOG_TIME	
+	{
+		time_t t = time(nullptr);
+		struct tm d;
+		localtime_s(&d, &t);
+		#if LOG_VERBOSITY
+			prefix = formatString(L"%02d:%02d:%02d: %s: ", d.tm_hour, d.tm_min, d.tm_sec, logVerbosityToString(verbosity));
+		#else
+			prefix = formatString(L"%02d:%02d:%02d: ", d.tm_hour, d.tm_min, d.tm_sec);
+		#endif
+	}
+#else
+	prefix = formatString(L"%s: ", logVerbosityToString(verbosity));
+#endif
+
+	auto msg = formatStringVA(fmt, args);
 	wchar_t buf[1024];
-	auto count = _vsnwprintf_s(buf, sizeof(buf), fmt, args);
-	if (!(count>=0 && count<sizeof(buf)))
+	const int s = sizeof(buf)*sizeof(buf[0]);
+	auto count = _snwprintf_s(buf, s, L"%s%s", prefix, msg);
+	if (!(count>=0 && count<s))
 		buf[sizeof(buf) - 1] = 0;
 
 	auto data = getSharedData();

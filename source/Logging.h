@@ -24,6 +24,19 @@ enum class LogVerbosity : uint8_t
 	Log
 };
 
+static inline const wchar_t* logVerbosityToString(LogVerbosity v)
+{
+	switch (v)
+	{
+	case LogVerbosity::None   : return L"NNN";
+	case LogVerbosity::Fatal  : return L"FTL";
+	case LogVerbosity::Error  : return L"ERR";
+	case LogVerbosity::Warning: return L"WRN";
+	case LogVerbosity::Log    : return L"LOG";
+	};
+	return L"Unknown";
+}
+
 #define CZ_LOG_MINIMUM_VERBOSITY Log
 
 class LogCategoryBase
@@ -70,7 +83,7 @@ public:
 	virtual ~LogOutput();
 	static void logToAll(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const wchar_t* fmt, ...);
 private:
-	virtual void log(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity LogVerbosity, const wchar_t* msg) = 0;
+	virtual void log(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const wchar_t* msg) = 0;
 
 	struct SharedData
 	{

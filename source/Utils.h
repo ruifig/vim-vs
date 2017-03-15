@@ -46,6 +46,17 @@ namespace cz
 
 void _doAssert(const wchar_t* file, int line, const wchar_t* fmt, ...);
 
+enum
+{
+	kTemporaryStringMaxNesting = 20,
+	kTemporaryStringMaxSize = 16000
+};
+
+static wchar_t* getTemporaryString();
+
+const wchar_t* formatString(const wchar_t* format, ...);
+const wchar_t* formatStringVA(const wchar_t* format, va_list argptr);
+
 void ensureTrailingSlash(std::wstring& str);
 
 std::wstring getCWD();

@@ -4,9 +4,12 @@
 #include "IniFile.h"
 #include "Logging.h"
 #include "ChildProcessLauncher.h"
+#include "ScopeGuard.h"
 
 
 #define VIMVS_CFG_FILE L".vimvs_conf.ini"
+#define VIMVS_LOG_FILE L".vimvs.log"
+
 /*
 Links with information about msbuild
 	https://msdn.microsoft.com/en-us/library/ms164311.aspx
@@ -19,10 +22,39 @@ using namespace cz;
 class ConsoleLogger : LogOutput
 {
 private:
-	virtual void log(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity LogVerbosity, const wchar_t* msg)
+	virtual void log(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const wchar_t* msg)
 	{
-		wprintf(L"%s: %s", category->getName().c_str(), msg);
+		wprintf(L"%s\n", msg);
 	}
+};
+
+class FileLogger : LogOutput
+{
+public:
+	FileLogger(const std::wstring& filename)
+		: m_out(filename)
+		, m_filename(filename)
+	{
+	}
+
+	bool isOpen() const
+	{
+		return m_out.is_open();
+	}
+	
+	const std::wstring getFilename() const
+	{
+		return m_filename;
+	}
+private:
+
+	virtual void log(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const wchar_t* msg)
+	{
+		m_out << toUTF8(msg) << std::endl;
+	}
+
+	std::wstring m_filename;
+	std::ofstream m_out;
 };
 
 struct Config
@@ -30,6 +62,7 @@ struct Config
 	std::wstring exeRoot;
 	std::wstring root;
 	std::wstring slnfile; // full path to the solution file to use
+	std::unique_ptr<FileLogger> fileLogger;
 
 	std::wstring getUtilityPath(const wchar_t* name, bool quote=false)
 	{
@@ -53,11 +86,20 @@ struct Config
 		auto found = findConfigFile(root);
 		if (!found)
 		{
-			CZ_LOG(logDefault, Fatal, L"Could not find configuration file");
+			fprintf(stderr, "Could not find a '%s' file in current folder or any of the parents\n", toUTF8(VIMVS_CFG_FILE).c_str());
 			return false;
 		}
 
-		CZ_LOG(logDefault, Log, L"Config file found at %s", root.c_str());
+		// Create/open our log file before doing anything else, since we know where the config file is
+		fileLogger = std::make_unique<FileLogger>(root + VIMVS_LOG_FILE);
+		if (!fileLogger->isOpen())
+		{
+			fprintf(stderr, "Could not open log file '%s'", toUTF8(fileLogger->getFilename()).c_str());
+			return false;
+		}
+
+		CZ_LOG(logDefault, Warning, L"Test1");
+		CZ_LOG(logDefault, Warning, L"Test2");
 
 		IniFile cfg;
 		cfg.open((root + VIMVS_CFG_FILE).c_str());
@@ -91,7 +133,7 @@ struct Config
 };
 
 Parameters gParams(Parameters::Auto);
-Config gCfg;
+std::unique_ptr<Config> gCfg;
 
 std::wstring genParams(std::vector<std::wstring> p)
 {
@@ -114,10 +156,10 @@ int buildCompileDatabase()
 
 	ChildProcessLauncher launcher;
 	auto exitCode = launcher.launch(
-		gCfg.getUtilityPath(L"vim-vs.msbuild.bat"),
+		gCfg->getUtilityPath(L"vim-vs.msbuild.bat"),
 		genParams(
-			{gCfg.slnfile,
-			std::wstring(L"/p:ForceImportBeforeCppTargets=")+gCfg.getUtilityPath(L"gen.props", true),
+			{gCfg->slnfile,
+			std::wstring(L"/p:ForceImportBeforeCppTargets=")+gCfg->getUtilityPath(L"gen.props", true),
 			L"/t:Rebuild"
 			, L"/maxcpucount"
 		}),
@@ -145,7 +187,7 @@ int buildCompileDatabase()
 	commonParams += "-fexceptions ";
 	commonParams += "-DCINTERFACE "; // To let Clang parse VS's combaseapi.h, otherwise we get an error "unknown type name 'IUnknown'
 
-	std::ofstream out(gCfg.root + L"compile_commands.json");
+	std::ofstream out(gCfg->root + L"compile_commands.json");
 	using namespace nlohmann;
 	json j;
 	for (auto&& f : db.files())
@@ -168,59 +210,13 @@ int buildCompileDatabase()
 int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 {
 	ConsoleLogger logger;
-	if (!gCfg.load())
+	gCfg = std::make_unique<Config>();
+	SCOPE_EXIT{ gCfg.reset(); };
+	if (!gCfg->load())
 		return EXIT_FAILURE;
 
 	if (gParams.has(L"generate_compile_database"))
 		return buildCompileDatabase();
-
-	//tests();
-	return EXIT_SUCCESS;
-
-#if 0
-	Database db;
-	Parser parser(db);
-
-	std::wstring srcfile = params.Get(L"in");
-	if (srcfile.size()==0)
-		srcfile = L"../../data/showincludes_2.log";
-	std::wstring dstfile = params.Get(L"out");
-	if (dstfile.size()==0)
-		dstfile = L"../../compile_commands.json";
-	std::ifstream ifs(srcfile);
-	CZ_CHECK(ifs.is_open());
-	auto content = std::string(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
-	ifs.close();
-	parser.inject(widen(content));
-
-	std::string commonParams;
-	commonParams += "-std=c++14 ";
-	commonParams += "-x ";
-	commonParams += "c++ ";
-	commonParams += "-Wall ";
-	commonParams += "-Wextra ";
-	commonParams += "-fexceptions ";
-	commonParams += "-DCINTERFACE "; // To let Clang parse VS's combaseapi.h, otherwise we get an error "unknown type name 'IUnknown'
-	// system includes
-
-	std::ofstream out(dstfile);
-	using namespace nlohmann;
-	json j;
-	for (auto&& f : db.files())
-	{
-		auto ff = splitFolderAndFile(f.second.name);
-		j.push_back({
-			{"directory", toUTF8(ff.first)},
-			{"command", commonParams + f.second.systemIncludes->getIncludes() + f.second.params->getReadyParams()},
-			{"file", toUTF8(f.second.name)}
-			//,{"project", toUTF8(f.second.prjName)}
-			});
-		//out << "        \"directory\": \"" << json::escape_string(toUTF8(ff.first)) << "\"" << std::endl;
-		//out << "        \"command\": \"" << json::escape_string("/usr/bin/clang++ " + toUTF8(ff.first)) << "\"" << std::endl;
-	}
-	out << std::setw(4) << j << std::endl;
-
-#endif
 
 	return EXIT_SUCCESS;
 }

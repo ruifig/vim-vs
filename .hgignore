@@ -20,6 +20,7 @@ syntax: glob
 # A good online test: https://regex101.com/#python
 syntax: regexp
 
+^.vimvs.log
 ^build/
 # CLion folders
 ^cmake-build-debug/

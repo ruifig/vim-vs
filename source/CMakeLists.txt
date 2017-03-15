@@ -14,6 +14,7 @@ ucm_add_files(
 	"Parameters.h"
 	"Parser.cpp"
 	"Parser.h"
+	"ScopeGuard.h"
 	"targetver.h"
 	"Utils.cpp"
 	"Utils.h"
