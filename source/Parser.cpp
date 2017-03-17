@@ -92,16 +92,8 @@ bool Parser::tryVimVsEnd(std::wstring& line)
 
 	auto projectName = matches[1].str();
 	auto it = m_nodes.find(m_currNode);
-	if (it == m_nodes.end())
-	{
-		printf("");
-	}
-	if (it->second->getName() != projectName)
-	{
-		printf("");
-	}
-
 	CZ_CHECK(it != m_nodes.end() && it->second->getName() == projectName);
+
 	it->second->finish();
 
 	return true;

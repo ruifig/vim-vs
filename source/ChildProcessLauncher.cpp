@@ -32,34 +32,7 @@ int ChildProcessLauncher::ErrorMessage(PTSTR lpszFunction)
 	if (m_errmsg.size())
 		return 1;
 
-    LPVOID lpMsgBuf;
-    LPVOID lpDisplayBuf;
-    DWORD dw = GetLastError(); 
-
-    FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-        FORMAT_MESSAGE_FROM_SYSTEM |
-        FORMAT_MESSAGE_IGNORE_INSERTS,
-        NULL,
-        dw,
-        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-        (LPTSTR) &lpMsgBuf,
-        0, NULL );
-
-    lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT, 
-        (lstrlen((LPCTSTR)lpMsgBuf)+lstrlen((LPCTSTR)lpszFunction)+40)*sizeof(TCHAR)); 
-    StringCchPrintf((LPTSTR)lpDisplayBuf, 
-        LocalSize(lpDisplayBuf) / sizeof(TCHAR),
-        TEXT("%s failed with error %d: %s"), 
-        lpszFunction, dw, lpMsgBuf); 
-    
-	//MessageBox(NULL, (LPCTSTR)lpDisplayBuf, TEXT("Error"), MB_OK); 
-
-	m_errmsg = (wchar_t*)lpDisplayBuf;
-    LocalFree(lpMsgBuf);
-    LocalFree(lpDisplayBuf);
-    
-	//ExitProcess(1);
+	m_errmsg = getWin32Error(lpszFunction);
 
 	return 1;
 }
@@ -139,7 +112,7 @@ int ChildProcessLauncher::launch(const std::wstring& name, const std::wstring& p
 		&hInputWrite, // Address of new handle.
 		0, FALSE, // Make it uninheritable.
 		DUPLICATE_SAME_ACCESS))
-		ErrorMessage(TEXT("DupliateHandle"));
+		ErrorMessage(TEXT("DuplicateHandle"));
 
 
 	// Close inheritable copies of the handles you do not want to be

@@ -17,7 +17,8 @@ Good regular expression builder
 	//https://regex101.com/
 */
 
-using namespace cz;
+namespace cz
+{
 
 class ConsoleLogger : LogOutput
 {
@@ -32,7 +33,7 @@ class FileLogger : LogOutput
 {
 public:
 	FileLogger(const std::wstring& filename)
-		: m_out(filename)
+		: m_out(filename, std::ofstream::out | std::ofstream::app)
 		, m_filename(filename)
 	{
 	}
@@ -98,9 +99,6 @@ struct Config
 			return false;
 		}
 
-		CZ_LOG(logDefault, Warning, L"Test1");
-		CZ_LOG(logDefault, Warning, L"Test2");
-
 		IniFile cfg;
 		cfg.open((root + VIMVS_CFG_FILE).c_str());
 		auto str = cfg.getValue<const wchar_t*>(L"General", L"solution", L"");
@@ -109,6 +107,8 @@ struct Config
 			CZ_LOG(logDefault, Fatal, L"Invalid solution path (%s)", str);
 			return false;
 		}
+
+		CZ_LOG(logDefault, Log, L"Using solution file '%s'", slnfile.c_str());
 
 		return true;
 	}
@@ -152,7 +152,7 @@ int buildCompileDatabase()
 	Database db;
 	Parser parser(db);
 
-	wprintf(L"Generating compile database\n");
+	CZ_LOG(logDefault, Log, L"Generating compile database");
 
 	ChildProcessLauncher launcher;
 	auto exitCode = launcher.launch(
@@ -166,9 +166,13 @@ int buildCompileDatabase()
 		[&](bool iscmdline, const std::wstring& str)
 	{
 		if (iscmdline)
-			wprintf(L"CMD: %s\n", str.c_str());
+		{
+			CZ_LOG(logDefault, Log, L"msbuild command line: %s\n", str.c_str());
+		}
 		else
+		{
 			parser.inject(str);
+		}
 	});
 
 	if (exitCode)
@@ -186,6 +190,7 @@ int buildCompileDatabase()
 	commonParams += "-Wextra ";
 	commonParams += "-fexceptions ";
 	commonParams += "-DCINTERFACE "; // To let Clang parse VS's combaseapi.h, otherwise we get an error "unknown type name 'IUnknown'
+	CZ_LOG(logDefault, Log, L"Common clang params: %s", toUTF16(commonParams).c_str());
 
 	std::ofstream out(gCfg->root + L"compile_commands.json");
 	using namespace nlohmann;
@@ -197,18 +202,18 @@ int buildCompileDatabase()
 			{"directory", toUTF8(ff.first)},
 			{"command", commonParams + f.second.systemIncludes->getIncludes() + f.second.params->getReadyParams()},
 			{"file", toUTF8(f.second.name)}
-			//,{"project", toUTF8(f.second.prjName)}
 			});
-		//out << "        \"directory\": \"" << json::escape_string(toUTF8(ff.first)) << "\"" << std::endl;
-		//out << "        \"command\": \"" << json::escape_string("/usr/bin/clang++ " + toUTF8(ff.first)) << "\"" << std::endl;
 	}
 	out << std::setw(4) << j << std::endl;
 
 	return EXIT_SUCCESS;
 }
 
+} // namespace cz
+
 int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 {
+	using namespace cz;
 	ConsoleLogger logger;
 	gCfg = std::make_unique<Config>();
 	SCOPE_EXIT{ gCfg.reset(); };
@@ -220,4 +225,3 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 
 	return EXIT_SUCCESS;
 }
-

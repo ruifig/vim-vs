@@ -44,7 +44,9 @@ The difference between this and \link CZ_ASSERT \endlink is that it's suitable t
 namespace cz
 {
 
-void _doAssert(const wchar_t* file, int line, const wchar_t* fmt, ...);
+std::wstring getWin32Error(const wchar_t* funcname);
+
+void _doAssert(const wchar_t* file, int line, _Printf_format_string_ const wchar_t* fmt, ...);
 
 enum
 {
@@ -54,7 +56,7 @@ enum
 
 static wchar_t* getTemporaryString();
 
-const wchar_t* formatString(const wchar_t* format, ...);
+const wchar_t* formatString(_Printf_format_string_ const wchar_t* format, ...);
 const wchar_t* formatStringVA(const wchar_t* format, va_list argptr);
 
 void ensureTrailingSlash(std::wstring& str);

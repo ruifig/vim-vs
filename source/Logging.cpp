@@ -56,7 +56,7 @@ LogOutput::~LogOutput()
 	data->outputs.erase(std::find(data->outputs.begin(), data->outputs.end(), this));
 }
 
-void LogOutput::logToAll(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const wchar_t* fmt, ...)
+void LogOutput::logToAll(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, _Printf_format_string_ const wchar_t* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
@@ -79,10 +79,7 @@ void LogOutput::logToAll(const wchar_t* file, int line, const LogCategoryBase* c
 
 	auto msg = formatStringVA(fmt, args);
 	wchar_t buf[1024];
-	const int s = sizeof(buf)*sizeof(buf[0]);
-	auto count = _snwprintf_s(buf, s, L"%s%s", prefix, msg);
-	if (!(count>=0 && count<s))
-		buf[sizeof(buf) - 1] = 0;
+	_snwprintf_s(buf, _countof(buf), _TRUNCATE, L"%s%s", prefix, msg);
 
 	auto data = getSharedData();
 	auto lk = std::unique_lock<std::mutex>(data->mtx);

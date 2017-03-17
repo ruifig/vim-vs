@@ -1,5 +1,12 @@
 #pragma once
 
+//
+// Disable some code analysis warnings
+//
+
+// warning C6326: Potential comparison of a constant with another constant.
+#pragma warning( disable: 6326 )
+
 #ifdef _WIN32
 #include "targetver.h"
 #endif
@@ -35,3 +42,5 @@
 #pragma warning(disable:4244)
 #include "3rdparty/json.hpp"
 #pragma warning( pop )
+
+#include "3rdparty/sqlite/sqlite3.h"

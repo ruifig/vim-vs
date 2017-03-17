@@ -81,7 +81,7 @@ class LogOutput
 public:
 	LogOutput();
 	virtual ~LogOutput();
-	static void logToAll(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const wchar_t* fmt, ...);
+	static void logToAll(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, _Printf_format_string_ const wchar_t* fmt, ...);
 private:
 	virtual void log(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const wchar_t* msg) = 0;
 

@@ -1,11 +1,50 @@
 #include "vimvsPCH.h"
 #include "Utils.h"
 #include "Logging.h"
+#include "ScopeGuard.h"
 
 namespace cz
 {
 
-void _doAssert(const wchar_t* file, int line, const wchar_t* fmt, ...)
+std::wstring getWin32Error(const wchar_t* funcname)
+{
+	LPVOID lpMsgBuf;
+	LPVOID lpDisplayBuf;
+	DWORD dw = GetLastError();
+
+	FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+	               NULL,
+	               dw,
+	               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+	               (LPTSTR)&lpMsgBuf,
+	               0,
+	               NULL);
+	SCOPE_EXIT{ LocalFree(lpMsgBuf); };
+
+	int funcnameLength = funcname ? lstrlen((LPCTSTR)funcname) : 0;
+	lpDisplayBuf =
+	    (LPVOID)LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + funcnameLength + 50) * sizeof(funcname[0]));
+	if (lpDisplayBuf == NULL)
+		return L"Win32ErrorMsg failed";
+	SCOPE_EXIT{ LocalFree(lpDisplayBuf); };
+
+	StringCchPrintfW((LPTSTR)lpDisplayBuf,
+	                 LocalSize(lpDisplayBuf) / sizeof(funcname[0]),
+	                 TEXT("%s failed with error %lu: %s"),
+	                 funcname ? funcname : L"",
+	                 dw,
+	                 (LPTSTR)lpMsgBuf);
+
+	std::wstring ret = (LPTSTR)lpDisplayBuf;
+
+	// Remove the \r\n at the end
+	while (ret.size() && ret.back() < ' ')
+		ret.pop_back();
+
+	return std::move(ret);
+}
+
+void _doAssert(const wchar_t* file, int line, _Printf_format_string_ const wchar_t* fmt, ...)
 {
 	static bool executing;
 
@@ -20,7 +59,8 @@ void _doAssert(const wchar_t* file, int line, const wchar_t* fmt, ...)
 	_vsnwprintf(buf, 1024, fmt, args);
 	va_end(args);
 
-	CZ_LOG(logDefault, Error, L"ASSERT: %s,%d: %s\n", file, line, buf);
+	CZ_LOG(logDefault, Fatal, L"ASSERT: %s,%d: %s\n", file, line, buf);
+
 	if (::IsDebuggerPresent())
 	{
 		__debugbreak(); // This will break in all builds
@@ -46,7 +86,7 @@ wchar_t* getTemporaryString()
 	return buf;
 }
 
-const wchar_t* formatString(const wchar_t* format, ...)
+const wchar_t* formatString(_Printf_format_string_ const wchar_t* format, ...)
 {
 	va_list args;
 	va_start(args, format);
