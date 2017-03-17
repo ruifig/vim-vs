@@ -8,7 +8,6 @@
 #if NDEBUG
 	#define CZ_ASSERT(expression) ((void)0)
 	#define CZ_ASSERT_F(expression, fmt, ...) ((void)0)
-	#define CZ_CHECK(expression) expression
 	#define CZ_UNEXPECTED() ::cz::_doAssert(__WFILE__, __LINE__, "Unexpected code path")
 #else
 
@@ -27,6 +26,10 @@ The difference between this and \link CZ_ASSERT \endlink is that it's suitable t
 */
 	#define CZ_ASSERT_F(expression, fmt, ...) if (!(expression)) { ::cz::_doAssert(__WFILE__, __LINE__, fmt, ##__VA_ARGS__); } // By using ##__VA_ARGS__ , it will remove the last comma, if __VA_ARGS__ is empty
 
+	#define CZ_UNEXPECTED() ::cz::_doAssert(__WFILE__, __LINE__, "Unexpected code path")
+	#define CZ_UNEXPECTED_F(fmt, ...) ::cz::_doAssert(__WFILE__, __LINE__, fmt, ##__VA_ARGS__)
+#endif
+
 /*! Evaluates the expression, and asserts if asserts are enabled.
  @hideinitializer
  Note that even if asserts are disabled, it still evaluates the expression (it's not compiled-out like the standard 'assert' for release builds),
@@ -36,10 +39,6 @@ The difference between this and \link CZ_ASSERT \endlink is that it's suitable t
  \endcode
  */
 	#define CZ_CHECK(expression) if (!(expression)) { ::cz::_doAssert(__WFILE__, __LINE__, L#expression); }
-
-	#define CZ_UNEXPECTED() ::cz::_doAssert(__WFILE__, __LINE__, "Unexpected code path")
-	#define CZ_UNEXPECTED_F(fmt, ...) ::cz::_doAssert(__WFILE__, __LINE__, fmt, ##__VA_ARGS__)
-#endif
 
 namespace cz
 {

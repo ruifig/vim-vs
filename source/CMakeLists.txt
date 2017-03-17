@@ -45,7 +45,7 @@ target_compile_definitions(vimvs PRIVATE NOMINMAX)
 target_compile_definitions(vimvs PRIVATE UNICODE _UNICODE)
 
 # Uncomment this to enable code analysis
-# target_compile_options(vimvs PRIVATE /analyze)
+# target_compile_options(vimvs PRIVATE $<$<CONFIG:Debug>:/analyze>)
 
 target_compile_options(vimvs PRIVATE /MP)
 
