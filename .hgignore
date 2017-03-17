@@ -26,5 +26,6 @@ syntax: regexp
 ^cmake-build-debug/
 ^cmake-build-release/
 ^.idea/
+^x64/
 
 

@@ -45,7 +45,9 @@ target_compile_definitions(vimvs PRIVATE NOMINMAX)
 target_compile_definitions(vimvs PRIVATE UNICODE _UNICODE)
 
 # Uncomment this to enable code analysis
-target_compile_options(vimvs PRIVATE)
+# target_compile_options(vimvs PRIVATE /analyze)
+
+target_compile_options(vimvs PRIVATE /MP)
 
 target_link_libraries(vimvs Psapi.lib)
 
