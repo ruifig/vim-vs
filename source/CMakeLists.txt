@@ -34,7 +34,6 @@ ucm_add_files(
 
 # Disable some code analysis warnings in sqlite
 set_property(SOURCE "3rdparty/sqlite/sqlite3.c" APPEND PROPERTY COMPILE_FLAGS "/wd28251 /wd28182 /wd6326 /wd6011 /wd6239 /wd6001 /wd6385 /wd6387 /wd6240 /wd6386 /wd6313")
-#set_source_files_properties("3rdparty/sqlite/sqlite3.c" PROPERTIES COMPILE_FLAGS "/wd28251 /wd28182 /wd6326 /wd6011 /wd6239 /wd6001 /wd6385 /wd6387 /wd6240 /wd6386 /wd6313")
 
 add_executable(vimvs ${VIMVS_SRC})
 cz_set_postfix()
