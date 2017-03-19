@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Utils.h"
+#include "SqLiteWrapper.h"
 
 namespace cz
 {
@@ -48,27 +49,36 @@ struct File
 	std::shared_ptr<SystemIncludes> systemIncludes;
 };
 
+struct SourceFile
+{
+	uint64_t id = 0;
+	std::wstring fullpath;
+	std::wstring name;
+	std::wstring projectName;
+	std::wstring configuration;
+	std::wstring defines;
+	std::wstring includes;
+};
+
 class Database
 {
 public:
-	void addFile(File file)
-	{
-		wprintf(L"%s: %s\n", file.prjName.c_str(), file.name.c_str());
-		m_files[file.name] = std::move(file);
-	}
-
-	File* getFile(const std::wstring& filename)
-	{
-		auto it = m_files.find(filename);
-		return it == m_files.end() ? nullptr : &it->second;
-	}
-
+	Database();
+	bool open(const std::wstring& dbfname);
+	void addFile(File file);
+	File* getFile(const std::wstring& filename);
 	auto& files() const
 	{
 		return m_files;
 	}
-
 private:
+
+	bool getSourceFile(SourceFile& out);
+
+	SqDatabase m_sqdb;
+	SqStmt m_sqlGetFile;
+	SqStmt m_sqlAddFile;
+
 	std::unordered_map<std::wstring, File> m_files;
 };
 

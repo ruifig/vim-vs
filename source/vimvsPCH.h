@@ -44,3 +44,5 @@
 #pragma warning( pop )
 
 #include "3rdparty/sqlite/sqlite3.h"
+
+#include "3rdparty/MurmurHash/MurmurHash3.h"

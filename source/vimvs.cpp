@@ -5,10 +5,11 @@
 #include "Logging.h"
 #include "ChildProcessLauncher.h"
 #include "ScopeGuard.h"
-
+#include "SqLiteWrapper.h"
 
 #define VIMVS_CFG_FILE L".vimvs_conf.ini"
 #define VIMVS_LOG_FILE L".vimvs.log"
+#define VIMVS_DB_FILE L".vimvs.sqlite"
 
 /*
 Links with information about msbuild
@@ -134,6 +135,7 @@ struct Config
 
 Parameters gParams(Parameters::Auto);
 std::unique_ptr<Config> gCfg;
+std::unique_ptr<Database> gDb;
 
 std::wstring genParams(std::vector<std::wstring> p)
 {
@@ -149,8 +151,7 @@ std::wstring genParams(std::vector<std::wstring> p)
 
 int buildCompileDatabase()
 {
-	Database db;
-	Parser parser(db);
+	Parser parser(*gDb);
 
 	CZ_LOG(logDefault, Log, L"Generating compile database");
 
@@ -195,7 +196,7 @@ int buildCompileDatabase()
 	std::ofstream out(gCfg->root + L"compile_commands.json");
 	using namespace nlohmann;
 	json j;
-	for (auto&& f : db.files())
+	for (auto&& f : gDb->files())
 	{
 		auto ff = splitFolderAndFile(f.second.name);
 		j.push_back({
@@ -209,7 +210,14 @@ int buildCompileDatabase()
 	return EXIT_SUCCESS;
 }
 
+void testdatabase()
+{
+	Database db;
+	CZ_CHECK(db.open(gCfg->root + VIMVS_DB_FILE));
+}
+
 } // namespace cz
+
 
 int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 {
@@ -220,8 +228,18 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 	if (!gCfg->load())
 		return EXIT_FAILURE;
 
+	gDb = std::make_unique<Database>();
+	SCOPE_EXIT{ gDb.reset(); };
+	if (!gDb->open(gCfg->root + VIMVS_DB_FILE))
+		return EXIT_FAILURE;
+
 	if (gParams.has(L"generate_compile_database"))
 		return buildCompileDatabase();
+	
+	if (gParams.has(L"testdatabase"))
+		return testdatabase();
+
+
 
 	return EXIT_SUCCESS;
 }

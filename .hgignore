@@ -21,6 +21,7 @@ syntax: glob
 syntax: regexp
 
 ^.vimvs.log
+^.vimvs.sqlite
 ^build/
 # CLion folders
 ^cmake-build-debug/

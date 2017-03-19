@@ -22,9 +22,12 @@ SqDatabase::~SqDatabase()
 	}
 }
 
-bool SqDatabase::open(const char* database)
+bool SqDatabase::open(const char* database, bool create)
 {
-	if (sqlite3_open_v2(database, &m_db, SQLITE_OPEN_READWRITE, NULL)!=SQLITE_OK)
+	int flags = SQLITE_OPEN_READWRITE;
+	if (create)
+		flags |= SQLITE_OPEN_CREATE;
+	if (sqlite3_open_v2(database, &m_db, flags, NULL)!=SQLITE_OK)
 	{
 		CZ_LOG(logDefault, Error, L"%s", toUTF16(sqlite3_errmsg(m_db)).c_str());
 		return false;
@@ -110,6 +113,19 @@ SqStmt::~SqStmt()
 bool SqStmt::bindInt(int idx, int value)
 {
 	if (sqlite3_bind_int(m_stmt, idx, value)!=SQLITE_OK)
+	{
+		logError();
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+bool SqStmt::bindInt64(int idx, int64_t value)
+{
+	if (sqlite3_bind_int64(m_stmt, idx, value)!=SQLITE_OK)
 	{
 		logError();
 		return false;

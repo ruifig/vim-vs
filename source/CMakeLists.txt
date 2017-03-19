@@ -6,6 +6,7 @@ ucm_add_files(
 	"ChildProcessLauncher.cpp"
 	"ChildProcessLauncher.h"
 	"Database.h"
+	"Database.cpp"
 	"IniFile.cpp"
 	"IniFile.h"
 	"Logging.cpp"
@@ -27,6 +28,8 @@ ucm_add_files(
 ADD_MSVC_PRECOMPILED_HEADER("vimvsPCH.h" "vimvsPCH.cpp" VIMVS_SRC)
 
 ucm_add_files(
+	"3rdParty/MurmurHash/MurmurHash3.h"
+	"3rdParty/MurmurHash/MurmurHash3.cpp"
 	"3rdparty/sqlite/sqlite3.h"
 	"3rdparty/sqlite/sqlite3.c"
 	TO VIMVS_SRC
