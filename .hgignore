@@ -20,6 +20,7 @@ syntax: glob
 # A good online test: https://regex101.com/#python
 syntax: regexp
 
+^compile_commands.json
 ^.vimvs.log
 ^.vimvs.sqlite
 ^build/
