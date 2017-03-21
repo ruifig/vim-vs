@@ -11,19 +11,19 @@ class Parser
 public:
 	Parser(Database& db);
 
-	void inject(const std::wstring& data);
-	void parse(std::wstring line);
+	void inject(const std::string& data);
+	void parse(std::string line);
 private:
 
-	bool tryVimVsBegin(std::wstring& line);
-	bool tryVimVsEnd(std::wstring& line);
+	bool tryVimVsBegin(std::string& line);
+	bool tryVimVsEnd(std::string& line);
 
 	friend class NodeParser;
 	Database& m_db;
 	std::unordered_map<int, std::shared_ptr<NodeParser>> m_nodes;
 	int m_currNode = 0;
 	bool m_mp = false;
-	std::wstring m_line;
+	std::string m_line;
 };
 
 class NodeParser
@@ -31,14 +31,14 @@ class NodeParser
 public:
 
 	NodeParser(Parser& outer);
-	void init(std::wstring prjName, std::wstring prjFileName, std::wstring prjPath, std::shared_ptr<SystemIncludes> systemIncludes);
+	void init(std::string prjName, std::string prjFileName, std::string prjPath, std::shared_ptr<SystemIncludes> systemIncludes);
 	void finish();
 	bool isFinished() const;
-	const std::wstring& getName() const;
-	void parseLine(const std::wstring& line);
+	const std::string& getName() const;
+	void parseLine(const std::string& line);
 private:
-	bool tryCompile(const std::wstring& line);
-	bool tryInclude(const std::wstring& line);
+	bool tryCompile(const std::string& line);
+	bool tryInclude(const std::string& line);
 
 	enum class State
 	{
@@ -51,9 +51,9 @@ private:
 	State m_state = State::Initial;
 	std::shared_ptr<Params> m_currClCompileParams;
 	std::shared_ptr<SystemIncludes> m_systemIncludes;
-	std::wstring m_prjPath;
-	std::wstring m_prjFileName;
-	std::wstring m_prjName;
+	std::string m_prjPath;
+	std::string m_prjFileName;
+	std::string m_prjName;
 };
 
 

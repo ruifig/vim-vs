@@ -24,17 +24,17 @@ enum class LogVerbosity : uint8_t
 	Log
 };
 
-static inline const wchar_t* logVerbosityToString(LogVerbosity v)
+static inline const char* logVerbosityToString(LogVerbosity v)
 {
 	switch (v)
 	{
-	case LogVerbosity::None   : return L"NNN";
-	case LogVerbosity::Fatal  : return L"FTL";
-	case LogVerbosity::Error  : return L"ERR";
-	case LogVerbosity::Warning: return L"WRN";
-	case LogVerbosity::Log    : return L"LOG";
+	case LogVerbosity::None   : return "NNN";
+	case LogVerbosity::Fatal  : return "FTL";
+	case LogVerbosity::Error  : return "ERR";
+	case LogVerbosity::Warning: return "WRN";
+	case LogVerbosity::Log    : return "LOG";
 	};
-	return L"Unknown";
+	return "Unknown";
 }
 
 #define CZ_LOG_MINIMUM_VERBOSITY Log
@@ -42,8 +42,8 @@ static inline const wchar_t* logVerbosityToString(LogVerbosity v)
 class LogCategoryBase
 {
 public:
-	LogCategoryBase(const wchar_t* name, LogVerbosity verbosity, LogVerbosity compileTimeVerbosity);
-	__forceinline const std::wstring& getName() const
+	LogCategoryBase(const char* name, LogVerbosity verbosity, LogVerbosity compileTimeVerbosity);
+	__forceinline const std::string& getName() const
 	{
 		return m_name;
 	}
@@ -56,14 +56,14 @@ public:
 protected:
 	LogVerbosity m_verbosity;
 	LogVerbosity m_compileTimeVerbosity;
-	std::wstring m_name;
+	std::string m_name;
 };
 
 template<LogVerbosity DEFAULT, LogVerbosity COMPILETIME>
 class LogCategory : public LogCategoryBase
 {
 public:
-	LogCategory(const wchar_t* name) : LogCategoryBase(name, DEFAULT, COMPILETIME)
+	LogCategory(const char* name) : LogCategoryBase(name, DEFAULT, COMPILETIME)
 	{
 	}
 
@@ -81,9 +81,9 @@ class LogOutput
 public:
 	LogOutput();
 	virtual ~LogOutput();
-	static void logToAll(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, _Printf_format_string_ const wchar_t* fmt, ...);
+	static void logToAll(const char* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, _Printf_format_string_ const char* fmt, ...);
 private:
-	virtual void log(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const wchar_t* msg) = 0;
+	virtual void log(const char* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const char* msg) = 0;
 
 	struct SharedData
 	{
@@ -124,7 +124,7 @@ extern LogCategoryLogNone logNone;
 	extern class LogCategory##NAME : public ::cz::LogCategory<::cz::LogVerbosity::DEFAULT_VERBOSITY, ::cz::LogVerbosity::COMPILETIME_VERBOSITY> \
 	{ \
 		public: \
-		LogCategory##NAME() : LogCategory(L#NAME) {} \
+		LogCategory##NAME() : LogCategory(#NAME) {} \
 	} NAME;
 
 #define CZ_DEFINE_LOG_CATEGORY(NAME) LogCategory##NAME NAME;
@@ -139,11 +139,11 @@ extern LogCategoryLogNone logNone;
 		{                                                                                                \
 			if (!NAME.isSuppressed(::cz::LogVerbosity::VERBOSITY))                                       \
 			{                                                                                            \
-				::cz::LogOutput::logToAll(__WFILE__, __LINE__, &NAME, ::cz::LogVerbosity::VERBOSITY, fmt, \
+				::cz::LogOutput::logToAll(__FILE__, __LINE__, &NAME, ::cz::LogVerbosity::VERBOSITY, fmt, \
 				                          ##__VA_ARGS__);                                                \
 				if (::cz::LogVerbosity::VERBOSITY == ::cz::LogVerbosity::Fatal)                          \
 				{                                                                                        \
-					::cz::_doAssert(__WFILE__, __LINE__, fmt, ##__VA_ARGS__);                             \
+					::cz::_doAssert(__FILE__, __LINE__, fmt, ##__VA_ARGS__);                             \
 				}                                                                                        \
 			}                                                                                            \
 		}                                                                                                \

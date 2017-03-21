@@ -22,14 +22,14 @@ class ChildProcessLauncher
 public:
 	ChildProcessLauncher();
 	~ChildProcessLauncher();
-	int launch(const std::wstring& name, const std::wstring& params, const std::function<void(bool, const std::wstring& str)>& logfunc=nullptr);
+	int launch(const std::string& name, const std::string& params, const std::function<void(bool, const std::string& str)>& logfunc=nullptr);
 
-	const std::wstring& getLaunchErrorMsg()
+	const std::string& getLaunchErrorMsg()
 	{
 		return m_errmsg;
 	}
 
-	const std::wstring& getFullOutput() const
+	const std::string& getFullOutput() const
 	{
 		return m_output;
 	}
@@ -37,17 +37,17 @@ public:
 private:
 	int PrepAndLaunchRedirectedChild(HANDLE hChildStdOut, HANDLE hChildStdIn, HANDLE hChildStdErr);
 	int ReadAndHandleOutput(HANDLE hPipeRead);
-	int ErrorMessage(PTSTR lpszFunction);
-	void addOutput(const std::wstring& str);
-	std::wstring m_errmsg;
-	std::wstring m_name;
+	int ErrorMessage(const char* funcnam);
+	void addOutput(const std::string& str);
+	std::string m_errmsg;
+	std::string m_name;
 	HANDLE m_hStdIn;
 	HANDLE m_hChildProcess;
 	BOOL m_bRunThread;
-	std::wstring m_params;
-	std::wstring m_output;
-	std::wstring m_tmpline;
-	std::function<void(bool isLaunchCmd, const std::wstring& str)> m_logfunc;
+	std::string m_params;
+	std::string m_output;
+	std::string m_tmpline;
+	std::function<void(bool isLaunchCmd, const std::string& str)> m_logfunc;
 };
 
 } // namespace cz

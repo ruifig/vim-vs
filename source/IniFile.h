@@ -28,7 +28,7 @@ namespace cz
 			{
 			}
 
-			const std::wstring& getName() const
+			const std::string& getName() const
 			{
 				return m_name;
 			}
@@ -43,10 +43,10 @@ namespace cz
 				return &m_entries[index];
 			}
 
-			Entry* getEntry(const wchar_t* name, bool bCreate = true);
+			Entry* getEntry(const char* name, bool bCreate = true);
 
 			template<typename T>
-			Entry* getEntryWithDefault(const wchar_t* name, T defaultValue)
+			Entry* getEntryWithDefault(const char* name, T defaultValue)
 			{
 				auto entry = getEntry(name);
 				if (entry->m_val.size() == 0)
@@ -55,25 +55,25 @@ namespace cz
 			}
 
 			//! Changes the value of an existing entry, or creates a new one if necessary
-			void setValue(const wchar_t* szEntryName, const wchar_t* szValue);
+			void setValue(const char* szEntryName, const char* szValue);
 			//! Changes the value of an existing entry, or creates a new one if necessary
-			void setValue(const wchar_t* szEntryName, int val);
+			void setValue(const char* szEntryName, int val);
 			//! Changes the value of an existing entry, or creates a new one if necessary
-			void setValue(const wchar_t* szEntryName, float val);
+			void setValue(const char* szEntryName, float val);
 
 			//! Adds a new entry/value pair, even if it creates a duplicated entry name
-			void add(const wchar_t* szEntryName, const wchar_t* szValue);
+			void add(const char* szEntryName, const char* szValue);
 			//! Adds a new entry/value pair, even if it creates a duplicated entry name
-			void add(const wchar_t* szEntryName, int val);
+			void add(const char* szEntryName, int val);
 			//! Adds a new entry/value pair, even if it creates a duplicated entry name
-			void add(const wchar_t* szEntryName, float val);
+			void add(const char* szEntryName, float val);
 
 		protected:
 			friend class IniFile;
-			void init(const wchar_t* name);
+			void init(const char* name);
 
 		private:
-			std::wstring m_name;
+			std::string m_name;
 			std::vector<Entry> m_entries;
 		};
 
@@ -94,12 +94,12 @@ namespace cz
 			{
 			}
 
-			const std::wstring& getName() const
+			const std::string& getName() const
 			{
 				return m_name;
 			}
 
-			const std::wstring& asString() const
+			const std::string& asString() const
 			{
 				return m_val;
 			}
@@ -121,11 +121,11 @@ namespace cz
 			{
 				return asFloat();
 			}
-			template<> const wchar_t* as()
+			template<> const char* as()
 			{
 				return asString().c_str();
 			}
-			template<> std::wstring as()
+			template<> std::string as()
 			{
 				return asString();
 			}
@@ -137,20 +137,20 @@ namespace cz
 
 		protected:
 			friend class IniFile::Section;
-			void init(const wchar_t* name, const wchar_t* val);
-			void setValue(const wchar_t* val);
+			void init(const char* name, const char* val);
+			void setValue(const char* val);
 			void setValue(bool val);
 			void setValue(int val);
 			void setValue(float val);
 
 		private:
-			std::wstring m_name;
-			std::wstring m_val;
+			std::string m_name;
+			std::string m_val;
 		};
 
 		IniFile() {}
 		virtual ~IniFile();
-		bool open(const wchar_t* filename);
+		bool open(const char* filename);
 
 		int getNumSections() const
 		{
@@ -162,10 +162,10 @@ namespace cz
 			return m_sections[index].get();
 		}
 
-		Section* getSection(const wchar_t* szName, bool bCreate = true);
+		Section* getSection(const char* szName, bool bCreate = true);
 
 		template<typename T>
-		T getValue(const wchar_t* szSection, const wchar_t* szName, T defaultVal)
+		T getValue(const char* szSection, const char* szName, T defaultVal)
 		{
 			return getSection(szSection)->getEntryWithDefault(szName, defaultVal)->as<T>();
 		}

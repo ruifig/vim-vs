@@ -8,7 +8,7 @@ namespace cz
 
 struct SystemIncludes
 {
-	std::vector<std::wstring> dirs;
+	std::vector<std::string> dirs;
 	std::string ready;
 	const std::string& getIncludes()
 	{
@@ -16,15 +16,15 @@ struct SystemIncludes
 			return ready;
 
 		for (auto&& i : dirs)
-			ready += "\"-isystem" + toUTF8(i) + "\" ";
+			ready += "\"-isystem" + i + "\" ";
 		return ready;
 	}
 };
 
 struct Params
 {
-	std::vector<std::wstring> defines;
-	std::vector<std::wstring> includes;
+	std::vector<std::string> defines;
+	std::vector<std::string> includes;
 	std::string readyParams;
 	const std::string& getReadyParams()
 	{
@@ -32,10 +32,10 @@ struct Params
 			return readyParams;
 
 		for (auto&& i : defines)
-			readyParams += "\"-D" + toUTF8(i) + "\" ";
+			readyParams += "\"-D" + i + "\" ";
 
 		for (auto&& i : includes)
-			readyParams += "\"-I" + toUTF8(i) + "\" ";
+			readyParams += "\"-I" + i + "\" ";
 
 		return readyParams;
 	}
@@ -43,8 +43,8 @@ struct Params
 
 struct File
 {
-	std::wstring name;
-	std::wstring prjName;
+	std::string name;
+	std::string prjName;
 	std::shared_ptr<Params> params;
 	std::shared_ptr<SystemIncludes> systemIncludes;
 };
@@ -52,21 +52,21 @@ struct File
 struct SourceFile
 {
 	uint64_t id = 0;
-	std::wstring fullpath;
-	std::wstring name;
-	std::wstring projectName;
-	std::wstring configuration;
-	std::wstring defines;
-	std::wstring includes;
+	std::string fullpath;
+	std::string name;
+	std::string projectName;
+	std::string configuration;
+	std::string defines;
+	std::string includes;
 };
 
 class Database
 {
 public:
 	Database();
-	bool open(const std::wstring& dbfname);
+	bool open(const std::string& dbfname);
 	void addFile(File file);
-	File* getFile(const std::wstring& filename);
+	File* getFile(const std::string& filename);
 	auto& files() const
 	{
 		return m_files;
@@ -79,7 +79,7 @@ private:
 	SqStmt m_sqlGetFile;
 	SqStmt m_sqlAddFile;
 
-	std::unordered_map<std::wstring, File> m_files;
+	std::unordered_map<std::string, File> m_files;
 };
 
 }

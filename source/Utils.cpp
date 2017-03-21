@@ -6,7 +6,7 @@
 namespace cz
 {
 
-std::wstring getWin32Error(const wchar_t* funcname)
+std::string getWin32Error(const char* funcname)
 {
 	LPVOID lpMsgBuf;
 	LPVOID lpDisplayBuf;
@@ -25,13 +25,15 @@ std::wstring getWin32Error(const wchar_t* funcname)
 	lpDisplayBuf =
 	    (LPVOID)LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + funcnameLength + 50) * sizeof(funcname[0]));
 	if (lpDisplayBuf == NULL)
-		return L"Win32ErrorMsg failed";
+		return "Win32ErrorMsg failed";
 	SCOPE_EXIT{ LocalFree(lpDisplayBuf); };
+
+	auto wfuncname = funcname ? widen(funcname) : L"";
 
 	StringCchPrintfW((LPTSTR)lpDisplayBuf,
 	                 LocalSize(lpDisplayBuf) / sizeof(funcname[0]),
-	                 TEXT("%s failed with error %lu: %s"),
-	                 funcname ? funcname : L"",
+	                 L"%s failed with error %lu: %s",
+	                 wfuncname.c_str(),
 	                 dw,
 	                 (LPTSTR)lpMsgBuf);
 
@@ -41,10 +43,10 @@ std::wstring getWin32Error(const wchar_t* funcname)
 	while (ret.size() && ret.back() < ' ')
 		ret.pop_back();
 
-	return std::move(ret);
+	return narrow(ret);
 }
 
-void _doAssert(const wchar_t* file, int line, _Printf_format_string_ const wchar_t* fmt, ...)
+void _doAssert(const char* file, int line, _Printf_format_string_ const char* fmt, ...)
 {
 	static bool executing;
 
@@ -53,13 +55,13 @@ void _doAssert(const wchar_t* file, int line, _Printf_format_string_ const wchar
 		__debugbreak();
 	executing = true;
 
-	wchar_t buf[1024];
+	char buf[1024];
 	va_list args;
 	va_start(args, fmt);
-	_vsnwprintf(buf, 1024, fmt, args);
+	_vsnprintf_s(buf, 1024, _TRUNCATE, fmt, args);
 	va_end(args);
 
-	CZ_LOG(logDefault, Fatal, L"ASSERT: %s,%d: %s\n", file, line, buf);
+	CZ_LOG(logDefault, Fatal, "ASSERT: %s,%d: %s\n", file, line, buf);
 
 	if (::IsDebuggerPresent())
 	{
@@ -73,87 +75,87 @@ void _doAssert(const wchar_t* file, int line, _Printf_format_string_ const wchar
 	}
 }
 
-wchar_t* getTemporaryString()
+char* getTemporaryString()
 {
 	// Use several static strings, and keep picking the next one, so that callers can hold the string for a while
 	// without risk of it being changed by another call.
-	__declspec(thread) static wchar_t bufs[kTemporaryStringMaxNesting][kTemporaryStringMaxSize];
-	__declspec(thread) static wchar_t nBufIndex = 0;
-	wchar_t* buf = bufs[nBufIndex];
+	__declspec(thread) static char bufs[kTemporaryStringMaxNesting][kTemporaryStringMaxSize];
+	__declspec(thread) static char nBufIndex = 0;
+	char* buf = bufs[nBufIndex];
 	nBufIndex++;
 	if (nBufIndex == kTemporaryStringMaxNesting)
 		nBufIndex = 0;
 	return buf;
 }
 
-const wchar_t* formatString(_Printf_format_string_ const wchar_t* format, ...)
+const char* formatString(_Printf_format_string_ const char* format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	const wchar_t* str = formatStringVA(format, args);
+	const char* str = formatStringVA(format, args);
 	va_end(args);
 	return str;
 }
 
-const wchar_t* formatStringVA(const wchar_t* format, va_list argptr)
+const char* formatStringVA(const char* format, va_list argptr)
 {
-	wchar_t* buf = getTemporaryString();
-	_vsnwprintf_s(buf, kTemporaryStringMaxSize, _TRUNCATE, format, argptr);
+	char* buf = getTemporaryString();
+	_vsnprintf_s(buf, kTemporaryStringMaxSize, _TRUNCATE, format, argptr);
 	return buf;
 }
 
-void ensureTrailingSlash(std::wstring& str)
+void ensureTrailingSlash(std::string& str)
 {
 	if (str.size() && !(str[str.size() - 1] == '\\' || str[str.size() - 1] == '/'))
 		str += '\\';
 }
 
-std::wstring getCWD()
+std::string getCWD()
 {
-	const int bufferLength = MAX_PATH;
-	wchar_t buf[bufferLength + 1];
-	buf[0] = 0;
-	CZ_CHECK(GetCurrentDirectoryW(bufferLength, buf) != 0);
-	std::wstring res = buf;
-	return res + L"\\";
+	wchar_t buf[MAX_PATH];
+	CZ_CHECK(GetCurrentDirectoryW(MAX_PATH, buf) != 0);
+	return narrow(buf) + "\\";
 }
 
-bool isExistingFile(const std::wstring& filename)
+bool isExistingFile(const std::string& filename)
 {
-	DWORD dwAttrib = GetFileAttributesW(filename.c_str());
+	DWORD dwAttrib = GetFileAttributesW(widen(filename).c_str());
 	return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
 		!(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 }
 
-std::wstring getProcessPath(std::wstring* fname)
+std::string getProcessPath(std::string* fname)
 {
 	wchar_t buf[MAX_PATH];
 	GetModuleFileNameW(NULL, buf, MAX_PATH);
 
-	std::wstring result(buf);
-	std::wstring::size_type index = result.rfind(L"\\");
+	auto result = narrow(buf);
+	std::string::size_type index = result.rfind("\\");
 
-	if (index != std::wstring::npos)
+	if (index != std::string::npos)
 	{
 		if (fname)
 			*fname = result.substr(index + 1);
 		result = result.substr(0, index + 1);
 	}
 	else
-		return L"";
+		return "";
 
 	return result;
 }
 
-bool fullPath(std::wstring& dst, const std::wstring& path, std::wstring root)
+bool fullPath(std::string& dst, const std::string& path, std::string root)
 {
-	wchar_t fullpathbuf[MAX_PATH + 1];
-	wchar_t srcfullpath[MAX_PATH + 1];
+	wchar_t fullpathbuf[MAX_PATH];
+	wchar_t srcfullpath[MAX_PATH];
 	if (root.empty())
 		root = getCWD();
 	ensureTrailingSlash(root);
 
-	std::wstring tmp = PathIsRelativeW(path.c_str()) ? root + path : path;
+	auto wpath = widen(path);
+	auto wroot = widen(root);
+
+	std::wstring tmp = PathIsRelativeW(wpath.c_str()) ? wroot + wpath : wpath;
 	wcscpy(srcfullpath, tmp.c_str());
 	wchar_t* d = srcfullpath;
 	wchar_t* s = srcfullpath;
@@ -179,13 +181,13 @@ bool fullPath(std::wstring& dst, const std::wstring& path, std::wstring root)
 
 	bool res = PathCanonicalizeW(fullpathbuf, srcfullpath) ? true : false;
 	if (res)
-		dst = fullpathbuf;
+		dst = narrow(fullpathbuf);
 	return res;
 }
 
-std::wstring replace(const std::wstring& s, wchar_t from, wchar_t to)
+std::string replace(const std::string& s, char from, char to)
 {
-	std::wstring res = s;
+	std::string res = s;
 	for (auto&& ch : res)
 	{
 		if (ch == from)
@@ -194,10 +196,10 @@ std::wstring replace(const std::wstring& s, wchar_t from, wchar_t to)
 	return res;
 }
 
-std::wstring replace(const std::wstring& str, const std::wstring& from, const std::wstring& to)
+std::string replace(const std::string& str, const std::string& from, const std::string& to)
 {
 	if (from.empty())
-		return L"";
+		return "";
 	size_t start_pos = 0;
 	auto res = str;
 	while ((start_pos = res.find(from, start_pos)) != std::string::npos)
@@ -208,102 +210,17 @@ std::wstring replace(const std::wstring& str, const std::wstring& from, const st
 	return res;
 }
 
-std::pair<std::wstring, std::wstring> splitFolderAndFile(const std::wstring& str)
+std::pair<std::string, std::string> splitFolderAndFile(const std::string& str)
 {
-	auto i = std::find_if(str.rbegin(), str.rend(), [](const wchar_t& ch)
+	auto i = std::find_if(str.rbegin(), str.rend(), [](const char& ch)
 	{
 		return ch == '/' || ch == '\\';
 	});
 
-	std::pair < std::wstring, std::wstring> res;
-	res.first = std::wstring(str.begin(), i.base());
-	res.second = std::wstring(i.base(), str.end());
+	std::pair < std::string, std::string> res;
+	res.first = std::string(str.begin(), i.base());
+	res.second = std::string(i.base(), str.end());
 	return res;
-}
-
-std::wstring toUTF16(const std::string& utf8)
-{
-	if (utf8.empty())
-		return std::wstring();
-
-	// Get length (in wchar_t's), so we can reserve the size we need before the
-	// actual conversion
-	const int length = ::MultiByteToWideChar(CP_UTF8,             // convert from UTF-8
-		0,                   // default flags
-		utf8.data(),         // source UTF-8 string
-		(int)utf8.length(),  // length (in chars) of source UTF-8 string
-		NULL,                // unused - no conversion done in this step
-		0                    // request size of destination buffer, in wchar_t's
-	);
-	if (length == 0)
-		throw std::exception("Can't get length of UTF-16 string");
-
-	std::wstring utf16;
-	utf16.resize(length);
-
-	// Do the actual conversion
-	if (!::MultiByteToWideChar(CP_UTF8,             // convert from UTF-8
-		0,                   // default flags
-		utf8.data(),         // source UTF-8 string
-		(int)utf8.length(),  // length (in chars) of source UTF-8 string
-		&utf16[0],           // destination buffer
-		(int)utf16.length()  // size of destination buffer, in wchar_t's
-	))
-	{
-		throw std::exception("Can't convert string from UTF-8 to UTF-16");
-	}
-
-	return utf16;
-}
-
-std::string toUTF8(const std::wstring& utf16)
-{
-	if (utf16.empty())
-		return std::string();
-
-	// Get length (in wchar_t's), so we can reserve the size we need before the
-	// actual conversion
-	const int utf8_length = ::WideCharToMultiByte(CP_UTF8,              // convert to UTF-8
-		0,                    // default flags
-		utf16.data(),         // source UTF-16 string
-		(int)utf16.length(),  // source string length, in wchar_t's,
-		NULL,                 // unused - no conversion required in this step
-		0,                    // request buffer size
-		NULL,
-		NULL  // unused
-	);
-
-	if (utf8_length == 0)
-		throw "Can't get length of UTF-8 string";
-
-	std::string utf8;
-	utf8.resize(utf8_length);
-
-	// Do the actual conversion
-	if (!::WideCharToMultiByte(CP_UTF8,              // convert to UTF-8
-		0,                    // default flags
-		utf16.data(),         // source UTF-16 string
-		(int)utf16.length(),  // source string length, in wchar_t's,
-		&utf8[0],             // destination buffer
-		(int)utf8.length(),   // destination buffer size, in chars
-		NULL,
-		NULL  // unused
-	))
-	{
-		throw "Can't convert from UTF-16 to UTF-8";
-	}
-
-	return utf8;
-}
-
-bool isSpace(int a)
-{
-	return a == ' ' || a == '\t' || a == 0xA || a == 0xD;
-}
-
-bool notSpace(int a)
-{
-	return !isSpace(a);
 }
 
 std::wstring widen(const std::string& utf8)
@@ -341,7 +258,58 @@ std::wstring widen(const std::string& utf8)
 	return utf16;
 }
 
-bool endsWith(const std::wstring& str, const std::wstring& ending)
+
+std::string narrow(const std::wstring& str)
+{
+	if (str.empty())
+		return std::string();
+
+	// Get length (in wchar_t's), so we can reserve the size we need before the
+	// actual conversion
+	const int utf8_length = ::WideCharToMultiByte(CP_UTF8,              // convert to UTF-8
+		0,                    // default flags
+		str.data(),           // source UTF-16 string
+		(int)str.length(),  // source string length, in wchar_t's,
+		NULL,                 // unused - no conversion required in this step
+		0,                    // request buffer size
+		NULL,
+		NULL  // unused
+	);
+
+	if (utf8_length == 0)
+		throw "Can't get length of UTF-8 string";
+
+	std::string utf8;
+	utf8.resize(utf8_length);
+
+	// Do the actual conversion
+	if (!::WideCharToMultiByte(CP_UTF8,              // convert to UTF-8
+		0,                    // default flags
+		str.data(),           // source UTF-16 string
+		(int)str.length(),    // source string length, in wchar_t's,
+		&utf8[0],             // destination buffer
+		(int)utf8.length(),   // destination buffer size, in chars
+		NULL,
+		NULL  // unused
+	))
+	{
+		throw "Can't convert from UTF-16 to UTF-8";
+	}
+
+	return utf8;
+}
+
+bool isSpace(int a)
+{
+	return a == ' ' || a == '\t' || a == 0xA || a == 0xD;
+}
+
+bool notSpace(int a)
+{
+	return !isSpace(a);
+}
+
+bool endsWith(const std::string& str, const std::string& ending)
 {
 	if (str.length() >= ending.length()) {
 		return (0 == str.compare(str.length() - ending.length(), ending.length(), ending));
@@ -351,9 +319,9 @@ bool endsWith(const std::wstring& str, const std::wstring& ending)
 	}
 }
 
-bool endsWith(const std::wstring& str, const wchar_t* ending)
+bool endsWith(const std::string& str, const char* ending)
 {
-	const size_t endingLength = wcslen(ending);
+	const size_t endingLength = strlen(ending);
 	if (str.length() >= endingLength) {
 		return (0 == str.compare(str.length() - endingLength, endingLength, ending));
 	}
@@ -362,7 +330,7 @@ bool endsWith(const std::wstring& str, const wchar_t* ending)
 	}
 }
 
-bool beginsWith(const std::wstring& str, const std::wstring& begins)
+bool beginsWith(const std::string& str, const std::string& begins)
 {
 	if (str.length() >= begins.length()) {
 		return (0 == str.compare(0, begins.length(), begins));
@@ -372,9 +340,9 @@ bool beginsWith(const std::wstring& str, const std::wstring& begins)
 	}
 }
 
-bool beginsWith(const std::wstring& str, const wchar_t* begins)
+bool beginsWith(const std::string& str, const char* begins)
 {
-	const size_t beginsLength = wcslen(begins);
+	const size_t beginsLength = strlen(begins);
 	if (str.length() >= beginsLength) {
 		return (0 == str.compare(0, beginsLength, begins));
 	}

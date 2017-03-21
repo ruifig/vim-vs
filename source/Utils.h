@@ -8,14 +8,14 @@
 #if NDEBUG
 	#define CZ_ASSERT(expression) ((void)0)
 	#define CZ_ASSERT_F(expression, fmt, ...) ((void)0)
-	#define CZ_UNEXPECTED() ::cz::_doAssert(__WFILE__, __LINE__, "Unexpected code path")
+	#define CZ_UNEXPECTED() ::cz::_doAssert(__FILE__, __LINE__, "Unexpected code path")
 #else
 
 /*! Checks if the expression is true/false and causes an assert if it's false.
  @hideinitializer
  Depending on the build configuration, asserts might be enabled for release build too
  */
-	#define CZ_ASSERT(expression) if (!(expression)) { ::cz::_doAssert(__WFILE__, __LINE__, L#expression); }
+	#define CZ_ASSERT(expression) if (!(expression)) { ::cz::_doAssert(__FILE__, __LINE__, #expression); }
 	//#define CZ_ASSERT(expression) (void(0))
 
 /*! Checks if the expression is true/false and causes an assert if it's false.
@@ -24,10 +24,10 @@ The difference between this and \link CZ_ASSERT \endlink is that it's suitable t
 \param expression Expression to check
 \param fmt printf style format string
 */
-	#define CZ_ASSERT_F(expression, fmt, ...) if (!(expression)) { ::cz::_doAssert(__WFILE__, __LINE__, fmt, ##__VA_ARGS__); } // By using ##__VA_ARGS__ , it will remove the last comma, if __VA_ARGS__ is empty
+	#define CZ_ASSERT_F(expression, fmt, ...) if (!(expression)) { ::cz::_doAssert(__FILE__, __LINE__, fmt, ##__VA_ARGS__); } // By using ##__VA_ARGS__ , it will remove the last comma, if __VA_ARGS__ is empty
 
-	#define CZ_UNEXPECTED() ::cz::_doAssert(__WFILE__, __LINE__, "Unexpected code path")
-	#define CZ_UNEXPECTED_F(fmt, ...) ::cz::_doAssert(__WFILE__, __LINE__, fmt, ##__VA_ARGS__)
+	#define CZ_UNEXPECTED() ::cz::_doAssert(__FILE__, __LINE__, "Unexpected code path")
+	#define CZ_UNEXPECTED_F(fmt, ...) ::cz::_doAssert(__FILE__, __LINE__, fmt, ##__VA_ARGS__)
 #endif
 
 /*! Evaluates the expression, and asserts if asserts are enabled.
@@ -38,14 +38,14 @@ The difference between this and \link CZ_ASSERT \endlink is that it's suitable t
  CZ_CHECK( doSomethingCritical()==true );
  \endcode
  */
-	#define CZ_CHECK(expression) if (!(expression)) { ::cz::_doAssert(__WFILE__, __LINE__, L#expression); }
+#define CZ_CHECK(expression) if (!(expression)) { ::cz::_doAssert(__FILE__, __LINE__, #expression); }
 
 namespace cz
 {
 
-std::wstring getWin32Error(const wchar_t* funcname);
+std::string getWin32Error(const char* funcname);
 
-void _doAssert(const wchar_t* file, int line, _Printf_format_string_ const wchar_t* fmt, ...);
+void _doAssert(const char* file, int line, _Printf_format_string_ const char* fmt, ...);
 
 enum
 {
@@ -53,34 +53,32 @@ enum
 	kTemporaryStringMaxSize = 16000
 };
 
-static wchar_t* getTemporaryString();
+static char* getTemporaryString();
 
-const wchar_t* formatString(_Printf_format_string_ const wchar_t* format, ...);
-const wchar_t* formatStringVA(const wchar_t* format, va_list argptr);
+const char* formatString(_Printf_format_string_ const char* format, ...);
+const char* formatStringVA(const char* format, va_list argptr);
 
-void ensureTrailingSlash(std::wstring& str);
+void ensureTrailingSlash(std::string& str);
 
-std::wstring getCWD();
+std::string getCWD();
 
-bool isExistingFile(const std::wstring& filename);
+bool isExistingFile(const std::string& filename);
 
-std::wstring getProcessPath(std::wstring* fname = nullptr);
+std::string getProcessPath(std::string* fname = nullptr);
 
 
 // Canonicalizes a path (converts relative to absolute, and converts all '/' characters to '\'
 // "root" is used to process relative paths. If it's not specified, it will assume the current working Directory
-bool fullPath(std::wstring& dst, const std::wstring& path, std::wstring root);
+bool fullPath(std::string& dst, const std::string& path, std::string root);
 
-std::wstring replace(const std::wstring& s, wchar_t from, wchar_t to);
-std::wstring replace(const std::wstring& str, const std::wstring& from, const std::wstring& to);
-std::pair<std::wstring, std::wstring> splitFolderAndFile(const std::wstring& str);
+std::string replace(const std::string& s, char from, char to);
+std::string replace(const std::string& str, const std::string& from, const std::string& to);
+std::pair<std::string, std::string> splitFolderAndFile(const std::string& str);
 
-//
-// Converts a string from UTF-8 to UTF-16.
-//
-std::wstring toUTF16(const std::string& utf8);
-
-std::string toUTF8(const std::wstring& utf16);
+//! Converts a string from UTF-8 to UTF-16.
+std::wstring widen(const std::string& str);
+//! Converts a string from UTF-16 to UTF-8.
+std::string narrow(const std::wstring& str);
 
 bool isSpace(int a);
 bool notSpace(int a);
@@ -107,15 +105,10 @@ static inline StringType trim(const StringType &s) {
 	return ltrim(rtrim(s));
 }
 
-//
-// Converts a string from UTF-8 to UTF-16.
-//
-std::wstring widen(const std::string& utf8);
-
 bool endsWith(const std::wstring& str, const std::wstring& ending);
-bool endsWith(const std::wstring& str, const wchar_t* ending);
+bool endsWith(const std::wstring& str, const char* ending);
 bool beginsWith(const std::wstring& str, const std::wstring& begins);
-bool beginsWith(const std::wstring& str, const wchar_t* begins);
+bool beginsWith(const std::wstring& str, const char* begins);
 
 } // namesapce cz
 

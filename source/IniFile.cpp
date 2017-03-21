@@ -15,16 +15,16 @@
 namespace cz
 {
 
-static void stringSplitIntoLines(const wchar_t* textbuffer, int buffersize, std::vector<std::wstring> *lines)
+static void stringSplitIntoLines(const char* textbuffer, int buffersize, std::vector<std::string> *lines)
 {
 	lines->clear();
 	if (*textbuffer == 0)
 		return;
 
-	const wchar_t* s = textbuffer;
+	const char* s = textbuffer;
 	while (*s != 0 && s < textbuffer + buffersize)
 	{
-		const wchar_t* ptrToChar = s;
+		const char* ptrToChar = s;
 		while (!(*s == 0 || *s == 0xA || *s == 0xD))
 			s++;
 
@@ -49,32 +49,32 @@ static void stringSplitIntoLines(const wchar_t* textbuffer, int buffersize, std:
 //////////////////////////////////////////////////////////////////////////
 // Entry
 //////////////////////////////////////////////////////////////////////////
-void IniFile::Entry::init( const wchar_t* name, const wchar_t* val )
+void IniFile::Entry::init( const char* name, const char* val )
 {
 	m_name = name;
 	m_val = val;
 }
 
-void IniFile::Entry::setValue( const wchar_t* val )
+void IniFile::Entry::setValue( const char* val )
 {
 	m_val = val;
 }
 
 void IniFile::Entry::setValue(bool val)
 {
-	m_val = val ? L"true" : L"false";
+	m_val = val ? "true" : "false";
 }
 
 void IniFile::Entry::setValue(int val)
 {
-	std::wostringstream ostr;
+	std::ostringstream ostr;
 	ostr << val;
 	m_val = ostr.str().c_str();
 }
 
 void IniFile::Entry::setValue(float val)
 {
-	std::wostringstream ostr;
+	std::ostringstream ostr;
 	ostr << val;
 	m_val = ostr.str().c_str();
 }
@@ -87,7 +87,7 @@ int IniFile::Entry::asInt() const
 
 bool IniFile::Entry::asBoolean() const
 {
-	if (m_val==L"1" || m_val==L"true" || m_val==L"True" || m_val==L"TRUE")
+	if (m_val=="1" || m_val=="true" || m_val=="True" || m_val=="TRUE")
 		return true;
 	else
 		return false;
@@ -102,12 +102,12 @@ float IniFile::Entry::asFloat() const
 // Section
 //////////////////////////////////////////////////////////////////////////
 
-void IniFile::Section::init(const wchar_t* name)
+void IniFile::Section::init(const char* name)
 {
 	m_name = name;
 }
 
-IniFile::Entry* IniFile::Section::getEntry(const wchar_t* name, bool bCreate)
+IniFile::Entry* IniFile::Section::getEntry(const char* name, bool bCreate)
 {
 	for(auto&& e : m_entries)
 	{
@@ -118,7 +118,7 @@ IniFile::Entry* IniFile::Section::getEntry(const wchar_t* name, bool bCreate)
 	if (bCreate)
 	{
 		m_entries.push_back(IniFile::Entry());
-		m_entries.back().init(name, L"");
+		m_entries.back().init(name, "");
 		return &m_entries.back();
 	}
 	else
@@ -128,39 +128,39 @@ IniFile::Entry* IniFile::Section::getEntry(const wchar_t* name, bool bCreate)
 
 }
 
-void IniFile::Section::setValue(const wchar_t* szEntryName, const wchar_t* szValue)
+void IniFile::Section::setValue(const char* szEntryName, const char* szValue)
 {
 	IniFile::Entry* pEntry = getEntry(szEntryName);
 	pEntry->setValue(szValue);
 }
 
-void IniFile::Section::setValue(const wchar_t* szEntryName, int val)
+void IniFile::Section::setValue(const char* szEntryName, int val)
 {
 	IniFile::Entry* pEntry = getEntry(szEntryName);
 	pEntry->setValue(val);
 }
 
-void IniFile::Section::setValue(const wchar_t* szEntryName, float val)
+void IniFile::Section::setValue(const char* szEntryName, float val)
 {
 	IniFile::Entry* pEntry = getEntry(szEntryName);
 	pEntry->setValue(val);
 }
 
-void IniFile::Section::add(const wchar_t* szEntryName, const wchar_t* szValue)
+void IniFile::Section::add(const char* szEntryName, const char* szValue)
 {
 	m_entries.push_back(IniFile::Entry());
 	m_entries.back().init(szEntryName, szValue);
 }
-void IniFile::Section::add(const wchar_t* szEntryName, int val)
+void IniFile::Section::add(const char* szEntryName, int val)
 {
 	m_entries.push_back(IniFile::Entry());
-	m_entries.back().init(szEntryName, L"");	
+	m_entries.back().init(szEntryName, "");	
 	m_entries.back().setValue(val);
 }
-void IniFile::Section::add(const wchar_t* szEntryName, float val)
+void IniFile::Section::add(const char* szEntryName, float val)
 {
 	m_entries.push_back(IniFile::Entry());
-	m_entries.back().init(szEntryName, L"");	
+	m_entries.back().init(szEntryName, "");	
 	m_entries.back().setValue(val);
 }
 
@@ -172,25 +172,27 @@ IniFile::~IniFile()
 {
 }
 
-bool IniFile::open(const wchar_t* filename)
+bool IniFile::open(const char* filename)
 {
-	std::ifstream ifs(filename);
+	// According to "http://utf8everywhere.org/", Passing a char* to MSVC CRT will not treat it as UTF8, so we need to use
+	// the wchar_t version
+	std::ifstream ifs(widen(filename));
 	if (!ifs.is_open())
 	{
-		CZ_LOG(logDefault, Warning, L"Error opening ini file %s", filename);
+		CZ_LOG(logDefault, Warning, "Error opening ini file %s", filename);
 		return false;
 	}
 
-	auto text = widen(std::string(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()));
-	std::vector<std::wstring> lines;
+	auto text = std::string(std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>());
+	std::vector<std::string> lines;
 	stringSplitIntoLines(text.c_str(), static_cast<int>(text.size()), &lines);
 
-	std::wstring tmp1, tmp2, tmp3;
+	std::string tmp1, tmp2, tmp3;
 
 	for(auto&& line : lines)
 	{
 		line = trim(line);
-		std::wstring::iterator it;
+		std::string::iterator it;
 
 		if (line.c_str()[0]==';' || line.c_str()[0]=='#' )
 		{
@@ -198,7 +200,7 @@ bool IniFile::open(const wchar_t* filename)
 		}
 		else if (line.c_str()[0]=='[') // its a section
 		{
-			tmp1 = L"";
+			tmp1 = "";
 			tmp1.append(line.begin()+1, line.end()-1);
 			tmp1 = trim(tmp1);
 			auto section = std::make_unique<Section>();
@@ -209,15 +211,15 @@ bool IniFile::open(const wchar_t* filename)
 		{
 			if (m_sections.size())
 			{
-				tmp1 = L"";
+				tmp1 = "";
 				tmp1.append(line.begin(), it);
 				tmp1 = trim(tmp1);
-				tmp2 = L"";
+				tmp2 = "";
 				tmp2.append(it+1,line.end());
 				tmp2 = trim(tmp2);
 				if (*tmp2.begin()=='"' || *tmp2.begin()=='\'')
 				{
-					tmp3 = L"";
+					tmp3 = "";
 					tmp3.append(tmp2.begin()+1, tmp2.end()-1);
 					m_sections.back()->add(tmp1.c_str(), tmp3.c_str());
 				}
@@ -229,23 +231,23 @@ bool IniFile::open(const wchar_t* filename)
 			}
 			else
 			{
-				CZ_LOG(logDefault, Warning, L"Value with no section in INI File (%s) : %s ", filename, line.c_str());
+				CZ_LOG(logDefault, Warning, "Value with no section in INI File (%s) : %s ", filename, line.c_str());
 			}
 		}
-		else if (line==L"")
+		else if (line=="")
 		{
 
 		}
 		else
 		{
-			CZ_LOG(logDefault, Warning, L"Invalid line in INI File (%s) : %s ", filename, line.c_str());
+			CZ_LOG(logDefault, Warning, "Invalid line in INI File (%s) : %s ", filename, line.c_str());
 		}
 	}
 
 	return true;
 }
 
-IniFile::Section* IniFile::getSection(const wchar_t* szName, bool bCreate)
+IniFile::Section* IniFile::getSection(const char* szName, bool bCreate)
 {
 	for (auto&& s : m_sections)
 	{

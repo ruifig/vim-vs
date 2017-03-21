@@ -1,11 +1,15 @@
 #include "vimvsPCH.h"
 #include "Parameters.h"
+#include "Utils.h"
 
-std::wstring Parameters::ms_empty;
+namespace cz
+{
+
+std::string Parameters::ms_empty;
 
 Parameters::Parameters(Dummy)
 {
-	auto cmd = GetCommandLine();
+	auto cmd = GetCommandLineW();
 	int argc;
 	LPWSTR* argv = ::CommandLineToArgvW(::GetCommandLineW(), &argc);
 	set(argc, argv);
@@ -25,13 +29,13 @@ void Parameters::set(int argc, wchar_t* argv[])
 		const wchar_t *seperator = wcschr(arg, '=');
 		if (seperator==nullptr)
 		{
-			m_args.emplace_back(arg, L"");
+			m_args.emplace_back(narrow(arg), "");
 		}
 		else
 		{
 			std::wstring name(arg, seperator);
 			std::wstring value(++seperator);
-			m_args.emplace_back(std::move(name), std::move(value));
+			m_args.emplace_back(narrow(name), narrow(value));
 		}
 	}
 }
@@ -49,7 +53,7 @@ const Parameters::Param* Parameters::end() const
 	return begin() + m_args.size();
 }
 
-bool Parameters::has(const wchar_t* name ) const
+bool Parameters::has(const char* name ) const
 {
 	for(auto &i: m_args)
 	{
@@ -61,12 +65,12 @@ bool Parameters::has(const wchar_t* name ) const
 	return false;
 }
 
-bool Parameters::has(const std::wstring& name) const
+bool Parameters::has(const std::string& name) const
 {
 	return has(name.c_str());
 }
 
-const std::wstring& Parameters::get(const wchar_t *name) const
+const std::string& Parameters::get(const char *name) const
 {
 	for (auto &i: m_args)
 	{
@@ -76,7 +80,7 @@ const std::wstring& Parameters::get(const wchar_t *name) const
 	return ms_empty;
 }
 
-const std::wstring& Parameters::get(const std::wstring& name) const
+const std::string& Parameters::get(const std::string& name) const
 {
 	return get(name.c_str());
 }
@@ -92,5 +96,4 @@ void Parameters::clear()
 }
 
 
-
-
+} // namespace cz

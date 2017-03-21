@@ -27,17 +27,17 @@ ChildProcessLauncher::~ChildProcessLauncher()
 	*/
 }
 
-int ChildProcessLauncher::ErrorMessage(PTSTR lpszFunction) 
+int ChildProcessLauncher::ErrorMessage(const char* funcname) 
 { 
 	if (m_errmsg.size())
 		return 1;
 
-	m_errmsg = getWin32Error(lpszFunction);
+	m_errmsg = getWin32Error(funcname);
 
 	return 1;
 }
 
-void ChildProcessLauncher::addOutput(const std::wstring& str)
+void ChildProcessLauncher::addOutput(const std::string& str)
 {
 	for(auto c : str)
 	{
@@ -59,7 +59,7 @@ void ChildProcessLauncher::addOutput(const std::wstring& str)
 	}
 }
 
-int ChildProcessLauncher::launch(const std::wstring& name, const std::wstring& params, const std::function<void(bool, const std::wstring& str)>& logfunc)
+int ChildProcessLauncher::launch(const std::string& name, const std::string& params, const std::function<void(bool, const std::string& str)>& logfunc)
 {
 	m_name = name;
 	m_params = params;
@@ -79,7 +79,7 @@ int ChildProcessLauncher::launch(const std::wstring& name, const std::wstring& p
 
 	// Create the child output pipe.
 	if (!CreatePipe(&hOutputReadTmp, &hOutputWrite, &sa, 0))
-		ErrorMessage(TEXT("CreatePipe"));
+		ErrorMessage("CreatePipe");
 
 
 	// Create a duplicate of the output write handle for the std error
@@ -88,12 +88,12 @@ int ChildProcessLauncher::launch(const std::wstring& name, const std::wstring& p
 	if (!DuplicateHandle(GetCurrentProcess(), hOutputWrite,
 		GetCurrentProcess(), &hErrorWrite, 0,
 		TRUE, DUPLICATE_SAME_ACCESS))
-		ErrorMessage(TEXT("DuplicateHandle"));
+		ErrorMessage("DuplicateHandle");
 
 
 	// Create the child input pipe.
 	if (!CreatePipe(&hInputRead, &hInputWriteTmp, &sa, 0))
-		ErrorMessage(TEXT("CreatePipe"));
+		ErrorMessage("CreatePipe");
 
 
 	// Create new output read handle and the input write handles. Set
@@ -105,27 +105,27 @@ int ChildProcessLauncher::launch(const std::wstring& name, const std::wstring& p
 		&hOutputRead, // Address of new handle.
 		0, FALSE, // Make it uninheritable.
 		DUPLICATE_SAME_ACCESS))
-		ErrorMessage(TEXT("DuplicateHandle"));
+		ErrorMessage("DuplicateHandle");
 
 	if (!DuplicateHandle(GetCurrentProcess(), hInputWriteTmp,
 		GetCurrentProcess(),
 		&hInputWrite, // Address of new handle.
 		0, FALSE, // Make it uninheritable.
 		DUPLICATE_SAME_ACCESS))
-		ErrorMessage(TEXT("DuplicateHandle"));
+		ErrorMessage("DuplicateHandle");
 
 
 	// Close inheritable copies of the handles you do not want to be
 	// inherited.
-	if (!CloseHandle(hOutputReadTmp)) ErrorMessage(TEXT("CloseHandle"));
-	if (!CloseHandle(hInputWriteTmp)) ErrorMessage(TEXT("CloseHandle"));
+	if (!CloseHandle(hOutputReadTmp)) ErrorMessage("CloseHandle");
+	if (!CloseHandle(hInputWriteTmp)) ErrorMessage("CloseHandle");
 
 
 	// Get std input handle so you can close it and force the ReadFile to
 	// fail when you want the input thread to exit.
 	if ((m_hStdIn = GetStdHandle(STD_INPUT_HANDLE)) ==
 		INVALID_HANDLE_VALUE)
-		ErrorMessage(TEXT("GetStdHandle"));
+		ErrorMessage("GetStdHandle");
 
 	PrepAndLaunchRedirectedChild(hOutputWrite, hInputRead, hErrorWrite);
 
@@ -134,9 +134,9 @@ int ChildProcessLauncher::launch(const std::wstring& name, const std::wstring& p
 	// You need to make sure that no handles to the write end of the
 	// output pipe are maintained in this process or else the pipe will
 	// not close when the child process exits and the ReadFile will hang.
-	if (!CloseHandle(hOutputWrite)) ErrorMessage(TEXT("CloseHandle"));
-	if (!CloseHandle(hInputRead)) ErrorMessage(TEXT("CloseHandle"));
-	if (!CloseHandle(hErrorWrite)) ErrorMessage(TEXT("CloseHandle"));
+	if (!CloseHandle(hOutputWrite)) ErrorMessage("CloseHandle");
+	if (!CloseHandle(hInputRead)) ErrorMessage("CloseHandle");
+	if (!CloseHandle(hErrorWrite)) ErrorMessage("CloseHandle");
 
 
 	// Launch the thread that gets the input and sends it to the child.
@@ -163,22 +163,22 @@ int ChildProcessLauncher::launch(const std::wstring& name, const std::wstring& p
 		ErrorMessage(TEXT("WaitForSingleObject"));
 		*/
 
-	if (!CloseHandle(hOutputRead)) ErrorMessage(TEXT("CloseHandle"));
-	if (!CloseHandle(hInputWrite)) ErrorMessage(TEXT("CloseHandle"));
+	if (!CloseHandle(hOutputRead)) ErrorMessage("CloseHandle");
+	if (!CloseHandle(hInputWrite)) ErrorMessage("CloseHandle");
 
 	DWORD exitcode=0;
 	if (!GetExitCodeProcess(m_hChildProcess, &exitcode))
-		ErrorMessage(TEXT("GetExitCodeProcess"));
+		ErrorMessage("GetExitCodeProcess");
 
 	if (!CloseHandle(m_hChildProcess))
-		ErrorMessage(TEXT("CloseHandle"));
+		ErrorMessage("CloseHandle");
 
 	if (m_errmsg.size())
 		addOutput(m_errmsg.data());
 
 	// If for some reason the last output wasn't a EOL, then write one, so the caller gets all the output
 	if (m_tmpline.size())
-		addOutput(L"\n");
+		addOutput("\n");
 	CZ_CHECK(m_tmpline.size() == 0);
 
 	return m_errmsg.size() ? 1 : exitcode;
@@ -204,22 +204,22 @@ int ChildProcessLauncher::PrepAndLaunchRedirectedChild(
 	// Note that dwFlags must include STARTF_USESHOWWINDOW if you want to
 	// use the wShowWindow flags.
 
-	std::wstring cmdline = std::wstring(L"\"") + m_name + L"\" " + m_params;
+	std::string cmdline = std::string("\"") + m_name + "\" " + m_params;
 
-	m_logfunc(true, cmdline + L"\n");
+	m_logfunc(true, cmdline + "\n");
 	// Launch the process that you want to redirect (in this case,
 	// Child.exe). Make sure Child.exe is in the same directory as
 	// redirect.c launch redirect from a command line to prevent location
 	// confusion.
-	if (!CreateProcess(NULL, (LPWSTR)cmdline.c_str(), NULL, NULL, TRUE,
+	if (!CreateProcess(NULL, (LPWSTR)widen(cmdline).c_str(), NULL, NULL, TRUE,
 		CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi))
-		ErrorMessage(TEXT("CreateProcess"));
+		ErrorMessage("CreateProcess");
 
 	// Set global child process handle to cause threads to exit.
 	m_hChildProcess = pi.hProcess;
 
 	// Close any unnecessary handles.
-	if (!CloseHandle(pi.hThread)) ErrorMessage(TEXT("CloseHandle"));
+	if (!CloseHandle(pi.hThread)) ErrorMessage("CloseHandle");
 
 	return 0;
 }
@@ -242,7 +242,7 @@ int ChildProcessLauncher::ReadAndHandleOutput(HANDLE hPipeRead)
 		if (GetLastError() == ERROR_BROKEN_PIPE)
 		   break; // pipe done - normal exit path.
 		else
-		   ErrorMessage(TEXT("ReadFile")); // Something bad happened.
+		   ErrorMessage("ReadFile"); // Something bad happened.
 	 }
 
 	 /*
@@ -252,7 +252,7 @@ int ChildProcessLauncher::ReadAndHandleOutput(HANDLE hPipeRead)
 		ErrorMessage(("WriteConsole"));
 		*/
 	 std::string s(lpBuffer, lpBuffer + nBytesRead);
-	 addOutput(widen(s));
+	 addOutput(s);
 
   }
 

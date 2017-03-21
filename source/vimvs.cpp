@@ -6,10 +6,11 @@
 #include "ChildProcessLauncher.h"
 #include "ScopeGuard.h"
 #include "SqLiteWrapper.h"
+#include "UTF8String.h"
 
-#define VIMVS_CFG_FILE L".vimvs_conf.ini"
-#define VIMVS_LOG_FILE L".vimvs.log"
-#define VIMVS_DB_FILE L".vimvs.sqlite"
+#define VIMVS_CFG_FILE ".vimvs_conf.ini"
+#define VIMVS_LOG_FILE ".vimvs.log"
+#define VIMVS_DB_FILE ".vimvs.sqlite"
 
 /*
 Links with information about msbuild
@@ -24,17 +25,19 @@ namespace cz
 class ConsoleLogger : LogOutput
 {
 private:
-	virtual void log(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const wchar_t* msg)
+	virtual void log(const char* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const char* msg) override
 	{
-		wprintf(L"%s\n", msg);
+		printf("%s\n", msg);
 	}
 };
 
 class FileLogger : LogOutput
 {
 public:
-	FileLogger(const std::wstring& filename)
-		: m_out(filename, std::ofstream::out | std::ofstream::app)
+	// According to "http://utf8everywhere.org/", Passing a char* to MSVC CRT will not treat it as UTF8, so we need to use
+	// the wchar_t version
+	FileLogger(const std::string& filename)
+		: m_out(widen(filename), std::ofstream::out | std::ofstream::app)
 		, m_filename(filename)
 	{
 	}
@@ -44,39 +47,39 @@ public:
 		return m_out.is_open();
 	}
 	
-	const std::wstring getFilename() const
+	const std::string getFilename() const
 	{
 		return m_filename;
 	}
 private:
 
-	virtual void log(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const wchar_t* msg)
+	virtual void log(const char* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const char* msg) override
 	{
-		m_out << toUTF8(msg) << std::endl;
+		m_out << msg << std::endl;
 	}
 
-	std::wstring m_filename;
+	std::string m_filename;
 	std::ofstream m_out;
 };
 
 struct Config
 {
-	std::wstring exeRoot;
-	std::wstring root;
-	std::wstring slnfile; // full path to the solution file to use
+	std::string exeRoot;
+	std::string root;
+	std::string slnfile; // full path to the solution file to use
 	std::unique_ptr<FileLogger> fileLogger;
 
-	std::wstring getUtilityPath(const wchar_t* name, bool quote=false)
+	std::string getUtilityPath(const char* name, bool quote=false)
 	{
-		auto s = exeRoot + L"../../bin/" + name;
-		fullPath(s, s, L"");
+		auto s = exeRoot + "../../bin/" + name;
+		fullPath(s, s, "");
 		if (!isExistingFile(s))
 		{
-			CZ_LOG(logDefault, Fatal, L"vim-vs utility '%s' not found", name);
-			return L"";
+			CZ_LOG(logDefault, Fatal, "vim-vs utility '%s' not found", name);
+			return "";
 		}
 		if (quote)
-			return std::wstring(L"\"") + s + L"\"";
+			return std::string("\"") + s + "\"";
 		else
 			return s;
 	}
@@ -88,7 +91,7 @@ struct Config
 		auto found = findConfigFile(root);
 		if (!found)
 		{
-			fprintf(stderr, "Could not find a '%s' file in current folder or any of the parents\n", toUTF8(VIMVS_CFG_FILE).c_str());
+			fprintf(stderr, "Could not find a '%s' file in current folder or any of the parents\n", VIMVS_CFG_FILE);
 			return false;
 		}
 
@@ -96,29 +99,29 @@ struct Config
 		fileLogger = std::make_unique<FileLogger>(root + VIMVS_LOG_FILE);
 		if (!fileLogger->isOpen())
 		{
-			fprintf(stderr, "Could not open log file '%s'", toUTF8(fileLogger->getFilename()).c_str());
+			fprintf(stderr, "Could not open log file '%s'", fileLogger->getFilename().c_str());
 			return false;
 		}
 
 		IniFile cfg;
 		cfg.open((root + VIMVS_CFG_FILE).c_str());
-		auto str = cfg.getValue<const wchar_t*>(L"General", L"solution", L"");
+		auto str = cfg.getValue<const char*>("General", "solution", "");
 		if (!fullPath(slnfile, str, root) || !isExistingFile(slnfile))
 		{
-			CZ_LOG(logDefault, Fatal, L"Invalid solution path (%s)", str);
+			CZ_LOG(logDefault, Fatal, "Invalid solution path (%s)", str);
 			return false;
 		}
 
-		CZ_LOG(logDefault, Log, L"Using solution file '%s'", slnfile.c_str());
+		CZ_LOG(logDefault, Log, "Using solution file '%s'", slnfile.c_str());
 
 		return true;
 	}
 
-	static bool findConfigFile(std::wstring& dir)
+	static bool findConfigFile(std::string& dir)
 	{
-		std::wstring d = getCWD();
-		std::wstring previous;
-		std::wstring f;
+		std::string d = getCWD();
+		std::string previous;
+		std::string f;
 		do
 		{
 			ensureTrailingSlash(d);
@@ -128,7 +131,7 @@ struct Config
 				return true;
 			}
 			previous = d;
-		} while (fullPath(d, d + L"..", L"") && d != previous);
+		} while (fullPath(d, d + "..", "") && d != previous);
 		return false;
 	}
 };
@@ -137,14 +140,14 @@ Parameters gParams(Parameters::Auto);
 std::unique_ptr<Config> gCfg;
 std::unique_ptr<Database> gDb;
 
-std::wstring genParams(std::vector<std::wstring> p)
+std::string genParams(std::vector<std::string> p)
 {
-	std::wstring res;
+	std::string res;
 	for (auto s : p)
 	{
-		res += L"\"";
+		res += "\"";
 		res += s;
-		res += L"\" ";
+		res += "\" ";
 	}
 	return res;
 }
@@ -153,22 +156,22 @@ int buildCompileDatabase()
 {
 	Parser parser(*gDb);
 
-	CZ_LOG(logDefault, Log, L"Generating compile database");
+	CZ_LOG(logDefault, Log, "Generating compile database");
 
 	ChildProcessLauncher launcher;
 	auto exitCode = launcher.launch(
-		gCfg->getUtilityPath(L"vim-vs.msbuild.bat"),
+		gCfg->getUtilityPath("vim-vs.msbuild.bat"),
 		genParams(
 			{gCfg->slnfile,
-			std::wstring(L"/p:ForceImportBeforeCppTargets=")+gCfg->getUtilityPath(L"gen.props", true),
-			L"/t:Rebuild"
-			, L"/maxcpucount"
+			std::string("/p:ForceImportBeforeCppTargets=")+gCfg->getUtilityPath("gen.props", true),
+			"/t:Rebuild",
+			"/maxcpucount"
 		}),
-		[&](bool iscmdline, const std::wstring& str)
+		[&](bool iscmdline, const std::string& str)
 	{
 		if (iscmdline)
 		{
-			CZ_LOG(logDefault, Log, L"msbuild command line: %s\n", str.c_str());
+			CZ_LOG(logDefault, Log, "msbuild command line: %s\n", str.c_str());
 		}
 		else
 		{
@@ -178,8 +181,8 @@ int buildCompileDatabase()
 
 	if (exitCode)
 	{
-		CZ_LOG(logDefault, Error, L"build failed");
-		wprintf(launcher.getFullOutput().c_str());
+		CZ_LOG(logDefault, Error, "build failed");
+		printf(launcher.getFullOutput().c_str());
 		//return EXIT_FAILURE;
 	}
 
@@ -191,18 +194,18 @@ int buildCompileDatabase()
 	commonParams += "-Wextra ";
 	commonParams += "-fexceptions ";
 	commonParams += "-DCINTERFACE "; // To let Clang parse VS's combaseapi.h, otherwise we get an error "unknown type name 'IUnknown'
-	CZ_LOG(logDefault, Log, L"Common clang params: %s", toUTF16(commonParams).c_str());
+	CZ_LOG(logDefault, Log, "Common clang params: %s", commonParams.c_str());
 
-	std::ofstream out(gCfg->root + L"compile_commands.json");
+	std::ofstream out(widen(gCfg->root + "compile_commands.json"));
 	using namespace nlohmann;
 	json j;
 	for (auto&& f : gDb->files())
 	{
 		auto ff = splitFolderAndFile(f.second.name);
 		j.push_back({
-			{"directory", toUTF8(ff.first)},
+			{"directory", ff.first},
 			{"command", commonParams + f.second.systemIncludes->getIncludes() + f.second.params->getReadyParams()},
-			{"file", toUTF8(f.second.name)}
+			{"file", f.second.name}
 			});
 	}
 	out << std::setw(4) << j << std::endl;
@@ -214,6 +217,20 @@ void testdatabase()
 {
 	Database db;
 	CZ_CHECK(db.open(gCfg->root + VIMVS_DB_FILE));
+}
+
+int teststring()
+{
+	UTF8String s1("Hello -\u20AC-");
+	UTF8String s2(std::string("Hello"));
+
+	auto w = s2.widen();
+
+	SetConsoleOutputCP(65001);
+	SetConsoleCP(65001);
+	printf("%s\n", s1.c_str());
+
+	return EXIT_SUCCESS;
 }
 
 } // namespace cz
@@ -233,13 +250,14 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 	if (!gDb->open(gCfg->root + VIMVS_DB_FILE))
 		return EXIT_FAILURE;
 
-	if (gParams.has(L"generate_compile_database"))
+	if (gParams.has("generate_compile_database"))
 		return buildCompileDatabase();
 	
-	if (gParams.has(L"testdatabase"))
+	if (gParams.has("testdatabase"))
 		return testdatabase();
 
-
+	if (gParams.has("teststring"))
+		return teststring();
 
 	return EXIT_SUCCESS;
 }

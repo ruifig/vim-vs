@@ -12,7 +12,7 @@ Parser::Parser(Database& db)
 {
 }
 
-void Parser::inject(const std::wstring& data)
+void Parser::inject(const std::string& data)
 {
 	// New lines format are:
 	// Unix		: 0xA
@@ -37,12 +37,12 @@ void Parser::inject(const std::wstring& data)
 	}
 }
 
-bool Parser::tryVimVsBegin(std::wstring& line)
+bool Parser::tryVimVsBegin(std::string& line)
 {
-	static std::wregex rgx(
-		L"[[:space:]]*rem vim-vs-begin: ProjectName=\"(.+)\", ProjectFileName=\"(.+)\", ProjectDir=\"(.+)\", IncludePath=(.+)",
+	static std::regex rgx(
+		"[[:space:]]*rem vim-vs-begin: ProjectName=\"(.+)\", ProjectFileName=\"(.+)\", ProjectDir=\"(.+)\", IncludePath=(.+)",
 		std::regex_constants::egrep | std::regex::optimize);
-	std::wsmatch matches;
+	std::smatch matches;
 	if (!std::regex_match(line, matches, rgx))
 		return false;
 
@@ -55,11 +55,11 @@ bool Parser::tryVimVsBegin(std::wstring& line)
 
 	size_t s = 0;
 	size_t e = 0;
-	while (e != std::wstring::npos)
+	while (e != std::string::npos)
 	{
 		e = includePath.find(';', s);
-		std::wstring str;
-		if (e == std::wstring::npos)
+		std::string str;
+		if (e == std::string::npos)
 			str = includePath.substr(s);
 		else
 		{
@@ -81,12 +81,12 @@ bool Parser::tryVimVsBegin(std::wstring& line)
 	return true;
 }
 
-bool Parser::tryVimVsEnd(std::wstring& line)
+bool Parser::tryVimVsEnd(std::string& line)
 {
-	static std::wregex rgx(
-		L"[[:space:]]*rem vim-vs-end: ProjectName=\"(.+)\"",
+	static std::regex rgx(
+		"[[:space:]]*rem vim-vs-end: ProjectName=\"(.+)\"",
 		std::regex_constants::egrep | std::regex::optimize);
-	std::wsmatch matches;
+	std::smatch matches;
 	if (!std::regex_match(line, matches, rgx))
 		return false;
 
@@ -99,12 +99,12 @@ bool Parser::tryVimVsEnd(std::wstring& line)
 	return true;
 }
 
-void Parser::parse(std::wstring line)
+void Parser::parse(std::string line)
 {
 	if (m_currNode==0)
 	{
-		static std::wregex rgx(L"[[:space:]]*(1>)?Project \".*\" on node 1.*", std::regex_constants::egrep | std::regex::optimize);
-		std::wsmatch matches;
+		static std::regex rgx("[[:space:]]*(1>)?Project \".*\" on node 1.*", std::regex_constants::egrep | std::regex::optimize);
+		std::smatch matches;
 		if (!std::regex_match(line, matches, rgx))
 			return;
 		m_mp = matches[1].matched;
@@ -114,8 +114,8 @@ void Parser::parse(std::wstring line)
 
 	// Detect what node to pass this to
 	// Remove the "N>" if present
-	static std::wregex rgx(L"[[:space:]]*(([[:digit:]]+)>)?(.*)", std::regex_constants::egrep | std::regex::optimize);
-	std::wsmatch matches;
+	static std::regex rgx("[[:space:]]*(([[:digit:]]+)>)?(.*)", std::regex_constants::egrep | std::regex::optimize);
+	std::smatch matches;
 	CZ_CHECK(std::regex_match(line, matches, rgx));
 	if (matches[2].matched) // The node number
 	{
@@ -144,7 +144,7 @@ NodeParser::NodeParser(Parser& outer) : m_outer(outer)
 {
 }
 
-void NodeParser::init(std::wstring prjName, std::wstring prjFileName, std::wstring prjPath, std::shared_ptr<SystemIncludes> systemIncludes)
+void NodeParser::init(std::string prjName, std::string prjFileName, std::string prjPath, std::shared_ptr<SystemIncludes> systemIncludes)
 {
 	m_prjName = prjName;
 	m_prjFileName = prjFileName;
@@ -162,12 +162,12 @@ bool NodeParser::isFinished() const
 	return m_state == State::Finished;
 }
 
-const std::wstring& NodeParser::getName() const
+const std::string& NodeParser::getName() const
 {
 	return m_prjName;
 }
 
-void NodeParser::parseLine(const std::wstring& line)
+void NodeParser::parseLine(const std::string& line)
 {
 	if (tryCompile(line))
 		return;
@@ -176,9 +176,9 @@ void NodeParser::parseLine(const std::wstring& line)
 		return;
 }
 
-bool NodeParser::tryCompile(const std::wstring& line)
+bool NodeParser::tryCompile(const std::string& line)
 {
-	if (trim(line) == L"ClCompile:")
+	if (trim(line) == "ClCompile:")
 	{
 		m_state = State::ClCompile;
 		return true;
@@ -188,9 +188,9 @@ bool NodeParser::tryCompile(const std::wstring& line)
 
 	// Check if its a call to cl.exe
 	{
-		const wchar_t* re = L".*\\\\CL\\.exe .*";
-		static std::wregex rgx(re, std::regex_constants::egrep | std::regex::optimize);
-		std::wsmatch matches;
+		const char* re = ".*\\\\CL\\.exe .*";
+		static std::regex rgx(re, std::regex_constants::egrep | std::regex::optimize);
+		std::smatch matches;
 		if (!std::regex_match(line, matches, rgx))
 			return false;
 	}
@@ -201,10 +201,10 @@ bool NodeParser::tryCompile(const std::wstring& line)
 	// Extract all defines
 	//
 	{
-		static std::wregex rgx(L"\\/D \"?([[:graph:]]*)\"?", std::regex::optimize);
+		static std::regex rgx("\\/D \"?([[:graph:]]*)\"?", std::regex::optimize);
 		for (
-			std::wsregex_iterator i = std::wsregex_iterator(line.begin(), line.end(), rgx);
-			i != std::wsregex_iterator();
+			std::sregex_iterator i = std::sregex_iterator(line.begin(), line.end(), rgx);
+			i != std::sregex_iterator();
 			++i)
 		{
 			auto&& m = (*i)[1];
@@ -225,12 +225,11 @@ bool NodeParser::tryCompile(const std::wstring& line)
 	// Extract all includes
 	//
 	{
-		wprintf(L"%s\n", line.c_str());
-		//static std::wregex rgx(L"\\/I\"([[:graph:]]*)\"", std::regex::optimize);
-		static std::wregex rgx(L"[[:space:]]\\/I\"([^\"]+)\"", std::regex::optimize);
+		printf("%s\n", line.c_str());
+		static std::regex rgx("[[:space:]]\\/I\"([^\"]+)\"", std::regex::optimize);
 		for (
-			std::wsregex_iterator i = std::wsregex_iterator(line.begin(), line.end(), rgx);
-			i != std::wsregex_iterator();
+			std::sregex_iterator i = std::sregex_iterator(line.begin(), line.end(), rgx);
+			i != std::sregex_iterator();
 			++i)
 		{
 			auto&& m = (*i)[1];
@@ -238,11 +237,10 @@ bool NodeParser::tryCompile(const std::wstring& line)
 		}
 	}
 	{
-		//static std::wregex rgx(L"\\/I\"([[:graph:]]*)\"", std::regex::optimize);
-		static std::wregex rgx(L"[[:space:]]\\/I([^\\s,^\"]+)", std::regex::optimize);
+		static std::regex rgx("[[:space:]]\\/I([^\\s,^\"]+)", std::regex::optimize);
 		for (
-			std::wsregex_iterator i = std::wsregex_iterator(line.begin(), line.end(), rgx);
-			i != std::wsregex_iterator();
+			std::sregex_iterator i = std::sregex_iterator(line.begin(), line.end(), rgx);
+			i != std::sregex_iterator();
 			++i)
 		{
 			auto&& m = (*i)[1];
@@ -255,7 +253,7 @@ bool NodeParser::tryCompile(const std::wstring& line)
 	// We extract them from the end until we find something is is not a file.
 	//
 	{
-		std::vector<std::wstring> tokens;
+		std::vector<std::string> tokens;
 		// e : points to the last char in the token
 		auto e = line.end() - 1;
 		while (true)
@@ -265,7 +263,7 @@ bool NodeParser::tryCompile(const std::wstring& line)
 			if (quoted) e--; // Remove the "
 
 			// s : Points to one character behind the token start
-			std::wstring::const_iterator s;
+			std::string::const_iterator s;
 			if (quoted)
 			{
 				s = line.begin() + line.rfind('"', e - line.begin());
@@ -282,15 +280,15 @@ bool NodeParser::tryCompile(const std::wstring& line)
 				s = line.begin() + line.rfind(' ', e - line.begin());
 			}
 
-			auto token = std::wstring(s + 1, e + 1);
+			auto token = std::string(s + 1, e + 1);
 
 			// Exit conditions are:
 			// - Token starts with /
 			//		- Additional, if token is a /D, then also drop the previously processor token (which is the macro)
-			wprintf(L"*%s*\n", token.c_str());
+			printf("*%s*\n", token.c_str());
 			if (*token.begin() == '/')
 			{
-				if (token == L"/D")
+				if (token == "/D")
 					tokens.pop_back();
 				break;
 			}
@@ -312,13 +310,13 @@ bool NodeParser::tryCompile(const std::wstring& line)
 	return true;
 }
 
-bool NodeParser::tryInclude(const std::wstring& line)
+bool NodeParser::tryInclude(const std::string& line)
 {
 	if (m_state != State::ClCompile)
 		return false;
 
-	static std::wregex rgx(L"Note: including file:[[:space:]]*(.*)", std::regex_constants::egrep | std::regex::optimize);
-	std::wsmatch matches;
+	static std::regex rgx("Note: including file:[[:space:]]*(.*)", std::regex_constants::egrep | std::regex::optimize);
+	std::smatch matches;
 	if (!std::regex_match(line, matches, rgx))
 		return false;
 

@@ -29,7 +29,7 @@ bool SqDatabase::open(const char* database, bool create)
 		flags |= SQLITE_OPEN_CREATE;
 	if (sqlite3_open_v2(database, &m_db, flags, NULL)!=SQLITE_OK)
 	{
-		CZ_LOG(logDefault, Error, L"%s", toUTF16(sqlite3_errmsg(m_db)).c_str());
+		CZ_LOG(logDefault, Error, "%s", sqlite3_errmsg(m_db));
 		return false;
 	}
 	
@@ -161,7 +161,7 @@ bool SqStmt::checkParameters(int numparams)
 	int numcols = sqlite3_column_count(m_stmt);
 	if (numcols!=numparams)
 	{
-		CZ_LOG(logDefault, Error, L"Invalid number of columns. Statement has %d, callback has %d", numcols, numparams);
+		CZ_LOG(logDefault, Error, "Invalid number of columns. Statement has %d, callback has %d", numcols, numparams);
 		return false;
 	}
 	return true;
@@ -189,7 +189,7 @@ bool SqStmt::doStep()
 
 void SqStmt::logError()
 {
-	CZ_LOG(logDefault, Error, L"%s", toUTF16(sqlite3_errmsg(m_db)).c_str());
+	CZ_LOG(logDefault, Error, "%s", sqlite3_errmsg(m_db));
 }
 
 

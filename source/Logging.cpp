@@ -22,7 +22,7 @@ CZ_DEFINE_LOG_CATEGORY(logDefault)
 LogCategoryLogNone logNone;
 #endif
 
-LogCategoryBase::LogCategoryBase(const wchar_t* name, LogVerbosity verbosity, LogVerbosity compileTimeVerbosity) : m_name(name)
+LogCategoryBase::LogCategoryBase(const char* name, LogVerbosity verbosity, LogVerbosity compileTimeVerbosity) : m_name(name)
 , m_verbosity(verbosity)
 , m_compileTimeVerbosity(compileTimeVerbosity)
 {
@@ -56,30 +56,30 @@ LogOutput::~LogOutput()
 	data->outputs.erase(std::find(data->outputs.begin(), data->outputs.end(), this));
 }
 
-void LogOutput::logToAll(const wchar_t* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, _Printf_format_string_ const wchar_t* fmt, ...)
+void LogOutput::logToAll(const char* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, _Printf_format_string_ const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
 
-	const wchar_t* prefix = L"";
+	const char* prefix = "";
 #if LOG_TIME	
 	{
 		time_t t = time(nullptr);
 		struct tm d;
 		localtime_s(&d, &t);
 		#if LOG_VERBOSITY
-			prefix = formatString(L"%02d:%02d:%02d: %s: ", d.tm_hour, d.tm_min, d.tm_sec, logVerbosityToString(verbosity));
+			prefix = formatString("%02d:%02d:%02d: %s: ", d.tm_hour, d.tm_min, d.tm_sec, logVerbosityToString(verbosity));
 		#else
-			prefix = formatString(L"%02d:%02d:%02d: ", d.tm_hour, d.tm_min, d.tm_sec);
+			prefix = formatString("%02d:%02d:%02d: ", d.tm_hour, d.tm_min, d.tm_sec);
 		#endif
 	}
 #else
-	prefix = formatString(L"%s: ", logVerbosityToString(verbosity));
+	prefix = formatString("%s: ", logVerbosityToString(verbosity));
 #endif
 
 	auto msg = formatStringVA(fmt, args);
-	wchar_t buf[1024];
-	_snwprintf_s(buf, _countof(buf), _TRUNCATE, L"%s%s", prefix, msg);
+	char buf[1024];
+	_snprintf_s(buf, _countof(buf), _TRUNCATE, "%s%s", prefix, msg);
 
 	auto data = getSharedData();
 	auto lk = std::unique_lock<std::mutex>(data->mtx);
