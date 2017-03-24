@@ -9,7 +9,8 @@ namespace cz
 struct SystemIncludes
 {
 	std::vector<std::string> dirs;
-	std::string ready;
+	std::string ready; // #TODO : Remove this
+	std::string readyDB;
 	const std::string& getIncludes()
 	{
 		if (ready.size())
@@ -19,13 +20,24 @@ struct SystemIncludes
 			ready += "\"-isystem" + i + "\" ";
 		return ready;
 	}
+
+	const std::string& getIncludesDB()
+	{
+		if (readyDB.size())
+			return readyDB;
+
+		for (auto&& i : dirs)
+			readyDB += "-isystem" + i + "|";
+		return readyDB;
+	}
 };
 
 struct Params
 {
 	std::vector<std::string> defines;
 	std::vector<std::string> includes;
-	std::string readyParams;
+	std::string readyParams; // #TODO : Remove this
+	std::string readyParamsDB;
 	const std::string& getReadyParams()
 	{
 		if (readyParams.size())
@@ -39,12 +51,26 @@ struct Params
 
 		return readyParams;
 	}
+
+	const std::string& getReadyParamsDB()
+	{
+		if (readyParamsDB.size())
+			return readyParamsDB;
+
+		for (auto&& i : defines)
+			readyParamsDB += "-D" + i + "|";
+
+		for (auto&& i : includes)
+			readyParamsDB += "-I" + i + "|";
+
+		return readyParamsDB;
+	}
 };
 
 struct File
 {
 	std::string name;
-	std::string prjName;
+	std::string project;
 	std::shared_ptr<Params> params;
 	std::shared_ptr<SystemIncludes> systemIncludes;
 };
@@ -54,7 +80,7 @@ struct SourceFile
 	uint64_t id = 0;
 	std::string fullpath;
 	std::string name;
-	std::string projectName;
+	std::string project;
 	std::string configuration;
 	std::string defines;
 	std::string includes;
@@ -66,11 +92,16 @@ public:
 	Database();
 	bool open(const std::string& dbfname);
 	void addFile(File file);
+
+	// #TODO : Change this to get data from the sqlite database
 	File* getFile(const std::string& filename);
 	auto& files() const
 	{
 		return m_files;
 	}
+
+	SourceFile getSourceFile(const std::string& filename);
+
 private:
 
 	bool getSourceFile(SourceFile& out);

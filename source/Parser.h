@@ -9,7 +9,7 @@ class NodeParser;
 class Parser
 {
 public:
-	Parser(Database& db);
+	Parser(Database& db, bool updatedb);
 
 	void inject(const std::string& data);
 	void parse(std::string line);
@@ -23,6 +23,7 @@ private:
 	std::unordered_map<int, std::shared_ptr<NodeParser>> m_nodes;
 	int m_currNode = 0;
 	bool m_mp = false;
+	bool m_updatedb = false;
 	std::string m_line;
 };
 

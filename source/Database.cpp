@@ -18,24 +18,16 @@ static int64_t hash(const std::string& s)
 	return out[0];
 }
 
-std::string tolower(const std::string& s)
-{
-	auto r = s;
-	std::transform(r.begin(), r.end(), r.begin(), std::tolower);
-	return r;
-}
-
-void tolower_inplace(std::string& s)
-{
-	std::transform(s.begin(), s.end(), s.begin(), std::tolower);
-}
-
 bool Database::open(const std::string& dbfname)
 {
 	bool createDb = !isExistingFile(dbfname);
 	if (createDb)
 		CZ_LOG(logDefault, Log, "Creating database '%s'", dbfname.c_str());
 	CZ_CHECK(m_sqdb.open(dbfname.c_str(), createDb));
+
+	SqStmt optimize;
+	optimize.init(m_sqdb, "PRAGMA synchronous = OFF");
+	CZ_CHECK(optimize.exec());
 
 	//
 	// Create necessary tables
@@ -66,22 +58,24 @@ bool Database::open(const std::string& dbfname)
 
 bool Database::getSourceFile(SourceFile& out)
 {
-	if (!out.id)
+	auto fid = out.id;
+	if (!fid)
 	{
 		CZ_CHECK(out.fullpath.size());
-		out.id = hash(tolower(out.fullpath));
+		fid = hash(tolower(out.fullpath));
 	}
 
-	CZ_CHECK(m_sqlGetFile.bindInt64(1, out.id));
+	CZ_CHECK(m_sqlGetFile.bindInt64(1, fid));
 
 	bool found = false;
-	bool done = m_sqlGetFile.exec<int64_t, const char*, const char*, const char*, const char*, const char*, const char*>(
-		[&](int64_t id, const char* fullpath, const char* name, const char* projectName, const char* configuration, const char* defines, const char* includes)
+	m_sqlGetFile.exec<int64_t, const char*, const char*, const char*, const char*, const char*, const char*>(
+		[&](int64_t id, const char* fullpath, const char* name, const char* project, const char* configuration, const char* defines, const char* includes)
 	{
-		CZ_ASSERT(out.id == id);
+		CZ_ASSERT(fid == id);
+		out.id = id;
 		out.fullpath = fullpath;
 		out.name = name;
-		out.projectName = projectName;
+		out.project = project;
 		out.configuration = configuration;
 		out.defines = defines;
 		out.includes = includes;
@@ -94,19 +88,22 @@ bool Database::getSourceFile(SourceFile& out)
 
 void Database::addFile(File file)
 {
-	printf("%s: %s\n", file.prjName.c_str(), file.name.c_str());
-
 	SourceFile src;
 	src.id = hash(tolower(file.name));
 	if (!getSourceFile(src))
 	{
+		auto basename = splitFolderAndFile(file.name).second;
+		CZ_LOG(logDefault, Log, "Adding file %s to database: id=%llu, fullpath=\"%s\", prj=%s, %s|%s",
+			basename.c_str(), src.id, file.name.c_str(), file.project.c_str(),
+			file.params->getReadyParamsDB().c_str(), file.systemIncludes->getIncludesDB().c_str());
+
 		CZ_CHECK(m_sqlAddFile.bindInt64(1, src.id));
 		CZ_CHECK(m_sqlAddFile.bindText(2, file.name));
-		CZ_CHECK(m_sqlAddFile.bindText(3, splitFolderAndFile(file.name).second));
-		CZ_CHECK(m_sqlAddFile.bindText(4, file.prjName));
+		CZ_CHECK(m_sqlAddFile.bindText(3, basename));
+		CZ_CHECK(m_sqlAddFile.bindText(4, file.project));
 		CZ_CHECK(m_sqlAddFile.bindText(5, "")); // configuration
-		CZ_CHECK(m_sqlAddFile.bindText(6, file.params->getReadyParams())); // configuration
-		CZ_CHECK(m_sqlAddFile.bindText(7, file.systemIncludes->getIncludes()));
+		CZ_CHECK(m_sqlAddFile.bindText(6, file.params->getReadyParamsDB()));
+		CZ_CHECK(m_sqlAddFile.bindText(7, file.systemIncludes->getIncludesDB()));
 		CZ_CHECK(m_sqlAddFile.exec());
 	}
 
@@ -117,6 +114,14 @@ cz::File* Database::getFile(const std::string& filename)
 {
 	auto it = m_files.find(filename);
 	return it == m_files.end() ? nullptr : &it->second;
+}
+
+SourceFile Database::getSourceFile(const std::string& filename)
+{
+	SourceFile s;
+	s.fullpath = filename;
+	getSourceFile(s);
+	return s;
 }
 
 }

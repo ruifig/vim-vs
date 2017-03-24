@@ -330,21 +330,27 @@ bool endsWith(const std::string& str, const char* ending)
 	}
 }
 
-bool beginsWith(const std::string& str, const std::string& begins)
+bool beginsWith(const std::string& str, const std::string& begins, std::string* dst)
 {
 	if (str.length() >= begins.length()) {
-		return (0 == str.compare(0, begins.length(), begins));
+		bool res = (0 == str.compare(0, begins.length(), begins));
+		if (res && dst)
+			*dst = str.substr(begins.length());
+		return res;
 	}
 	else {
 		return false;
 	}
 }
 
-bool beginsWith(const std::string& str, const char* begins)
+bool beginsWith(const std::string& str, const char* begins, std::string* dst)
 {
 	const size_t beginsLength = strlen(begins);
 	if (str.length() >= beginsLength) {
-		return (0 == str.compare(0, beginsLength, begins));
+		bool res = (0 == str.compare(0, beginsLength, begins));
+		if (res && dst)
+			*dst = str.substr(beginsLength);
+		return res;
 	}
 	else {
 		return false;

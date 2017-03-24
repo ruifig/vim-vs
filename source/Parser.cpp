@@ -7,8 +7,9 @@ namespace cz
 //////////////////////////////////////////////////////////////////////////
 //		Parser
 //////////////////////////////////////////////////////////////////////////
-Parser::Parser(Database& db)
+Parser::Parser(Database& db, bool updatedb)
 	: m_db(db)
+	, m_updatedb(updatedb)
 {
 }
 
@@ -25,7 +26,13 @@ void Parser::inject(const std::string& data)
 		{
 			if (m_line.size())
 			{
-				parse(m_line);
+				if (m_updatedb)
+				{
+					printf("%s\n", m_line.c_str());
+					parse(m_line);
+				}
+				else
+					printf("%s\n", m_line.c_str());
 				m_line.clear();
 			}
 			line++;
@@ -217,6 +224,7 @@ bool NodeParser::tryCompile(const std::string& line)
 			auto s = m.str();
 			if (s.back() == '"')
 				s.pop_back();
+			s = replace(s, "\\\"", "\"");
 			m_currClCompileParams->defines.push_back(s);
 		}
 	}
@@ -252,8 +260,8 @@ bool NodeParser::tryCompile(const std::string& line)
 	// Extract the files to compile. Those are always at the end of the line
 	// We extract them from the end until we find something is is not a file.
 	//
+	std::vector<std::string> tokens;
 	{
-		std::vector<std::string> tokens;
 		// e : points to the last char in the token
 		auto e = line.end() - 1;
 		while (true)
@@ -295,12 +303,15 @@ bool NodeParser::tryCompile(const std::string& line)
 			tokens.push_back(std::move(token));
 			e = s - 1;
 		}
+	}
 
+	if (m_outer.m_updatedb)
+	{
 		for (auto it = tokens.rbegin(); it != tokens.rend(); ++it)
 		{
 			File f;
 			CZ_CHECK(fullPath(f.name, *it, m_prjPath));
-			f.prjName = m_prjName;
+			f.project = m_prjName;
 			f.systemIncludes = m_systemIncludes;
 			f.params = m_currClCompileParams;
 			m_outer.m_db.addFile(std::move(f));
@@ -324,13 +335,16 @@ bool NodeParser::tryInclude(const std::string& line)
 	assert(m_currClCompileParams);
 	auto fname = matches[1].str();
 
+	if (!m_outer.m_updatedb)
+		return true;
+
 	// Check if this file was already in the database
 	if (m_outer.m_db.getFile(fname) != nullptr)
 		return true;
 
 	File f;
 	f.name = fname;
-	f.prjName = m_prjName;
+	f.project = m_prjName;
 	f.systemIncludes = m_systemIncludes;
 	f.params = m_currClCompileParams;
 	m_outer.m_db.addFile(std::move(f));

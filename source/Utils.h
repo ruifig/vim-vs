@@ -43,6 +43,18 @@ The difference between this and \link CZ_ASSERT \endlink is that it's suitable t
 namespace cz
 {
 
+inline std::string tolower(const std::string& s)
+{
+	std::string r;
+	std::transform(s.begin(), s.end(), std::back_inserter(r), ::tolower);
+	return r;
+}
+
+inline void tolower_inplace(std::string& s)
+{
+	std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+}
+
 std::string getWin32Error(const char* funcname);
 
 void _doAssert(const char* file, int line, _Printf_format_string_ const char* fmt, ...);
@@ -105,10 +117,13 @@ static inline StringType trim(const StringType &s) {
 	return ltrim(rtrim(s));
 }
 
-bool endsWith(const std::wstring& str, const std::wstring& ending);
-bool endsWith(const std::wstring& str, const char* ending);
-bool beginsWith(const std::wstring& str, const std::wstring& begins);
-bool beginsWith(const std::wstring& str, const char* begins);
+bool endsWith(const std::string& str, const std::string& ending);
+bool endsWith(const std::string& str, const char* ending);
+
+// \param dst
+//		If not nullptr, it will contain the string with the specified begin stripped (if the function returned true)
+bool beginsWith(const std::string& str, const std::string& begins, std::string* dst = nullptr);
+bool beginsWith(const std::string& str, const char* begins, std::string* dst = nullptr);
 
 } // namesapce cz
 

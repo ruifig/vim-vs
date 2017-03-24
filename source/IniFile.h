@@ -167,7 +167,7 @@ namespace cz
 		template<typename T>
 		T getValue(const char* szSection, const char* szName, T defaultVal)
 		{
-			return getSection(szSection)->getEntryWithDefault(szName, defaultVal)->as<T>();
+			return getSection(szSection)->getEntryWithDefault(szName, defaultVal)->template as<T>();
 		}
 
 	private:
