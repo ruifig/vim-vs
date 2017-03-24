@@ -15,6 +15,12 @@
 namespace cz
 {
 
+void dummy(const std::string& txt)
+{
+	printf("%d");
+	return 1;
+}
+
 static void stringSplitIntoLines(const char* textbuffer, int buffersize, std::vector<std::string> *lines)
 {
 	lines->clear();

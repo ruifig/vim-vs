@@ -32,7 +32,7 @@ class NodeParser
 public:
 
 	NodeParser(Parser& outer);
-	void init(std::string prjName, std::string prjFileName, std::string prjPath, std::shared_ptr<SystemIncludes> systemIncludes);
+	void init(std::string prjName, std::string prjFile, std::shared_ptr<SystemIncludes> systemIncludes);
 	void finish();
 	bool isFinished() const;
 	const std::string& getName() const;
@@ -52,8 +52,8 @@ private:
 	State m_state = State::Initial;
 	std::shared_ptr<Params> m_currClCompileParams;
 	std::shared_ptr<SystemIncludes> m_systemIncludes;
-	std::string m_prjPath;
-	std::string m_prjFileName;
+	std::string m_prjFile; // Full path to the project file
+	std::string m_prjDir;
 	std::string m_prjName;
 };
 

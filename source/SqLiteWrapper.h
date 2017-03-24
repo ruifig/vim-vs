@@ -227,6 +227,17 @@ public:
 		}
 		return m_done;
 	}
+	template<class A0, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+	bool exec(const std::function<bool(A0,A1,A2,A3,A4,A5,A6,A7)>& callback)
+	{
+		AutoReset _reset(m_stmt);
+		while(doStep())
+		{
+			if (!checkParameters(8)) return false;
+			if (!callback(convert<std::decay<A0>::type>(0), convert<std::decay<A1>::type>(1), convert<std::decay<A2>::type>(2), convert<std::decay<A3>::type>(3), convert<std::decay<A4>::type>(4), convert<std::decay<A5>::type>(5), convert<std::decay<A6>::type>(6), convert<std::decay<A6>::type>(7))) break;
+		}
+		return m_done;
+	}
 private:
 	sqlite3* m_db;
 	sqlite3_stmt* m_stmt;

@@ -47,7 +47,7 @@ void Parser::inject(const std::string& data)
 bool Parser::tryVimVsBegin(std::string& line)
 {
 	static std::regex rgx(
-		"[[:space:]]*rem vim-vs-begin: ProjectName=\"(.+)\", ProjectFileName=\"(.+)\", ProjectDir=\"(.+)\", IncludePath=(.+)",
+		"[[:space:]]*rem vim-vs-begin: ProjectName=\"(.+)\", ProjectPath=\"(.+)\", IncludePath=(.+)",
 		std::regex_constants::egrep | std::regex::optimize);
 	std::smatch matches;
 	if (!std::regex_match(line, matches, rgx))
@@ -56,9 +56,8 @@ bool Parser::tryVimVsBegin(std::string& line)
 	auto systemIncludes = std::make_shared<SystemIncludes>();
 
 	auto projectName = matches[1].str();
-	auto projectFileName = matches[2].str();
-	auto projectDir = matches[3].str();
-	auto includePath = matches[4].str();
+	auto projectPath = matches[2].str();
+	auto includePath = matches[3].str();
 
 	size_t s = 0;
 	size_t e = 0;
@@ -83,7 +82,7 @@ bool Parser::tryVimVsBegin(std::string& line)
 		m_currNode++;
 	auto node = std::make_shared<NodeParser>(*this);
 	m_nodes[m_currNode] = node;
-	node->init(projectName, projectFileName, projectDir, systemIncludes);
+	node->init(projectName, projectPath, systemIncludes);
 
 	return true;
 }
@@ -151,11 +150,12 @@ NodeParser::NodeParser(Parser& outer) : m_outer(outer)
 {
 }
 
-void NodeParser::init(std::string prjName, std::string prjFileName, std::string prjPath, std::shared_ptr<SystemIncludes> systemIncludes)
+void NodeParser::init(std::string prjName, std::string prjFile, std::shared_ptr<SystemIncludes> systemIncludes)
 {
+	auto s = splitFolderAndFile(prjFile);
 	m_prjName = prjName;
-	m_prjFileName = prjFileName;
-	m_prjPath = prjPath;
+	m_prjDir = s.first;
+	m_prjFile = prjFile;
 	m_systemIncludes = systemIncludes;
 }
 
@@ -309,9 +309,10 @@ bool NodeParser::tryCompile(const std::string& line)
 	{
 		for (auto it = tokens.rbegin(); it != tokens.rend(); ++it)
 		{
-			File f;
-			CZ_CHECK(fullPath(f.name, *it, m_prjPath));
-			f.project = m_prjName;
+			ParsedFile f;
+			CZ_CHECK(fullPath(f.name, *it, m_prjDir));
+			f.prjName = m_prjName;
+			f.prjFile = m_prjFile;
 			f.systemIncludes = m_systemIncludes;
 			f.params = m_currClCompileParams;
 			m_outer.m_db.addFile(std::move(f));
@@ -339,12 +340,13 @@ bool NodeParser::tryInclude(const std::string& line)
 		return true;
 
 	// Check if this file was already in the database
-	if (m_outer.m_db.getFile(fname) != nullptr)
+	if (m_outer.m_db.getFile(fname).id)
 		return true;
 
-	File f;
+	ParsedFile f;
 	f.name = fname;
-	f.project = m_prjName;
+	f.prjName = m_prjName;
+	f.prjFile = m_prjFile;
 	f.systemIncludes = m_systemIncludes;
 	f.params = m_currClCompileParams;
 	m_outer.m_db.addFile(std::move(f));

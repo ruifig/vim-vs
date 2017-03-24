@@ -6,7 +6,7 @@
     </ClCompile>
     <PreBuildEvent>
       <Command>
-rem vim-vs-begin: ProjectName="$(ProjectName)", ProjectFileName="$(ProjectFileName)", ProjectDir="$(ProjectDir)", IncludePath=$(IncludePath)
+rem vim-vs-begin: ProjectName="$(ProjectName)", ProjectPath="$(ProjectPath)", IncludePath=$(IncludePath)
 rem
 %(Command)
 	  </Command>

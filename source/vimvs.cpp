@@ -6,7 +6,6 @@
 #include "ChildProcessLauncher.h"
 #include "ScopeGuard.h"
 #include "SqLiteWrapper.h"
-#include "UTF8String.h"
 
 #define VIMVS_CFG_FILE ".vimvs_conf.ini"
 #define VIMVS_LOG_FILE ".vimvs.log"
@@ -67,8 +66,8 @@ private:
 		m_out << msg << std::endl;
 	}
 
-	std::string m_filename;
 	std::ofstream m_out;
+	std::string m_filename;
 };
 
 struct Config
@@ -183,7 +182,6 @@ struct Cmd
 	const char* cmd;
 	bool(*func)(const Cmd&, const std::string&);
 	const char* help;
-	bool option;
 };
 
 struct Options
@@ -199,7 +197,7 @@ bool cmd_getycm(const Cmd& cmd, const std::string& val)
 {
 	std::string out;
 	bool res;
-	SourceFile f = gDb->getSourceFile(val);
+	SourceFile f = gDb->getFile(val);
 	if (!f.id)
 	{
 		out = "Not found";
@@ -227,7 +225,6 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 		CZ_LOG(logDefault, Log, "Generating compile database");
 
 	std::vector<std::string> launchParams;
-	launchParams.push_back(gCfg->slnfile);
 	auto v = val;
 	if (val == "")
 	{
@@ -240,7 +237,7 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 	}
 	else if (beginsWith(v, "file:", &v))
 	{
-		SourceFile src = gDb->getSourceFile(v);
+		SourceFile src = gDb->getFile(v);
 		if (!src.id)
 		{
 			auto msg = formatString(
@@ -250,7 +247,10 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 			printf("%s\n", msg);
 			return false;
 		}
-		CZ_ASSERT("Finish this" && 0);
+
+		launchParams.push_back(formatString("\"%s\"", src.prjFile.c_str()));
+		launchParams.push_back("/t:clCompile");
+		launchParams.push_back(formatString("/p:SelectedFiles=\"%s\"", src.fullpath.c_str()));
 	}
 	else
 	{
@@ -294,7 +294,8 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 	if (exitCode)
 	{
 		CZ_LOG(logDefault, Error, "build failed");
-		printf(launcher.getFullOutput().c_str());
+		//printf("%s\n", launcher.getFullOutput().c_str());
+		printf("VIMVS: Build failed\n");
 		return false;
 		//return EXIT_FAILURE;
 	}
@@ -350,8 +351,7 @@ bool cmd_help(const Cmd& cmd, const std::string& val)
 	auto c = &gCmds[0];
 	while (c->cmd)
 	{
-		printf(c->help);
-		printf("\n");
+		printf("%s\n", c->help);
 		c++;
 	}
 
