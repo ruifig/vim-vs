@@ -7,9 +7,10 @@ namespace cz
 //////////////////////////////////////////////////////////////////////////
 //		Parser
 //////////////////////////////////////////////////////////////////////////
-Parser::Parser(Database& db, bool updatedb)
+Parser::Parser(Database& db, bool updatedb, bool parseErrors)
 	: m_db(db)
 	, m_updatedb(updatedb)
+	, m_parseErrors(parseErrors)
 {
 }
 
@@ -26,13 +27,17 @@ void Parser::inject(const std::string& data)
 		{
 			if (m_line.size())
 			{
+				bool consumed = false;
 				if (m_updatedb)
 				{
 					printf("%s\n", m_line.c_str());
-					parse(m_line);
+					consumed = parse(m_line);
 				}
 				else
 					printf("%s\n", m_line.c_str());
+
+				if (!consumed && m_parseErrors)
+					tryError(m_line);
 				m_line.clear();
 			}
 			line++;
@@ -105,17 +110,47 @@ bool Parser::tryVimVsEnd(std::string& line)
 	return true;
 }
 
-void Parser::parse(std::string line)
+bool Parser::tryError(const std::string& line)
+{
+	static std::regex rgx(
+		//                1          <2:File > |3:|  4: line   |       |    5        | |       6         |  |7 |
+		"[[:space:]]*([[:digit:]]*>)?([^\\(]*)(\\(([[:digit:]]+)\\))?: (error|warning) ([A-Z][[:digit:]]*): (.+)",
+		std::regex::optimize);
+
+	std::smatch matches;
+	if (!std::regex_match(line, matches, rgx))
+		return false;
+
+	Error err;
+	err.file = matches[2].str();
+	err.line = std::stoi(matches[4].str());
+	err.type = matches[5].str();
+	err.code = matches[6].str();
+	err.msg = matches[7].str();
+
+	// Look for repeated errors/warnings
+	for (auto&& e : m_errors)
+	{
+		if (e.line == err.line && e.file == err.file && e.code == err.code)
+			return true;
+	}
+	m_errors.push_back(std::move(err));
+
+
+	return true;
+}
+
+bool Parser::parse(std::string line)
 {
 	if (m_currNode==0)
 	{
 		static std::regex rgx("[[:space:]]*(1>)?Project \".*\" on node 1.*", std::regex_constants::egrep | std::regex::optimize);
 		std::smatch matches;
 		if (!std::regex_match(line, matches, rgx))
-			return;
+			return false;
 		m_mp = matches[1].matched;
 		m_currNode = 1;
-		return;
+		return true;
 	}
 
 	// Detect what node to pass this to
@@ -131,15 +166,17 @@ void Parser::parse(std::string line)
 
 	line = matches[3].str();
 	if (tryVimVsBegin(line))
-		return;
+		return true;
 	if (tryVimVsEnd(line))
-		return;
+		return true;
 
 	auto it = m_nodes.find(m_currNode);
 	if (it != m_nodes.end() && !it->second->isFinished())
 	{
-		it->second->parseLine(line);
+		return it->second->parseLine(line);
 	}
+
+	return false;
 
 }
 
@@ -174,13 +211,15 @@ const std::string& NodeParser::getName() const
 	return m_prjName;
 }
 
-void NodeParser::parseLine(const std::string& line)
+bool NodeParser::parseLine(const std::string& line)
 {
 	if (tryCompile(line))
-		return;
+		return true;
 
 	if (tryInclude(line))
-		return;
+		return true;
+
+	return false;
 }
 
 bool NodeParser::tryCompile(const std::string& line)

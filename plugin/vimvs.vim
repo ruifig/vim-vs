@@ -13,67 +13,56 @@ else
 	let g:ycm_extra_conf_vim_data = [1, 'g:vimvs_exe']
 endif
 
-" let g:ycm_global_ycm_extra_conf = 'B:\Link\Work\crazygaze\vim-vs\.ycm_extra_conf.py'
-" let g:ycm_global_ycm_extra_conf = 'C:\.ycm_extra_conf.py'
-" let g:ycm_global_ycm_extra_conf = 'B:\Dropbox\utils\vim\vimfiles\bundle\vim-vs\.ycm_extra_conf.py'
-" let g:ycm_global_ycm_extra_conf = '~/.ycm_extra_conf.py'
-" let g:ycm_global_ycm_extra_conf = expand('~/.ycm_extra_conf.py')
+function! LoadQuickfix()
+" Start Python code
+python << EOF
 
-"let g:ycm_global_ycm_extra_conf = 'C:\.ycm_extra_conf.py'
+import vim,os
+
+with open("C:/work/crazygaze/vim-vs/.vimvs.quickfix") as f:
+	lines = f.readlines()
+qf = []
+print lines
+# Format of the file is: File|Line|Col|Type|Code|Message
+for l in lines:
+	tokens = l.split("|")
+	print tokens[0]
+	qf.append(dict(
+			filename=tokens[0].replace("\\", "/"),
+			lnum=tokens[1], 
+			text=tokens[5]))
+ 
+vim.eval('setqflist(%s)' % qf)
+#print qf
+#print qf[0].get('filename')
+
+EOF
+" Ending Python code
+
+endfunction
 
 function! Test()
-" Start Python code
+" Start Python code 
 python << EOF
 
 import vim, os, subprocess, re
 
 vimvs = vim.eval("g:vimvs_exe")
 
-vim.current.uffer.append(vimvs)
-# out = subprocess.check_output([vimvs, "-help"], shell=False)
-
 startupinfo = subprocess.STARTUPINFO()
 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-p = subprocess.Popen([vimvs, "-help"], stdout=subprocess.PIPE, startupinfo=startupinfo)
-out, err = p.communicate()
-
-print out
-print p.returncode
-
-p = subprocess.Popen([vimvs, "-getycm=xxx"], stdout=subprocess.PIPE, startupinfo=startupinfo)
+p = subprocess.Popen([vimvs, "-build=file:c:\\work\\crazygaze\\vim-vs\\source\\inifile.cpp"], stdout=subprocess.PIPE, startupinfo=startupinfo)
 out, err = p.communicate()
 print out
 print p.returncode
 
 # Get line starting with YCM
-strings = re.search("^\s*YCM_CMD:(.*)", out, flags=re.MULTILINE)
+strings = re.search("^\s*1>(.*)", out, flags=re.MULTILINE)
 if strings is None:
 	print "No match found"
 else:
 	print "Found:" + strings.group(1)
 
-
-
 EOF
 " Ending Python code
 endfunction
-
-function! Test2()
-" Start Python code
-python << EOF
-
-import vim, os, subprocess, re
-
-s = "AA|BB||C C|DD| |\r"
-strings = s.split("|")
-print strings
-cmds = []
-for s in strings:
-	if s.strip()!="":
-		cmds.append(s)
-print cmds
-
-EOF
-" Ending Python code
-endfunction
-

@@ -9,6 +9,7 @@
 
 #define VIMVS_CFG_FILE ".vimvs_conf.ini"
 #define VIMVS_LOG_FILE ".vimvs.log"
+#define VIMVS_QUICKFIX_FILE ".vimvs.quickfix"
 #define VIMVS_DB_FILE ".vimvs.sqlite"
 
 //
@@ -197,7 +198,10 @@ bool cmd_getycm(const Cmd& cmd, const std::string& val)
 {
 	std::string out;
 	bool res;
-	SourceFile f = gDb->getFile(val);
+	auto v = val;
+	fullPath(v, val, getCWD());
+
+	SourceFile f = gDb->getFile(v);
 	if (!f.id)
 	{
 		out = "Not found";
@@ -220,6 +224,7 @@ bool cmd_getycm(const Cmd& cmd, const std::string& val)
 bool cmd_build(const Cmd& cmd, const std::string& val)
 {
 	bool builddb = std::string(cmd.cmd) == "builddb";
+	std::ofstream quickfix(widen(gCfg->root + VIMVS_QUICKFIX_FILE), std::ofstream::out);
 
 	if (builddb)
 		CZ_LOG(logDefault, Log, "Generating compile database");
@@ -274,7 +279,7 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 
 	launchParams.push_back("/maxcpucount");
 
-	Parser parser(*gDb, builddb);
+	Parser parser(*gDb, builddb, true);
 	ChildProcessLauncher launcher;
 	auto exitCode = launcher.launch(
 		gCfg->getUtilityPath("vim-vs.msbuild.bat"),
@@ -290,6 +295,12 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 			parser.inject(str);
 		}
 	});
+
+	for (auto&& e : parser.getErrors())
+	{
+		quickfix << formatString("%s|%d|%d|%s|%s|%s\n",
+			e.file.c_str(), e.line, e.col, e.type.c_str(), e.code.c_str(), e.msg.c_str());
+	}
 
 	if (exitCode)
 	{
