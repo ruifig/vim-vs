@@ -20,14 +20,13 @@ syntax: glob
 # A good online test: https://regex101.com/#python
 syntax: regexp
 
-^compile_commands.json
+^bin/vimvs.exe
+^plugin/vimvs.pyc
 ^.vimvs.log
+^.vimvs.msbuild.log
+^.vimvs.quickfix
 ^.vimvs.sqlite
 ^build/
-# CLion folders
-^cmake-build-debug/
-^cmake-build-release/
-^.idea/
 ^x64/
 
 
