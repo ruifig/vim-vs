@@ -9,6 +9,7 @@
 
 #define VIMVS_CFG_FILE ".vimvs_conf.ini"
 #define VIMVS_LOG_FILE ".vimvs.log"
+#define VIMVS_MSBUILDLOG_FILE ".vimvs.msbuild.log"
 #define VIMVS_QUICKFIX_FILE ".vimvs.quickfix"
 #define VIMVS_DB_FILE ".vimvs.sqlite"
 
@@ -231,6 +232,7 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 {
 	bool builddb = std::string(cmd.cmd) == "builddb";
 	std::ofstream quickfix(widen(gCfg->root + VIMVS_QUICKFIX_FILE), std::ofstream::out);
+	std::ofstream msbuildlog(widen(gCfg->root + VIMVS_MSBUILDLOG_FILE), std::ofstream::out);
 
 	if (builddb)
 		CZ_LOG(logDefault, Log, "Generating compile database");
@@ -300,6 +302,7 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 		else
 		{
 			parser.inject(str);
+			msbuildlog << str;
 		}
 	});
 

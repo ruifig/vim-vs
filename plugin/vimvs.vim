@@ -17,7 +17,6 @@ if !exists('g:vimvs_platform')
 	let g:vimvs_platform = "x64"
 endif
 
-
 " TODO: Why do I have the 1 in [1, 'g:vimvs_exe'] ? Seems like garbage.
 " Add "g:vimvs_exe" to g:ycm:extra_conf_vim_data
 if exists('g:ycm_extra_conf_vim_data')
@@ -31,6 +30,7 @@ endif
 " Load vimvs Python module
 python << EOF
 # Add python sources folder to the system path.
+import vim
 sys.path.insert( 0, vim.eval('g:vimvs_plugin_root') + 'plugin' )
 import vimvs
 reload(vimvs)
@@ -79,21 +79,48 @@ EOF
 return res
 endfunction
 
+function! vimvs#HasRoot()
+python << EOF
+# Notes:
+#	repr so it convert any character to a way that I can pass them to the vim.command
+#	[1:-1] so it removes the single quotes at the star and end that repr puts in there
+vim.command("let res = '%s'" % vimvs.HasRoot())
+EOF
+if res != 'True'
+	echoerr "No vimvs root detected"
+	return 0
+else
+	return 1
+endif
+endfunction
+
 function! vimvs#Build()
+	if !vimvs#HasRoot()
+		return
+	endif
 	let cmd = g:vimvs_exe . ' -build' . vimvs#GetConfigurationAndPlatformCmd()
 	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
 endfunction
 function! vimvs#BuildDB()
+	if !vimvs#HasRoot()
+		return
+	endif
 	let cmd = g:vimvs_exe . ' -builddb=prj:Rebuild' . vimvs#GetConfigurationAndPlatformCmd()
 	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
 endfunction
 
 function! vimvs#Clean()
+	if !vimvs#HasRoot()
+		return
+	endif
 	let cmd = g:vimvs_exe . ' -build=prj:Clean' . vimvs#GetConfigurationAndPlatformCmd()
 	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
 endfunction
 
 function! vimvs#CompileFile(file)
+	if !vimvs#HasRoot()
+		return
+	endif
 	let cmd = g:vimvs_exe . ' -build=file:"' . a:file . '"' . vimvs#GetConfigurationAndPlatformCmd()
 	echo cmd
 	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd

@@ -9,7 +9,7 @@ vimvs_plugin_root = vim.eval("g:vimvs_plugin_root")
 def GetRoot():
 	startupinfo = subprocess.STARTUPINFO()
 	startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-	p = subprocess.Popen([vimvs_exe, '-getroot'], stdout=subprocess.PIPE, startupinfo=startupinfo)
+	p = subprocess.Popen([vimvs_exe, '-getroot'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=startupinfo)
 	out,err = p.communicate()
 	if p.returncode>0:
 		raise Exception("VIMVS: -getroot failed")
@@ -17,6 +17,13 @@ def GetRoot():
 	if strings is None:
 		raise Exception("VIMVS: error parsing -getroot output. Could not find ROOT line.")
 	return strings.group(1).strip()
+
+def HasRoot():
+	try:
+		GetRoot()
+		return True
+	except:
+		return False
 
 def LoadQuickfix():
 	with open(GetRoot() + ".vimvs.quickfix") as f:

@@ -393,12 +393,8 @@ bool NodeParser::tryInclude(const std::string& line)
 	if (!m_outer.m_updatedb)
 		return true;
 
-	// Check if this file was already in the database
-	if (m_outer.m_db.getFile(fname).id)
-		return true;
-
 	ParsedFile f;
-	f.name = fname;
+	CZ_CHECK(fullPath(f.name, fname, m_prjDir));
 	f.prjName = m_prjName;
 	f.prjFile = m_prjFile;
 	f.systemIncludes = m_systemIncludes;
