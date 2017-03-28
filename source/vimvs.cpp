@@ -225,6 +225,86 @@ bool cmd_getycm(const Cmd& cmd, const std::string& val)
 	return res;
 }
 
+bool cmd_getalt(const Cmd& cmd, const std::string& val)
+{
+	auto v = removeQuotes(val);
+	fullPath(v, v, getCWD());
+	SourceFile src = gDb->getFile(v);
+	if (!src.id)
+	{
+		auto msg = formatString(
+			"File '%s' not found in the database. Do a full build (-builddb) first to update the database",
+			v.c_str());
+		CZ_LOG(logDefault, Error, msg);
+		printf("%s\n", msg);
+		return false;
+	}
+
+	auto basename = src.name;
+	auto ext = tolower(getExtension(basename, &basename));
+
+	static std::vector<const char*> sources = { "cpp", "c", "cc", "c++", "cxx"};
+	static std::vector<const char*> headers = { "h", "hh", "hxx", "hpp", "h++", "inl"};
+
+	auto isIn = [](auto&& ext, auto&& c) -> bool
+	{
+		for (auto&& e : c)
+		{
+			if (ext == e)
+				return true;
+		}
+		return false;
+	};
+
+	const std::vector<const char*>* altext;
+	if (isIn(ext, sources))
+		altext = &headers;
+	else if (isIn(ext, headers))
+		altext = &sources;
+	else
+	{
+		const char* out = "File extension not recognized as a C/C++ extension";
+		CZ_LOG(logDefault, Log, out);
+		fprintf(stderr, out);
+		return false;
+	}
+
+	std::vector<SourceFile> alts;
+	for (auto&& e : *altext)
+	{
+		auto res = gDb->getWithBasename(basename + "." + e);
+		alts.insert(alts.end(), res.begin(), res.end());
+	}
+
+	std::vector<std::pair<int,std::string>> dists;
+	for (auto&& a : alts)
+		dists.emplace_back(levenshtein_distance(src.fullpath, a.fullpath), a.fullpath);
+	std::sort(
+		dists.begin(), dists.end(),
+		[](auto&& a, auto && b)
+		{
+			return a.first < b.first;
+		});
+	
+	if (!dists.size())
+	{
+		const char* out = "No alt file found\n";
+		CZ_LOG(logDefault, Log, out);
+		printf("%s\n", out);
+		return true;
+	}
+
+	printf("ALT:%s\n", dists[0].second.c_str());
+	CZ_LOG(logDefault, Log, "ALT:%s", dists[0].second.c_str());
+	for (auto it = dists.begin() + 1; it < dists.end(); ++it)
+	{
+		CZ_LOG(logDefault, Log, "OTHER:%s", it->second.c_str());
+		printf("OTHER:%s\n", it->second.c_str());
+	}
+
+	return true;
+}
+
 // Good tips on how invoke msbuild to build, clean, rebuild a specific project
 // http://stackoverflow.com/questions/13915636/specify-project-file-of-a-solution-using-msbuild
 // http://stackoverflow.com/questions/9285756/how-do-i-compile-a-single-source-file-within-an-msvc-project-from-the-command-li
@@ -349,6 +429,13 @@ Gets the project root (aka: The folder where vimvs configuration file is located
 "\
 -getycm=<FILE>\n\
 Gets the command line required to parse the file FILE with YouCompleteMe\n\
+"
+},
+{
+"getalt", &cmd_getalt,
+"\
+-getalt=<FILE>\n\
+Gets the file considered the best alternate (e.g: Given an header file, it returns the source file)\n\
 "
 },
 {

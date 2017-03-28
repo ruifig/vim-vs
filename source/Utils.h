@@ -86,7 +86,9 @@ bool fullPath(std::string& dst, const std::string& path, std::string root);
 std::string replace(const std::string& s, char from, char to);
 std::string replace(const std::string& str, const std::string& from, const std::string& to);
 std::pair<std::string, std::string> splitFolderAndFile(const std::string& str);
+std::string getExtension(const std::string& fname, std::string* name = nullptr);
 std::string removeQuotes(const std::string& str);
+int levenshtein_distance(const std::string& s1, const std::string& s2);
 
 //! Converts a string from UTF-8 to UTF-16.
 std::wstring widen(const std::string& str);

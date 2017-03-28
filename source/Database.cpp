@@ -38,8 +38,8 @@ bool Database::open(const std::string& dbfname)
 		sql.init(m_sqdb, " \
 			CREATE TABLE files ( \
 				id            INTEGER PRIMARY KEY, \
-				fullpath      VARCHAR, \
-				name          VARCHAR, \
+				fullpath      VARCHAR COLLATE NOCASE, \
+				name          VARCHAR COLLATE NOCASE, \
 				prjName       VARCHAR, \
 				prjFile       VARCHAR, \
 				configuration VARCHAR, \
@@ -52,6 +52,7 @@ bool Database::open(const std::string& dbfname)
 	}
 
 	CZ_CHECK(m_sqlGetFile.init(m_sqdb, "SELECT * FROM files WHERE id=?"));
+	CZ_CHECK(m_sqlGetWithBasename.init(m_sqdb, "SELECT * FROM files WHERE name=?"));
 	CZ_CHECK(m_sqlAddFile.init(m_sqdb, "INSERT OR REPLACE INTO files(id,fullpath,name,prjName,prjFile,configuration,defines,includes) VALUES(?,?,?,?,?,?,?,?)"));
 
 	return true;
@@ -86,6 +87,31 @@ bool Database::getFile(SourceFile& out)
 	});
 
 	return found;
+}
+
+std::vector<SourceFile> Database::getWithBasename(const std::string& filename)
+{
+	std::vector<SourceFile> res;
+
+	CZ_CHECK(m_sqlGetWithBasename.bindText(1, filename));
+
+	m_sqlGetWithBasename.exec<int64_t, const char*, const char*, const char*, const char*, const char*, const char*, const char*>(
+		[&](int64_t id, const char* fullpath, const char* name, const char* prjName, const char* prjFile, const char* configuration, const char* defines, const char* includes)
+	{
+		SourceFile out;
+		out.id = id;
+		out.fullpath = fullpath;
+		out.name = name;
+		out.prjName = prjName;
+		out.prjFile = prjFile;
+		out.configuration = configuration;
+		out.defines = defines;
+		out.includes = includes;
+		res.push_back(std::move(out));
+		return true;
+	});
+
+	return res;
 }
 
 void Database::addFile(const ParsedFile& file, bool insertOrReplace)

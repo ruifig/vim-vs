@@ -135,9 +135,25 @@ function! vimvs#CompileFile(file)
 	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
 endfunction
 
+function! vimvs#GetAlt(file)
+python << EOF
+vim.command("let res = \"%s\"" % repr(vimvs.GetAlt(vim.eval('a:file')))[1:-1])
+EOF
+return res
+endfunction
+
+function! vimvs#OpenAlt(file)
+	let res = vimvs#GetAlt(a:file)
+	if !empty(res)
+		execute "edit " res
+	endif
+endfunction
+
 command! VimvsBuild call vimvs#Build()
 command! VimvsRebuild call vimvs#Rebuild()
 command! VimvsBuildDB call vimvs#BuildDB()
 command! VimvsClean call vimvs#Clean()
 command! VimvsCompile call vimvs#CompileFile(expand("%:p"))
+command! VimvsGetAlt call vimvs#GetAlt(expand("%:p"))
+command! VimvsOpenAlt call vimvs#OpenAlt(expand("%:p"))
 

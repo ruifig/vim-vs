@@ -96,11 +96,12 @@ public:
 
 	void addFile(const ParsedFile& file, bool insertOrReplace);
 	SourceFile getFile(const std::string& filename);
-
+	std::vector<SourceFile> getWithBasename(const std::string& filename);
 private:
 	bool getFile(SourceFile& out);
 	SqDatabase m_sqdb;
 	SqStmt m_sqlGetFile;
+	SqStmt m_sqlGetWithBasename;
 	SqStmt m_sqlAddFile;
 };
 

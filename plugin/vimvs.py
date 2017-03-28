@@ -25,6 +25,18 @@ def HasRoot():
 	except:
 		return False
 
+def GetAlt(filename):
+	startupinfo = subprocess.STARTUPINFO()
+	startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+	p = subprocess.Popen([vimvs_exe, '-getalt="' + filename + '"'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=startupinfo)
+	out,err = p.communicate()
+	if p.returncode>0:
+		return "";
+	strings = re.search("^\s*ALT:(.*)", out, flags=re.MULTILINE)
+	if strings is None:
+		return ""
+	return strings.group(1).strip()
+
 def LoadQuickfix():
 	with open(GetRoot() + ".vimvs.quickfix") as f:
 		lines = f.readlines()
