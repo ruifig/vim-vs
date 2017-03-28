@@ -1,9 +1,23 @@
-
-if !exists('g:vimvs_exe')
-	"let g:vimvs_exe = resolve(fnamemodify(resolve(expand('<sfile>:p')), ':h') . "\\..\\bin\\vimvs.exe")
-	let g:vimvs_exe = resolve(fnamemodify(resolve(expand('<sfile>:p')), ':h') . "\\..\\build\\bin\\vimvs_x64_Debug.exe")
+if !has('python')
+	echoerr "vimvs requires Python support"
+	finish
 endif
 
+if !exists('g:vimvs_exe')
+	let g:vimvs_exe = resolve(fnamemodify(resolve(expand('<sfile>:p')), ':h') . "\\..\\bin\\vimvs.exe")
+endif
+
+if !exists('g:vimvs_Configuration')
+	let g:vimvs_Configuration = "Debug"
+endif
+
+if !exists('g:vimvs_Platform')
+	let g:vimvs_Platform = "x64"
+endif
+
+let g:vimvs_root = resolve(expand('<sfile>:p:h') . "\\..\\")
+
+" TODO: Why do I have the 1 in [1, 'g:vimvs_exe'] ? Seems like garbage.
 " Add "g:vimvs_exe" to g:ycm:extra_conf_vim_data
 if exists('g:ycm_extra_conf_vim_data')
 	if index(g:ycm_extra_conf_vim_data, 'g:vimvs_exe')==-1
@@ -13,33 +27,42 @@ else
 	let g:ycm_extra_conf_vim_data = [1, 'g:vimvs_exe']
 endif
 
-function! LoadQuickfix()
-" Start Python code
+" Load vimvs Python module
 python << EOF
-
-import vim,os
-
-with open("C:/work/crazygaze/vim-vs/.vimvs.quickfix") as f:
-	lines = f.readlines()
-qf = []
-print lines
-# Format of the file is: File|Line|Col|Type|Code|Message
-for l in lines:
-	tokens = l.split("|")
-	print tokens[0]
-	qf.append(dict(
-			filename=tokens[0].replace("\\", "/"),
-			lnum=tokens[1], 
-			text=tokens[5]))
- 
-vim.eval('setqflist(%s)' % qf)
-#print qf
-#print qf[0].get('filename')
-
+# Add python sources folder to the system path.
+sys.path.insert( 0, vim.eval('g:vimvs_root') + 'plugin' )
+import vimvs
+reload(vimvs)
 EOF
-" Ending Python code
 
+function! GetConfiguration()
+	if exists('g:vimvs_Configuration')
+		return g:vimvs_Configuration
+	else
+		return ""
 endfunction
+
+function! GetPlatform()
+	if exists('g:vimvs_Platform')
+		return g:vimvs_Platform
+	else
+		return ""
+endfunction
+
+function! LoadQuickfix()
+python << EOF
+vimvs.LoadQuickfix()
+EOF
+endfunction
+
+function! CompileFile(file)
+python << EOF
+file = vim.eval("a:file")
+vimvs.CompileFile(file)
+EOF
+endfunction
+
+command! VimvsCompileFile call CompileFile(expand("%:p"))
 
 function! Test()
 " Start Python code 

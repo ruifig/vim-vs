@@ -55,3 +55,7 @@ target_link_libraries(vimvs Psapi.lib)
 
 cz_set_postfix()
 
+add_custom_command(
+		TARGET vimvs POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:vimvs> ${CMAKE_SOURCE_DIR}/bin/vimvs.exe
+		)
