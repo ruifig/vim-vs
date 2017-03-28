@@ -4,7 +4,7 @@ import subprocess
 import re
 
 vimvs_exe = vim.eval("g:vimvs_exe")
-vimvs_root = vim.eval("g:vimvs_root")
+vimvs_plugin_root = vim.eval("g:vimvs_plugin_root")
 
 def GetRoot():
 	startupinfo = subprocess.STARTUPINFO()
@@ -37,35 +37,4 @@ def LoadQuickfix():
 				nr=code,
 				text=tokens[5]))
 	vim.eval('setqflist(%s)' % qf)
-
-def SetConfigurationAndPlatform(lst):
-	configuration = vim.eval("GetConfiguration()")
-	platform = vim.eval("GetPlatform()")
-	if configuration != "":
-		lst.append("-configuration=" + configuration)
-	if platform != "":
-		lst.append("-platform=" + platform)
-	return lst
-
-
-def CompileFile(file):
-	startupinfo = subprocess.STARTUPINFO()
-	startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-	args = [vimvs_exe, "-build=file:\"" + file + "\""]
-	args = SetConfigurationAndPlatform(args)
-	print " ".join(args)
-	p = subprocess.Popen(args, stdout=subprocess.PIPE, startupinfo=startupinfo)
-	out, err = p.communicate()
-	print out
-	print p.returncode
-
-
-def Build():
-	startupinfo = subprocess.STARTUPINFO()
-	startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-	args = [vimvs_exe, "-build"]
-	args = SetConfigurationAndPlatform(args)
-	vim.eval("asyncrun#run('<bang>', '', ''")
-	#vim.eval("AsyncRun " + " ".join(args))
-	#call asyncrun#run('<bang>', '', <q-args>)
 
