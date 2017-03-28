@@ -101,6 +101,15 @@ function! vimvs#Build()
 	let cmd = g:vimvs_exe . ' -build' . vimvs#GetConfigurationAndPlatformCmd()
 	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
 endfunction
+
+function! vimvs#Rebuild()
+	if !vimvs#HasRoot()
+		return
+	endif
+	let cmd = g:vimvs_exe . ' -build=prj:Rebuild' . vimvs#GetConfigurationAndPlatformCmd()
+	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
+endfunction
+
 function! vimvs#BuildDB()
 	if !vimvs#HasRoot()
 		return
@@ -127,6 +136,7 @@ function! vimvs#CompileFile(file)
 endfunction
 
 command! VimvsBuild call vimvs#Build()
+command! VimvsRebuild call vimvs#Rebuild()
 command! VimvsBuildDB call vimvs#BuildDB()
 command! VimvsClean call vimvs#Clean()
 command! VimvsCompile call vimvs#CompileFile(expand("%:p"))
