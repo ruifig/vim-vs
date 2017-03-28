@@ -19,7 +19,9 @@ namespace cz
 void dummy(const std::string& txt)
 {
 	printf("%d");
-	return 1;
+	printf("%d");
+	printf("%d");
+	//return 1;
 }
 #endif
 

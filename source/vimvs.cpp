@@ -194,6 +194,12 @@ Options gOptions;
 
 bool cmd_help(const Cmd& cmd, const std::string& val);
 
+bool cmd_getroot(const Cmd& cmd, const std::string& val)
+{
+	printf("ROOT:%s\n", gCfg->root.c_str());
+	return true;
+}
+
 bool cmd_getycm(const Cmd& cmd, const std::string& val)
 {
 	std::string out;
@@ -242,6 +248,7 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 	}
 	else if (beginsWith(v, "file:", &v))
 	{
+		v = removeQuotes(v);
 		SourceFile src = gDb->getFile(v);
 		if (!src.id)
 		{
@@ -327,6 +334,13 @@ Shows this help\n\
 "
 },
 
+{
+"getroot", &cmd_getroot,
+"\
+-getroot\n\
+Gets the project root (aka: The folder where vimvs configuration file is located)\n\
+"
+},
 {
 "getycm", &cmd_getycm,
 "\

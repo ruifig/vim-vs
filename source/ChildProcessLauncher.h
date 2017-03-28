@@ -41,7 +41,7 @@ private:
 	void addOutput(const std::string& str);
 	std::string m_errmsg;
 	std::string m_name;
-	HANDLE m_hStdIn;
+	//HANDLE m_hStdIn;
 	HANDLE m_hChildProcess;
 	BOOL m_bRunThread;
 	std::string m_params;

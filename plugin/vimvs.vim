@@ -49,43 +49,52 @@ function! GetPlatform()
 		return ""
 endfunction
 
+function! GetConfigurationAndPlatform()
+	let configuration = GetConfiguration()
+	let platform = GetPlatform()
+	let res = ""
+	if configuration != ""
+		let res = ' -configuration=' . configuration
+	endif
+	if platform != ""
+		let res = res . ' -platform=' . platform
+	endif
+	return res
+endfunction
+
 function! LoadQuickfix()
 python << EOF
 vimvs.LoadQuickfix()
 EOF
 endfunction
 
-function! CompileFile(file)
+function! CompileFile2(file)
 python << EOF
 file = vim.eval("a:file")
 vimvs.CompileFile(file)
 EOF
 endfunction
 
-command! VimvsCompileFile call CompileFile(expand("%:p"))
-
-function! Test()
-" Start Python code 
+function! vimvs#GetRoot()
 python << EOF
-
-import vim, os, subprocess, re
-
-vimvs = vim.eval("g:vimvs_exe")
-
-startupinfo = subprocess.STARTUPINFO()
-startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-p = subprocess.Popen([vimvs, "-build=file:c:\\work\\crazygaze\\vim-vs\\source\\inifile.cpp"], stdout=subprocess.PIPE, startupinfo=startupinfo)
-out, err = p.communicate()
-print out
-print p.returncode
-
-# Get line starting with YCM
-strings = re.search("^\s*1>(.*)", out, flags=re.MULTILINE)
-if strings is None:
-	print "No match found"
-else:
-	print "Found:" + strings.group(1)
-
+# Notes:
+#	repr so it convert any character to a way that I can pass them to the vim.command
+#	[1:-1] so it removes the single quotes at the star and end that repr puts in there
+vim.command("let res = \"%s\"" % repr(vimvs.GetRoot())[1:-1])
 EOF
-" Ending Python code
+return res
 endfunction
+
+function! Build()
+	let cmd = g:vimvs_exe . ' -build' . GetConfigurationAndPlatform()
+	execute 'AsyncRun -post=:call\ LoadQuickfix() @' . cmd
+endfunction
+
+function! vimvs#CompileFile(file)
+	let cmd = g:vimvs_exe . ' -build=file:"' . a:file . '"' . GetConfigurationAndPlatform()
+	echo cmd
+	execute 'AsyncRun -post=:call\ LoadQuickfix() @' . cmd
+endfunction
+
+command! VimvsCompileFile call vimvs#CompileFile(expand("%:p"))
+

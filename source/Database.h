@@ -94,7 +94,7 @@ public:
 	Database();
 	bool open(const std::string& dbfname);
 
-	void addFile(const ParsedFile& file);
+	void addFile(const ParsedFile& file, bool insertOrReplace);
 	SourceFile getFile(const std::string& filename);
 
 private:

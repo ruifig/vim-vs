@@ -7,7 +7,7 @@ namespace cz {
 
 ChildProcessLauncher::ChildProcessLauncher()
 {
-	m_hStdIn = NULL;
+	//m_hStdIn = NULL;
 	m_hChildProcess = NULL;
 	m_bRunThread = TRUE;
 }
@@ -123,9 +123,9 @@ int ChildProcessLauncher::launch(const std::string& name, const std::string& par
 
 	// Get std input handle so you can close it and force the ReadFile to
 	// fail when you want the input thread to exit.
-	if ((m_hStdIn = GetStdHandle(STD_INPUT_HANDLE)) ==
-		INVALID_HANDLE_VALUE)
-		ErrorMessage("GetStdHandle");
+	//if ((m_hStdIn = GetStdHandle(STD_INPUT_HANDLE)) ==
+	//	INVALID_HANDLE_VALUE)
+	//	ErrorMessage("GetStdHandle");
 
 	PrepAndLaunchRedirectedChild(hOutputWrite, hInputRead, hErrorWrite);
 
@@ -149,7 +149,6 @@ int ChildProcessLauncher::launch(const std::string& name, const std::string& par
 	// Read the child's output.
 	ReadAndHandleOutput(hOutputRead);
 	// Redirection is complete
-
 
 	// Force the read on the input to return by closing the stdin handle.
 	// if (!CloseHandle(m_hStdIn)) ErrorMessage(TEXT("CloseHandle"));

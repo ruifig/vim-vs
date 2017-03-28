@@ -23,7 +23,7 @@ std::string getWin32Error(const char* funcname)
 
 	int funcnameLength = funcname ? lstrlen((LPCTSTR)funcname) : 0;
 	lpDisplayBuf =
-	    (LPVOID)LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + funcnameLength + 50) * sizeof(funcname[0]));
+	    (LPVOID)LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + funcnameLength + 50) * sizeof(wchar_t));
 	if (lpDisplayBuf == NULL)
 		return "Win32ErrorMsg failed";
 	SCOPE_EXIT{ LocalFree(lpDisplayBuf); };
@@ -31,7 +31,7 @@ std::string getWin32Error(const char* funcname)
 	auto wfuncname = funcname ? widen(funcname) : L"";
 
 	StringCchPrintfW((LPTSTR)lpDisplayBuf,
-	                 LocalSize(lpDisplayBuf) / sizeof(funcname[0]),
+	                 LocalSize(lpDisplayBuf) / sizeof(wchar_t),
 	                 L"%s failed with error %lu: %s",
 	                 wfuncname.c_str(),
 	                 dw,
@@ -43,6 +43,7 @@ std::string getWin32Error(const char* funcname)
 	while (ret.size() && ret.back() < ' ')
 		ret.pop_back();
 
+	assert(0);
 	return narrow(ret);
 }
 
@@ -220,6 +221,16 @@ std::pair<std::string, std::string> splitFolderAndFile(const std::string& str)
 	std::pair < std::string, std::string> res;
 	res.first = std::string(str.begin(), i.base());
 	res.second = std::string(i.base(), str.end());
+	return res;
+}
+
+std::string removeQuotes(const std::string& str)
+{
+	std::string res = str;
+	while (res.size() && (res[0] == '"' || res[0] == '\''))
+		res.erase(res.begin());
+	while (res.size() && (res.back() == '"' || res.back() == '\''))
+		res.pop_back();
 	return res;
 }
 

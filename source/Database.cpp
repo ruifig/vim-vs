@@ -52,7 +52,7 @@ bool Database::open(const std::string& dbfname)
 	}
 
 	CZ_CHECK(m_sqlGetFile.init(m_sqdb, "SELECT * FROM files WHERE id=?"));
-	CZ_CHECK(m_sqlAddFile.init(m_sqdb, "INSERT INTO files(id,fullpath,name,prjName,prjFile,configuration,defines,includes) VALUES(?,?,?,?,?,?,?,?)"));
+	CZ_CHECK(m_sqlAddFile.init(m_sqdb, "INSERT OR REPLACE INTO files(id,fullpath,name,prjName,prjFile,configuration,defines,includes) VALUES(?,?,?,?,?,?,?,?)"));
 
 	return true;
 }
@@ -88,11 +88,11 @@ bool Database::getFile(SourceFile& out)
 	return found;
 }
 
-void Database::addFile(const ParsedFile& file)
+void Database::addFile(const ParsedFile& file, bool insertOrReplace)
 {
 	SourceFile src;
 	src.id = hash(tolower(file.name));
-	if (!getFile(src))
+	if (insertOrReplace || !getFile(src))
 	{
 		auto basename = splitFolderAndFile(file.name).second;
 		CZ_LOG(logDefault, Log, "Adding file %s to database: id=%llu, fullpath=\"%s\", prj=%s|\"%s\", %s|%s",

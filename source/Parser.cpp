@@ -116,17 +116,32 @@ bool Parser::tryError(const std::string& line)
 		//                1          <2:File > |3:|  4: line   |       |    5        | |       6         |  |7 |
 		"[[:space:]]*([[:digit:]]*>)?([^\\(]*)(\\(([[:digit:]]+)\\))?: (error|warning) ([A-Z][[:digit:]]*): (.+)",
 		std::regex::optimize);
+	static std::regex rgx2(
+		//1                         2             3                4
+		"(.*) : Command line (error|warning) ([A-Z][[:digit:]]*): (.*)",
+		std::regex::optimize
+	);
 
 	std::smatch matches;
-	if (!std::regex_match(line, matches, rgx))
-		return false;
-
 	Error err;
-	err.file = matches[2].str();
-	err.line = std::stoi(matches[4].str());
-	err.type = matches[5].str();
-	err.code = matches[6].str();
-	err.msg = matches[7].str();
+	if (std::regex_match(line, matches, rgx))
+	{
+		err.file = matches[2].str();
+		err.line = std::stoi(matches[4].str());
+		err.type = matches[5].str();
+		err.code = matches[6].str();
+		err.msg = matches[7].str();
+	}
+	else if (std::regex_match(line, matches, rgx2))
+	{
+		err.type = matches[2].str();
+		err.code = matches[3].str();
+		err.msg = matches[4].str();
+	}
+	else
+	{
+		return false;
+	}
 
 	// Look for repeated errors/warnings
 	for (auto&& e : m_errors)
@@ -354,7 +369,7 @@ bool NodeParser::tryCompile(const std::string& line)
 			f.prjFile = m_prjFile;
 			f.systemIncludes = m_systemIncludes;
 			f.params = m_currClCompileParams;
-			m_outer.m_db.addFile(std::move(f));
+			m_outer.m_db.addFile(std::move(f), true);
 		}
 	}
 
@@ -388,7 +403,7 @@ bool NodeParser::tryInclude(const std::string& line)
 	f.prjFile = m_prjFile;
 	f.systemIncludes = m_systemIncludes;
 	f.params = m_currClCompileParams;
-	m_outer.m_db.addFile(std::move(f));
+	m_outer.m_db.addFile(std::move(f), true);
 	return true;
 }
 
