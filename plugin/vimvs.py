@@ -6,16 +6,34 @@ import re
 vimvs_exe = vim.eval("g:vimvs_exe")
 vimvs_plugin_root = vim.eval("g:vimvs_plugin_root")
 
-def GetRoot():
+def ToVimString(s):
+	return '"%s"' % s.replace('\\', '\\\\').replace('"', r'\"').replace('\'', r'\'')
+
+def Error(err):
+	#vim.command("let g:vimvs_error = \"%s\"" % repr(err)[1:-1])
+	try:
+		cmd = "let g:vimvs_error = %s" % ToVimString(err.strip())
+		#print "CMD=" + cmd
+		vim.command(cmd)
+	except vim.error:
+		print "VIMVS: Internal error at function vimvs.Error()"
+	raise Exception(err)
+
+def Launch(args):
 	startupinfo = subprocess.STARTUPINFO()
 	startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-	p = subprocess.Popen([vimvs_exe, '-getroot'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=startupinfo)
+	p = subprocess.Popen([vimvs_exe] + args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=startupinfo)
 	out,err = p.communicate()
+	print err
 	if p.returncode>0:
-		raise Exception("VIMVS: -getroot failed")
+		Error("VIMVS call [%s] failed: %s" % (' '.join(str(x) for x in args), err))
+	return out
+
+def GetRoot():
+	out = Launch(['-getroot'])
 	strings = re.search("^\s*ROOT:(.*)", out, flags=re.MULTILINE)
 	if strings is None:
-		raise Exception("VIMVS: error parsing -getroot output. Could not find ROOT line.")
+		Error("VIMVS: error parsing -getroot output. Could not find ROOT line.")
 	return strings.group(1).strip()
 
 def HasRoot():
@@ -26,12 +44,7 @@ def HasRoot():
 		return False
 
 def GetAlt(filename):
-	startupinfo = subprocess.STARTUPINFO()
-	startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-	p = subprocess.Popen([vimvs_exe, '-getalt="' + filename + '"'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=startupinfo)
-	out,err = p.communicate()
-	if p.returncode>0:
-		return "";
+	out = Launch(['-getalt="' + filename + '"'])
 	strings = re.search("^\s*ALT:(.*)", out, flags=re.MULTILINE)
 	if strings is None:
 		return ""
@@ -41,7 +54,6 @@ def LoadQuickfix():
 	with open(GetRoot() + ".vimvs.quickfix") as f:
 		lines = f.readlines()
 	qf = []
-	#print lines
 	# Format of the file is: File|Line|Col|Type|Code|Message
 	for l in lines:
 		tokens = l.split("|")

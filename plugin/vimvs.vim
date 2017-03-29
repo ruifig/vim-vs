@@ -73,7 +73,7 @@ function! vimvs#GetRoot()
 python << EOF
 # Notes:
 #	repr so it convert any character to a way that I can pass them to the vim.command
-#	[1:-1] so it removes the single quotes at the star and end that repr puts in there
+#	[1:-1] so it removes the single quotes at the start and end that repr puts in there
 vim.command("let res = \"%s\"" % repr(vimvs.GetRoot())[1:-1])
 EOF
 return res
@@ -135,11 +135,28 @@ function! vimvs#CompileFile(file)
 	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
 endfunction
 
+function! PrintError(msg) abort
+    execute 'normal! \<Esc>'
+    echohl ErrorMsg
+    echomsg a:msg
+    echohl None
+endfunction
+
 function! vimvs#GetAlt(file)
+try
 python << EOF
-vim.command("let res = \"%s\"" % repr(vimvs.GetAlt(vim.eval('a:file')))[1:-1])
+#vim.command("let res = \"%s\"" % repr(vimvs.GetAlt(vim.eval('a:file')))[1:-1])
+vim.command("let res = %s" % vimvs.ToVimString(vimvs.GetAlt(vim.eval('a:file'))))
 EOF
-return res
+	let ok = 1
+	return res
+catch
+finally
+	if !exists('ok')
+		call PrintError(g:vimvs_error)
+		call PrintError(g:vimvs_error)
+	endif
+endtry
 endfunction
 
 function! vimvs#OpenAlt(file)

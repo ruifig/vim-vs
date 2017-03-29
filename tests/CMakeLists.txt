@@ -14,5 +14,4 @@ add_executable(tests ${TESTS_SRC})
 cz_set_postfix()
 cz_add_common_libs()
 target_link_libraries(tests UnitTest++)
-target_compile_definitions(tests PRIVATE NOMINMAX)
 

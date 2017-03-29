@@ -41,15 +41,12 @@ set_property(SOURCE "3rdparty/sqlite/sqlite3.c" APPEND PROPERTY COMPILE_FLAGS "/
 add_executable(vimvs ${VIMVS_SRC})
 cz_set_postfix()
 cz_add_common_libs()
-target_compile_definitions(vimvs PRIVATE NOMINMAX)
 
 # By defining these macros, the Visual Studio generator picks it up, and sets the project to use Unicode
 target_compile_definitions(vimvs PRIVATE UNICODE _UNICODE)
 
 # Uncomment this to enable code analysis
 #target_compile_options(vimvs PRIVATE $<$<CONFIG:Debug>:/analyze>)
-
-target_compile_options(vimvs PRIVATE /MP)
 
 target_link_libraries(vimvs Psapi.lib)
 

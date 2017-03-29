@@ -114,7 +114,7 @@ struct Config
 		fileLogger = std::make_unique<FileLogger>(root + VIMVS_LOG_FILE);
 		if (!fileLogger->isOpen())
 		{
-			fprintf(stderr, "Could not open log file '%s'", fileLogger->getFilename().c_str());
+			fprintf(stderr, "Could not open log file '%s'\n", fileLogger->getFilename().c_str());
 			return false;
 		}
 
@@ -124,6 +124,7 @@ struct Config
 		if (!fullPath(slnfile, str, root) || !isExistingFile(slnfile))
 		{
 			CZ_LOG(logDefault, Fatal, "Invalid solution path (%s)", str.c_str());
+			fprintf(stderr, "Invalid solution path (%s)\n", str.c_str());
 			return false;
 		}
 		CZ_LOG(logDefault, Log, "Using solution file '%s'", slnfile.c_str());
@@ -236,7 +237,7 @@ bool cmd_getalt(const Cmd& cmd, const std::string& val)
 			"File '%s' not found in the database. Do a full build (-builddb) first to update the database",
 			v.c_str());
 		CZ_LOG(logDefault, Error, msg);
-		printf("%s\n", msg);
+		fprintf(stderr,"%s\n", msg);
 		return false;
 	}
 
@@ -265,7 +266,7 @@ bool cmd_getalt(const Cmd& cmd, const std::string& val)
 	{
 		const char* out = "File extension not recognized as a C/C++ extension";
 		CZ_LOG(logDefault, Log, out);
-		fprintf(stderr, out);
+		fprintf(stderr, "%s\n", out);
 		return false;
 	}
 
@@ -338,7 +339,7 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 				"File '%s' not found in the database. Do a full build (-builddb) first to update the database",
 				v.c_str());
 			CZ_LOG(logDefault, Error, msg);
-			printf("%s\n", msg);
+			fprintf(stderr, "%s\n", msg);
 			return false;
 		}
 
@@ -350,7 +351,7 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 	{
 		auto msg = formatString("Invalid -build parameter (%s)", val.c_str());
 		CZ_LOG(logDefault, Error, msg);
-		printf("%s\n", msg);
+		fprintf(stderr, "%s\n", msg);
 		return false;
 	}
 
@@ -396,7 +397,7 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 	{
 		CZ_LOG(logDefault, Error, "build failed");
 		//printf("%s\n", launcher.getFullOutput().c_str());
-		printf("VIMVS: Build failed\n");
+		fprintf(stderr, "VIMVS: Build failed\n");
 		return false;
 		//return EXIT_FAILURE;
 	}

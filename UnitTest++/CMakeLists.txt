@@ -13,9 +13,3 @@ add_library(UnitTest++ STATIC ${UNITTESTPP_SRC})
 target_include_directories(UnitTest++ PUBLIC "")
 cz_set_postfix()
 
-if (WIN32)
-	if (MSVC)
-		target_compile_options(UnitTest++ PRIVATE /MP)
-	endif()
-endif()
-
