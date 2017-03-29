@@ -106,7 +106,7 @@ struct Config
 		auto found = findConfigFile(root);
 		if (!found)
 		{
-			fprintf(stderr, "Could not find a '%s' file in current folder or any of the parents\n", VIMVS_CFG_FILE);
+			fprintf(stderr, "Could not find a '%s' file in current working directory or any of the parents\n", VIMVS_CFG_FILE);
 			return false;
 		}
 
@@ -230,6 +230,27 @@ bool cmd_getalt(const Cmd& cmd, const std::string& val)
 {
 	auto v = removeQuotes(val);
 	fullPath(v, v, getCWD());
+	static std::vector<const char*> sources = { "cpp", "c", "cc", "c++", "cxx"};
+	static std::vector<const char*> headers = { "h", "hh", "hxx", "hpp", "h++", "inl"};
+	auto isIn = [](auto&& ext, auto&& c) -> bool
+	{
+		for (auto&& e : c)
+		{
+			if (ext == e)
+				return true;
+		}
+		return false;
+	};
+
+	auto ext = tolower(getExtension(v));
+	if (!isIn(ext, sources) && !isIn(ext, headers))
+	{
+		auto msg = formatString( "File '%s' doesn't have a known source/header extension", v.c_str());
+		CZ_LOG(logDefault, Error, msg);
+		fprintf(stderr,"%s\n", msg);
+		return false;
+	}
+
 	SourceFile src = gDb->getFile(v);
 	if (!src.id)
 	{
@@ -242,20 +263,7 @@ bool cmd_getalt(const Cmd& cmd, const std::string& val)
 	}
 
 	auto basename = src.name;
-	auto ext = tolower(getExtension(basename, &basename));
-
-	static std::vector<const char*> sources = { "cpp", "c", "cc", "c++", "cxx"};
-	static std::vector<const char*> headers = { "h", "hh", "hxx", "hpp", "h++", "inl"};
-
-	auto isIn = [](auto&& ext, auto&& c) -> bool
-	{
-		for (auto&& e : c)
-		{
-			if (ext == e)
-				return true;
-		}
-		return false;
-	};
+	ext = tolower(getExtension(basename, &basename));
 
 	const std::vector<const char*>* altext;
 	if (isIn(ext, sources))
@@ -291,8 +299,8 @@ bool cmd_getalt(const Cmd& cmd, const std::string& val)
 	{
 		const char* out = "No alt file found\n";
 		CZ_LOG(logDefault, Log, out);
-		printf("%s\n", out);
-		return true;
+		fprintf(stderr, "%s\n", out);
+		return false;
 	}
 
 	printf("ALT:%s\n", dists[0].second.c_str());

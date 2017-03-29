@@ -36,6 +36,16 @@ import vimvs
 reload(vimvs)
 EOF
 
+"
+" ========================== Utility function
+"
+function! vimvs#PrintError(msg) abort
+    execute 'normal! \<Esc>'
+    echohl WarningMsg
+    echomsg a:msg
+    echohl None
+endfunction
+
 function! vimvs#GetConfiguration()
 	if exists('g:vimvs_configuration')
 		return g:vimvs_configuration
@@ -63,71 +73,82 @@ function! vimvs#GetConfigurationAndPlatformCmd()
 	return res
 endfunction
 
-function! vimvs#LoadQuickfix()
-python << EOF
-vimvs.LoadQuickfix()
-EOF
-endfunction
+"
+" ========================== User functions
+"
 
 function! vimvs#GetRoot()
+	let res = ""
 python << EOF
 # Notes:
 #	repr so it convert any character to a way that I can pass them to the vim.command
 #	[1:-1] so it removes the single quotes at the start and end that repr puts in there
-vim.command("let res = \"%s\"" % repr(vimvs.GetRoot())[1:-1])
+try:
+	vim.command("let res = %s" % vimvs.ToVimString(vimvs.GetRoot()))
+except RuntimeError as e:
+	vimvs.PrintError(e.message)
 EOF
-return res
+	return res
 endfunction
 
-function! vimvs#HasRoot()
+"
+"
+function! vimvs#LoadQuickfix()
+	if empty(vimvs#GetRoot())
+		return
+	endif
 python << EOF
-# Notes:
-#	repr so it convert any character to a way that I can pass them to the vim.command
-#	[1:-1] so it removes the single quotes at the star and end that repr puts in there
-vim.command("let res = '%s'" % vimvs.HasRoot())
+try:
+	vimvs.LoadQuickfix()
+except RuntimeError as e:
+	vimvs.PrintError(e.message)
 EOF
-if res != 'True'
-	echoerr "No vimvs root detected"
-	return 0
-else
-	return 1
-endif
 endfunction
 
+"
+"
 function! vimvs#Build()
-	if !vimvs#HasRoot()
+	if empty(vimvs#GetRoot())
 		return
 	endif
 	let cmd = g:vimvs_exe . ' -build' . vimvs#GetConfigurationAndPlatformCmd()
 	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
 endfunction
 
+"
+"
 function! vimvs#Rebuild()
-	if !vimvs#HasRoot()
+	if empty(vimvs#GetRoot())
 		return
 	endif
 	let cmd = g:vimvs_exe . ' -build=prj:Rebuild' . vimvs#GetConfigurationAndPlatformCmd()
 	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
 endfunction
 
+"
+"
 function! vimvs#BuildDB()
-	if !vimvs#HasRoot()
+	if empty(vimvs#GetRoot())
 		return
 	endif
 	let cmd = g:vimvs_exe . ' -builddb=prj:Rebuild' . vimvs#GetConfigurationAndPlatformCmd()
 	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
 endfunction
 
+"
+"
 function! vimvs#Clean()
-	if !vimvs#HasRoot()
+	if empty(vimvs#GetRoot())
 		return
 	endif
 	let cmd = g:vimvs_exe . ' -build=prj:Clean' . vimvs#GetConfigurationAndPlatformCmd()
-	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
+	<execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
 endfunction
 
+"
+"
 function! vimvs#CompileFile(file)
-	if !vimvs#HasRoot()
+	if empty(vimvs#GetRoot())
 		return
 	endif
 	let cmd = g:vimvs_exe . ' -build=file:"' . a:file . '"' . vimvs#GetConfigurationAndPlatformCmd()
@@ -135,30 +156,24 @@ function! vimvs#CompileFile(file)
 	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
 endfunction
 
-function! PrintError(msg) abort
-    execute 'normal! \<Esc>'
-    echohl ErrorMsg
-    echomsg a:msg
-    echohl None
-endfunction
-
+"
+"
 function! vimvs#GetAlt(file)
-try
-python << EOF
-#vim.command("let res = \"%s\"" % repr(vimvs.GetAlt(vim.eval('a:file')))[1:-1])
-vim.command("let res = %s" % vimvs.ToVimString(vimvs.GetAlt(vim.eval('a:file'))))
-EOF
-	let ok = 1
-	return res
-catch
-finally
-	if !exists('ok')
-		call PrintError(g:vimvs_error)
-		call PrintError(g:vimvs_error)
+	let res = ""
+	if empty(vimvs#GetRoot())
+		return ""
 	endif
-endtry
+python << EOF
+try:
+	vim.command("let res = %s" % vimvs.ToVimString(vimvs.GetAlt(vim.eval('a:file'))))
+except RuntimeError as e:
+	vimvs.PrintError(e.message)
+EOF
+	return res
 endfunction
 
+"
+"
 function! vimvs#OpenAlt(file)
 	let res = vimvs#GetAlt(a:file)
 	if !empty(res)
@@ -166,6 +181,10 @@ function! vimvs#OpenAlt(file)
 	endif
 endfunction
 
+command! VimvsRoot echo vimvs#GetRoot()
+command! VimvsActiveConfig echo vimvs#GetConfiguration() "|" vimvs#GetPlatform()
+command! -nargs=1 VimvsSetConfiguration execute("let g:vimvs_configuration='" . <f-args> . "'")
+command! -nargs=1 VimvsSetPlatform execute("let g:vimvs_platform='" . <f-args> . "'")
 command! VimvsBuild call vimvs#Build()
 command! VimvsRebuild call vimvs#Rebuild()
 command! VimvsBuildDB call vimvs#BuildDB()
@@ -173,4 +192,3 @@ command! VimvsClean call vimvs#Clean()
 command! VimvsCompile call vimvs#CompileFile(expand("%:p"))
 command! VimvsGetAlt call vimvs#GetAlt(expand("%:p"))
 command! VimvsOpenAlt call vimvs#OpenAlt(expand("%:p"))
-
