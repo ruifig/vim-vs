@@ -118,8 +118,15 @@ void Database::addFile(const ParsedFile& file, bool insertOrReplace)
 {
 	SourceFile src;
 	src.id = hash(tolower(file.name));
+
+	// If this file was added as part of this vimvs session, then nothing to do
+	// This avoid all the repeated "Adding file ..." logs for header files
+	if (m_cache.find(src.id)!=m_cache.end())
+		return;
+
 	if (insertOrReplace || !getFile(src))
 	{
+		m_cache[src.id] = file;
 		auto basename = splitFolderAndFile(file.name).second;
 		CZ_LOG(logDefault, Log, "Adding file %s to database: id=%llu, fullpath=\"%s\", prj=%s|\"%s\", %s|%s",
 			basename.c_str(), src.id, file.name.c_str(), file.prjName.c_str(), file.prjFile.c_str(),

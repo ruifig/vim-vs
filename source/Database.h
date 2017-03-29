@@ -2,6 +2,9 @@
 
 #include "Utils.h"
 #include "SqLiteWrapper.h"
+#include <vector>
+#include <memory>
+#include <unordered_map>
 
 namespace cz
 {
@@ -103,6 +106,7 @@ private:
 	SqStmt m_sqlGetFile;
 	SqStmt m_sqlGetWithBasename;
 	SqStmt m_sqlAddFile;
+	std::unordered_map<uint64_t, ParsedFile> m_cache;
 };
 
 }
