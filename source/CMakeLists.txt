@@ -3,10 +3,14 @@ project(vimvs)
 
 ucm_add_files(
 	"3rdparty/json.hpp"
+	"BuildGraph.cpp"
+	"BuildGraph.h"
 	"ChildProcessLauncher.cpp"
 	"ChildProcessLauncher.h"
 	"Database.h"
 	"Database.cpp"
+	"IncludeGraph.cpp"
+	"IncludeGraph.h"
 	"IniFile.cpp"
 	"IniFile.h"
 	"Logging.cpp"

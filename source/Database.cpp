@@ -2,20 +2,12 @@
 #include "Database.h"
 #include "Logging.h"
 #include "Utils.h"
-#define MURMUR_SEED 'vivs'
 
 namespace cz
 {
 
 Database::Database()
 {
-}
-
-static int64_t hash(const std::string& s)
-{
-	int64_t out[2]; 
-	MurmurHash3_x64_128(s.data(), static_cast<int>(s.size() * sizeof(s[0])), MURMUR_SEED, out);
-	return out[0];
 }
 
 bool Database::open(const std::string& dbfname)

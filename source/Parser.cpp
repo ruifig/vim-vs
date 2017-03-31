@@ -7,11 +7,15 @@ namespace cz
 //////////////////////////////////////////////////////////////////////////
 //		Parser
 //////////////////////////////////////////////////////////////////////////
-Parser::Parser(Database& db, bool updatedb, bool parseErrors)
+Parser::Parser(Database& db, bool updatedb, bool parseErrors, bool fastParser)
 	: m_db(db)
 	, m_updatedb(updatedb)
 	, m_parseErrors(parseErrors)
+	, m_fastParser(fastParser)
 {
+	m_clNameRgx = std::regex(
+		formatString(".*\\\\%s\\.exe .*", fastParser ? VIMVS_FAST_PARSER_TOOL : "CL"),
+		std::regex_constants::egrep | std::regex::optimize);
 }
 
 void Parser::inject(const std::string& data)
@@ -79,7 +83,11 @@ bool Parser::tryVimVsBegin(std::string& line)
 		}
 		str = trim(str);
 		if (str.size())
-			systemIncludes->dirs.push_back(replace(trim(str), '\\', '/'));
+		{
+			CZ_CHECK(fullPath(str, str, ""));
+			systemIncludes->dirs.push_back(str);
+			//systemIncludes->dirs.push_back(replace(str, '\\', '/'));
+		}
 		s = e;
 	}
 
@@ -113,9 +121,10 @@ bool Parser::tryVimVsEnd(std::string& line)
 bool Parser::tryError(const std::string& line)
 {
 	static std::regex rgx(
-		//                1          <2:File > |3:|  4: line   |       |    5        | |       6         |  |7 |
-		"[[:space:]]*([[:digit:]]*>)?([^\\(]*)(\\(([[:digit:]]+)\\))?: (error|warning) ([A-Z][[:digit:]]*): (.+)",
+		//                1         <2:File >|3:|  4:line    |       |    5        | |       6         |  |7 |
+		"[[:space:]]*([[:digit:]]*>)?(.*)(\\(([[:digit:]]+)\\)): (fatal error|error|warning) ([A-Z][[:digit:]]*): (.+)",
 		std::regex::optimize);
+
 	static std::regex rgx2(
 		//1                         2             3                4
 		"(.*) : Command line (error|warning) ([A-Z][[:digit:]]*): (.*)",
@@ -249,10 +258,8 @@ bool NodeParser::tryCompile(const std::string& line)
 
 	// Check if its a call to cl.exe
 	{
-		const char* re = ".*\\\\CL\\.exe .*";
-		static std::regex rgx(re, std::regex_constants::egrep | std::regex::optimize);
 		std::smatch matches;
-		if (!std::regex_match(line, matches, rgx))
+		if (!std::regex_match(line, matches, m_outer.m_clNameRgx))
 			return false;
 	}
 
@@ -286,16 +293,21 @@ bool NodeParser::tryCompile(const std::string& line)
 	//
 	// Extract all includes
 	//
+	auto addInc = [&](std::string s)
 	{
-		printf("%s\n", line.c_str());
+		s = trim(s);
+		CZ_CHECK(fullPath(s, s, m_prjDir));
+		m_currClCompileParams->includes.push_back(std::move(s));
+	};
+
+	{
 		static std::regex rgx("[[:space:]]\\/I\"([^\"]+)\"", std::regex::optimize);
 		for (
 			std::sregex_iterator i = std::sregex_iterator(line.begin(), line.end(), rgx);
 			i != std::sregex_iterator();
 			++i)
 		{
-			auto&& m = (*i)[1];
-			m_currClCompileParams->includes.push_back(replace(m.str(), '\\', '/'));
+			addInc((*i)[1]);
 		}
 	}
 	{
@@ -305,8 +317,7 @@ bool NodeParser::tryCompile(const std::string& line)
 			i != std::sregex_iterator();
 			++i)
 		{
-			auto&& m = (*i)[1];
-			m_currClCompileParams->includes.push_back(replace(m.str(), '\\', '/'));
+			addInc((*i)[1]);
 		}
 	}
 
@@ -376,6 +387,17 @@ bool NodeParser::tryCompile(const std::string& line)
 	return true;
 }
 
+void NodeParser::addHeader(std::string fullpath)
+{
+	ParsedFile f;
+	f.name = std::move(fullpath);
+	f.prjName = m_prjName;
+	f.prjFile = m_prjFile;
+	f.systemIncludes = m_systemIncludes;
+	f.params = m_currClCompileParams;
+	m_outer.m_db.addFile(std::move(f), true);
+}
+
 bool NodeParser::tryInclude(const std::string& line)
 {
 	if (m_state != State::ClCompile)
@@ -393,13 +415,8 @@ bool NodeParser::tryInclude(const std::string& line)
 	if (!m_outer.m_updatedb)
 		return true;
 
-	ParsedFile f;
-	CZ_CHECK(fullPath(f.name, fname, m_prjDir));
-	f.prjName = m_prjName;
-	f.prjFile = m_prjFile;
-	f.systemIncludes = m_systemIncludes;
-	f.params = m_currClCompileParams;
-	m_outer.m_db.addFile(std::move(f), true);
+	CZ_CHECK(fullPath(fname, fname, m_prjDir));
+	addHeader(fname);
 	return true;
 }
 

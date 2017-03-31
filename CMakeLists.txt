@@ -31,6 +31,7 @@ endif()
 SET(CMAKE_VERBOSE_MAKEFILE_ON)
 
 add_subdirectory(source)
+add_subdirectory(dummy)
 add_subdirectory(UnitTest++)
 add_subdirectory(tests)
 

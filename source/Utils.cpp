@@ -3,6 +3,8 @@
 #include "Logging.h"
 #include "ScopeGuard.h"
 
+#define MURMUR_SEED 'vivs'
+
 namespace cz
 {
 
@@ -81,7 +83,7 @@ char* getTemporaryString()
 	// Use several static strings, and keep picking the next one, so that callers can hold the string for a while
 	// without risk of it being changed by another call.
 	__declspec(thread) static char bufs[kTemporaryStringMaxNesting][kTemporaryStringMaxSize];
-	__declspec(thread) static char nBufIndex = 0;
+	__declspec(thread) static int nBufIndex = 0;
 	char* buf = bufs[nBufIndex];
 	nBufIndex++;
 	if (nBufIndex == kTemporaryStringMaxNesting)
@@ -109,6 +111,13 @@ void ensureTrailingSlash(std::string& str)
 {
 	if (str.size() && !(str[str.size() - 1] == '\\' || str[str.size() - 1] == '/'))
 		str += '\\';
+}
+
+std::string removeTrailingSlash(std::string str)
+{
+	while (str.size() && (str[str.size() - 1] == '\\' || str[str.size() - 1] == '/'))
+		str.pop_back();
+	return str;
 }
 
 std::string getCWD()
@@ -416,6 +425,20 @@ bool beginsWith(const std::string& str, const char* begins, std::string* dst)
 	else {
 		return false;
 	}
+}
+
+int64_t hash(const std::string& s)
+{
+	int64_t out[2]; 
+	MurmurHash3_x64_128(s.data(), static_cast<int>(s.size() * sizeof(s[0])), MURMUR_SEED, out);
+	return out[0];
+}
+
+int64_t hash(const std::vector<std::string>& v)
+{
+	std::string s;
+	for(auto&& i: v) s+=i; 
+	return hash(s);
 }
 
 }

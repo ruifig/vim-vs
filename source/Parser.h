@@ -2,6 +2,8 @@
 
 #include "Database.h"
 
+#define VIMVS_FAST_PARSER_TOOL "vimvs-dummy-tool"
+
 namespace cz
 {
 
@@ -19,8 +21,7 @@ class NodeParser;
 class Parser
 {
 public:
-	Parser(Database& db, bool updatedb, bool parseErrors);
-
+	Parser(Database& db, bool updatedb, bool parseErrors, bool fastParser);
 	void inject(const std::string& data);
 	
 	const std::vector<Error>& getErrors() const
@@ -41,8 +42,10 @@ private:
 	bool m_mp = false;
 	bool m_updatedb = false;
 	bool m_parseErrors = false;
+	bool m_fastParser = false;
 	std::vector<Error> m_errors;
 	std::string m_line;
+	std::regex m_clNameRgx;
 };
 
 class NodeParser
@@ -58,6 +61,7 @@ public:
 private:
 	bool tryCompile(const std::string& line);
 	bool tryInclude(const std::string& line);
+	void addHeader(std::string fullpath);
 
 	enum class State
 	{
