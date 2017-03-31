@@ -1,5 +1,4 @@
 #include "testsPCH.h"
-#include "../../dummy.cpp"
 
 int main()
 {

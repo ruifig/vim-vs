@@ -437,7 +437,7 @@ bool NodeParser::tryInclude(const std::string& line)
 
 	CZ_CHECK(fullPath(fname, fname, m_prjDir));
 	m_outer.m_db.addFile(
-		fname, m_prjName, m_prjFile,
+		fname, "", "" ,
 		joinDefines(m_currDefines),
 		joinUserIncs(m_currUserIncs) + joinSystemIncludes(m_systemIncs), true);
 	return true;

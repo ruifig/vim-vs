@@ -5,6 +5,10 @@ ucm_add_files("dummy.cpp" TO DUMMY_SRC)
 ucm_add_dirs("d0" TO DUMMY_SRC RECURSIVE)
 add_executable(vimvs-dummy-tool ${DUMMY_SRC})
 target_include_directories(vimvs-dummy-tool PRIVATE "..\\dummy\\d0\\d1\\d2\\d3")
+
+# By defining these macros, the Visual Studio generator picks it up, and sets the project to use Unicode
+target_compile_definitions(vimvs-dummy-tool PRIVATE UNICODE _UNICODE)
+
 cz_set_postfix()
 
 add_custom_command(

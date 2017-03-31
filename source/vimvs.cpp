@@ -416,7 +416,10 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 		}
 	});
 
+	if (fastParser)
+		printf("Parsing for header dependencies...\n");
 	parser.finishWork();
+	printf("Done!");
 
 	for (auto&& e : parser.getErrors())
 	{

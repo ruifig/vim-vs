@@ -128,6 +128,8 @@ public:
 		return m_name;
 	}
 
+	int64_t getHash() const { return m_hash; }
+
 	Type getType() const
 	{
 		return m_type;
@@ -196,9 +198,13 @@ private:
 	//! \param filename
 	//		Full path, canonicalized
 	void processIncludes(const std::shared_ptr<Node>& node, const std::shared_ptr<IncludeDirs>& includeDirs,
-		std::vector<std::string> defines, bool async);
-	static bool canSkipProcessIncludes(const std::shared_ptr<Node>& node, const std::shared_ptr<IncludeDirs>& includeDirs,
-		const std::vector<std::string>& defines);
+		std::vector<std::string> defines,
+		const std::shared_ptr<Node>& translationUnit,
+		bool async);
+	static bool prepareProcess(const std::shared_ptr<Node>& node, const std::shared_ptr<IncludeDirs>& includeDirs,
+		const std::vector<std::string>& defines,
+		const std::shared_ptr<Node>& translationUnit
+		);
 
 	struct Data
 	{
