@@ -106,32 +106,35 @@ std::vector<SourceFile> Database::getWithBasename(const std::string& filename)
 	return res;
 }
 
-void Database::addFile(const ParsedFile& file, bool insertOrReplace)
+void Database::addFile(
+	const std::string& fullpath,
+	const std::string& prjName, const std::string& prjFile,
+	const std::string& defines,
+	const std::string& includes,
+	bool insertOrReplace)
 {
 	SourceFile src;
-	src.id = hash(tolower(file.name));
+	src.id = hash(tolower(fullpath));
 
 	// If this file was added as part of this vimvs session, then nothing to do
 	// This avoid all the repeated "Adding file ..." logs for header files
-	if (m_cache.find(src.id)!=m_cache.end())
+	if (!m_inserted.insert(src.id).second)
 		return;
 
 	if (insertOrReplace || !getFile(src))
 	{
-		m_cache[src.id] = file;
-		auto basename = splitFolderAndFile(file.name).second;
+		auto basename = splitFolderAndFile(fullpath).second;
 		CZ_LOG(logDefault, Log, "Adding file %s to database: id=%llu, fullpath=\"%s\", prj=%s|\"%s\", %s|%s",
-			basename.c_str(), src.id, file.name.c_str(), file.prjName.c_str(), file.prjFile.c_str(),
-			file.params->getReadyParamsDB().c_str(), file.systemIncludes->getIncludesDB().c_str());
-
+			basename.c_str(), src.id, fullpath.c_str(), prjName.c_str(), prjFile.c_str(),
+			defines.c_str() , includes.c_str());
 		CZ_CHECK(m_sqlAddFile.bindInt64(1, src.id));
-		CZ_CHECK(m_sqlAddFile.bindText(2, file.name));
+		CZ_CHECK(m_sqlAddFile.bindText(2, fullpath));
 		CZ_CHECK(m_sqlAddFile.bindText(3, basename));
-		CZ_CHECK(m_sqlAddFile.bindText(4, file.prjName));
-		CZ_CHECK(m_sqlAddFile.bindText(5, file.prjFile));
+		CZ_CHECK(m_sqlAddFile.bindText(4, prjName));
+		CZ_CHECK(m_sqlAddFile.bindText(5, prjFile));
 		CZ_CHECK(m_sqlAddFile.bindText(6, "")); // configuration
-		CZ_CHECK(m_sqlAddFile.bindText(7, file.params->getReadyParamsDB()));
-		CZ_CHECK(m_sqlAddFile.bindText(8, file.systemIncludes->getIncludesDB()));
+		CZ_CHECK(m_sqlAddFile.bindText(7, defines));
+		CZ_CHECK(m_sqlAddFile.bindText(8, includes));
 		CZ_CHECK(m_sqlAddFile.exec());
 	}
 }

@@ -381,13 +381,14 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 		if (fastParser)
 		{
 			launchParams.push_back("/p:TrackFileAccess=false");
-			launchParams.push_back(formatString("/p:CLToolExe=%s.exe", VIMVS_FAST_PARSER_TOOL));
-			launchParams.push_back(formatString("/p:LIBToolExe=%s.exe", VIMVS_FAST_PARSER_TOOL));
-			launchParams.push_back(formatString("/p:LINKToolExe=%s.exe", VIMVS_FAST_PARSER_TOOL));
-			auto quotedExeRoot = "\"" + removeTrailingSlash(gCfg->exeRoot) + "\"";
-			launchParams.push_back("/p:CLToolPath=" + quotedExeRoot);
-			launchParams.push_back("/p:LIBToolPath=" + quotedExeRoot);
-			launchParams.push_back("/p:LINKToolPath=" + quotedExeRoot);
+			launchParams.push_back(formatString("/p:CLToolExe=%s.exe", VIMVS_FAST_PARSER_CL));
+			launchParams.push_back(formatString("/p:LIBToolExe=%s.exe", VIMVS_FAST_PARSER_LIB));
+			launchParams.push_back(formatString("/p:LINKToolExe=%s.exe", VIMVS_FAST_PARSER_LINK));
+			auto dummyPath = splitFolderAndFile(gCfg->getUtilityPath((std::string(VIMVS_FAST_PARSER_CL) + ".exe").c_str())).first;
+			dummyPath = removeTrailingSlash(dummyPath);
+			launchParams.push_back("/p:CLToolPath=" + dummyPath);
+			launchParams.push_back("/p:LIBToolPath=" + dummyPath);
+			launchParams.push_back("/p:LINKToolPath=" + dummyPath);
 			launchParams.push_back(std::string("/p:ForceImportBeforeCppTargets=") + gCfg->getUtilityPath("gen_fastparser.props", true));
 		}
 		else
@@ -414,6 +415,8 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 			msbuildlog << str;
 		}
 	});
+
+	parser.finishWork();
 
 	for (auto&& e : parser.getErrors())
 	{
@@ -524,6 +527,7 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 
 	if (gParams.has("test"))
 	{
+#if 0
 		buildgraph::Graph graph;
 		auto includeDirs = std::make_shared<buildgraph::IncludeDirs>();
 		includeDirs->addI("C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include/");
@@ -536,8 +540,9 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 		includeDirs->addI("C:\\Work\\crazygaze\\vim-vs\\dummy\\..\\dummy\\d0\\d1\\d2\\d3\\");
 		std::string f("C:\\Work\\crazygaze\\vim-vs\\dummy\\dummy.cpp");
 		includeDirs->pushParent(splitFolderAndFile(f).first);
-		graph.processIncludes(f, includeDirs, true);
+		graph.processIncludes(buildgraph::Node::Type::Source, f, includeDirs, true);
 		graph.finishWork();
+#endif
 		return EXIT_SUCCESS;
 	}
 

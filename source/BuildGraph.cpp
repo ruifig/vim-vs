@@ -40,7 +40,17 @@ std::string IncludeDirs::findHeader(const std::string& inc, bool quoted)
 		} 
 	}
 
-	for(auto&& i : m_dirs)
+	for(auto&& i : m_userIncs)
+	{
+		auto f = i + inc;
+		CZ_CHECK(fullPath(f, f, ""));
+		if (isExistingFile(f))
+		{
+			return f;
+		}
+	}
+
+	for(auto&& i : m_systemIncs)
 	{
 		auto f = i + inc;
 		CZ_CHECK(fullPath(f, f, ""));
@@ -53,7 +63,7 @@ std::string IncludeDirs::findHeader(const std::string& inc, bool quoted)
 	return "";
 }
 
-std::shared_ptr<Node> Graph::getNode(const std::string& name, bool create)
+std::shared_ptr<Node> Graph::getNode(Node::Type type, const std::string& name, bool create)
 {
 	int64_t key = hash(tolower(name));
 	return m_data([&](Data& data) -> std::shared_ptr<Node>
@@ -63,13 +73,14 @@ std::shared_ptr<Node> Graph::getNode(const std::string& name, bool create)
 			return it->second;
 		if (!create)
 			return nullptr;
-		auto node = std::make_shared<Node>(name, key);
+		auto node = std::make_shared<Node>(type, name, key);
 		data.nodes.emplace(key, node);
 		return node;
 	});
 }
 
-void Graph::processIncludes(const std::string& filename, const std::shared_ptr<IncludeDirs>& includeDirs, bool async)
+void Graph::processIncludes(Node::Type type, const std::string& filename, const std::shared_ptr<IncludeDirs>& includeDirs,
+	std::vector<std::string> defines, bool async)
 {
 	if (!isExistingFile(filename))
 	{
@@ -77,25 +88,30 @@ void Graph::processIncludes(const std::string& filename, const std::shared_ptr<I
 		return;
 	}
 
-	auto node = getNode(filename, true);
-	processIncludes(node, includeDirs, async);
+	auto node = getNode(type, filename, true);
+	if (canSkipProcessIncludes(node, includeDirs, defines))
+		return;
+	processIncludes(node, includeDirs, std::move(defines), async);
 }
 
-void Graph::processIncludes(const std::shared_ptr<Node>& node, const std::shared_ptr<IncludeDirs>& includeDirs, bool async)
+// If this file was already process with the specified include directories, then any #includes in the file
+// will lead to the same headers, therefore nothing changing. So we can skip this
+bool Graph::canSkipProcessIncludes(const std::shared_ptr<Node>& node, const std::shared_ptr<IncludeDirs>& includeDirs
+	, const std::vector<std::string>& defines)
 {
-	// If this file was already process with the specified include directories, then any #includes in the file
-	// will lead to the same headers, therefore nothing changing. So we can skip this
-	auto skip = node->data([&](Node::Data& data) -> bool
+	return node->m_data([&](Node::Data& data) -> bool
 	{
 		if (data.includeDirs.find(includeDirs->getHash())!=data.includeDirs.end())
 			return true;
+		data.defines = defines;
 		data.includeDirs.emplace(includeDirs->getHash(), includeDirs);
 		return false;
 	});
+}
 
-	if (skip)
-		return;
-
+void Graph::processIncludes(const std::shared_ptr<Node>& node, const std::shared_ptr<IncludeDirs>& includeDirs,
+	std::vector<std::string> defines, bool async)
+{
 	std::ifstream file(widen(node->m_name));
 	if (!file.is_open())
 	{
@@ -125,7 +141,7 @@ void Graph::processIncludes(const std::shared_ptr<Node>& node, const std::shared
 			CZ_LOG(logBuildGraph, Warning, "Failed to find header '%s' in file '%s'", inc.c_str(), node->m_name.c_str());
 			continue;
 		}
-		printf("%0*d%s\n", includeDirs->getNumParents(), 0, otherName.c_str());
+		//printf("%0*d%s\n", includeDirs->getNumParents(), 0, otherName.c_str());
 		auto otherFolder = splitFolderAndFile(otherName).first;
 		std::shared_ptr<IncludeDirs> otherIncludeDirs;
 		if (otherFolder==folder)
@@ -139,22 +155,27 @@ void Graph::processIncludes(const std::shared_ptr<Node>& node, const std::shared
 			otherIncludeDirs->pushParent(otherFolder);
 		}
 
-		auto otherNode = getNode(otherName, true);
-		node->data([&otherNode](Node::Data& data)
+		auto otherNode = getNode(Node::Type::Header, otherName, true);
+		node->m_data([&otherNode](Node::Data& data)
 		{
-			CZ_ASSERT(data.deps.find(otherNode->m_hash) == data.deps.end());
-			data.deps.emplace(otherNode->m_hash, otherNode);
+			if (data.deps.find(otherNode->m_hash) == data.deps.end())
+				data.deps.emplace(otherNode->m_hash, otherNode);
 		});
 
-		auto ft = std::async(
-			async ? std::launch::async : std::launch::deferred,
-			[this, otherNode, otherIncludeDirs, async]()
+		// Check if we can skip this before passing it to async, as an optimization
+		if (!canSkipProcessIncludes(otherNode, otherIncludeDirs, defines))
+		{
+			auto ft = std::async(
+				async ? std::launch::async : std::launch::deferred,
+				[this, otherNode, otherIncludeDirs, defines, async]()
 			{
-				processIncludes(otherNode, otherIncludeDirs, async);
+				processIncludes(otherNode, otherIncludeDirs, defines, async);
 			});
-		work.push_back(std::move(ft));
+			work.push_back(std::move(ft));
+		}
 	}
 
+	printf("Finished: %s\n", node->getName().c_str());
 	m_data([&](Data& data)
 	{
 		moveAppend(work, data.work);

@@ -1,8 +1,11 @@
 #pragma once
 
 #include "Database.h"
+#include "BuildGraph.h"
 
-#define VIMVS_FAST_PARSER_TOOL "vimvs-dummy-tool"
+#define VIMVS_FAST_PARSER_CL "vimvs-dummy-cl"
+#define VIMVS_FAST_PARSER_LIB "vimvs-dummy-lib"
+#define VIMVS_FAST_PARSER_LINK "vimvs-dummy-link"
 
 namespace cz
 {
@@ -24,6 +27,7 @@ public:
 	Parser(Database& db, bool updatedb, bool parseErrors, bool fastParser);
 	void inject(const std::string& data);
 	
+	void finishWork();
 	const std::vector<Error>& getErrors() const
 	{
 		return m_errors;
@@ -46,6 +50,7 @@ private:
 	std::vector<Error> m_errors;
 	std::string m_line;
 	std::regex m_clNameRgx;
+	buildgraph::Graph m_graph; // Used when using fast parsing
 };
 
 class NodeParser
@@ -53,7 +58,7 @@ class NodeParser
 public:
 
 	NodeParser(Parser& outer);
-	void init(std::string prjName, std::string prjFile, std::shared_ptr<SystemIncludes> systemIncludes);
+	void init(std::string prjName, std::string prjFile, std::vector<std::string> systemIncs);
 	void finish();
 	bool isFinished() const;
 	const std::string& getName() const;
@@ -61,7 +66,7 @@ public:
 private:
 	bool tryCompile(const std::string& line);
 	bool tryInclude(const std::string& line);
-	void addHeader(std::string fullpath);
+	void triggerFastParser(const std::string& fullpath);
 
 	enum class State
 	{
@@ -72,8 +77,9 @@ private:
 
 	Parser& m_outer;
 	State m_state = State::Initial;
-	std::shared_ptr<Params> m_currClCompileParams;
-	std::shared_ptr<SystemIncludes> m_systemIncludes;
+	std::vector<std::string> m_currDefines;
+	std::vector<std::string> m_currUserIncs;
+	std::vector<std::string> m_systemIncs;
 	std::string m_prjFile; // Full path to the project file
 	std::string m_prjDir;
 	std::string m_prjName;

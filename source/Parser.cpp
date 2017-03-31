@@ -4,6 +4,8 @@
 namespace cz
 {
 
+static const bool gAsync = false;
+
 //////////////////////////////////////////////////////////////////////////
 //		Parser
 //////////////////////////////////////////////////////////////////////////
@@ -14,7 +16,7 @@ Parser::Parser(Database& db, bool updatedb, bool parseErrors, bool fastParser)
 	, m_fastParser(fastParser)
 {
 	m_clNameRgx = std::regex(
-		formatString(".*\\\\%s\\.exe .*", fastParser ? VIMVS_FAST_PARSER_TOOL : "CL"),
+		formatString(".*\\\\%s\\.exe .*", fastParser ? VIMVS_FAST_PARSER_CL : "CL"),
 		std::regex_constants::egrep | std::regex::optimize);
 }
 
@@ -53,6 +55,25 @@ void Parser::inject(const std::string& data)
 	}
 }
 
+void Parser::finishWork()
+{
+	if (m_fastParser)
+	{
+		m_graph.finishWork();
+		m_graph.iterate([&](const std::shared_ptr<buildgraph::Node>& n)
+		{
+			if (n->getType() != buildgraph::Node::Type::Header)
+				return;
+			auto incDirs = n->getIncludeDirs();
+			m_db.addFile(n->getName(), "", "",
+				joinDefines(n->getDefines()),
+				joinUserIncs(incDirs->getUserIncs()) + joinSystemIncludes(incDirs->getSystemIncs()),
+				true);
+
+		});
+	}
+}
+
 bool Parser::tryVimVsBegin(std::string& line)
 {
 	static std::regex rgx(
@@ -62,8 +83,7 @@ bool Parser::tryVimVsBegin(std::string& line)
 	if (!std::regex_match(line, matches, rgx))
 		return false;
 
-	auto systemIncludes = std::make_shared<SystemIncludes>();
-
+	std::vector<std::string> systemIncs;
 	auto projectName = matches[1].str();
 	auto projectPath = matches[2].str();
 	auto includePath = matches[3].str();
@@ -85,8 +105,7 @@ bool Parser::tryVimVsBegin(std::string& line)
 		if (str.size())
 		{
 			CZ_CHECK(fullPath(str, str, ""));
-			systemIncludes->dirs.push_back(str);
-			//systemIncludes->dirs.push_back(replace(str, '\\', '/'));
+			systemIncs.push_back(str);
 		}
 		s = e;
 	}
@@ -95,7 +114,7 @@ bool Parser::tryVimVsBegin(std::string& line)
 		m_currNode++;
 	auto node = std::make_shared<NodeParser>(*this);
 	m_nodes[m_currNode] = node;
-	node->init(projectName, projectPath, systemIncludes);
+	node->init(projectName, projectPath, std::move(systemIncs));
 
 	return true;
 }
@@ -211,13 +230,13 @@ NodeParser::NodeParser(Parser& outer) : m_outer(outer)
 {
 }
 
-void NodeParser::init(std::string prjName, std::string prjFile, std::shared_ptr<SystemIncludes> systemIncludes)
+void NodeParser::init(std::string prjName, std::string prjFile, std::vector<std::string> systemIncs)
 {
 	auto s = splitFolderAndFile(prjFile);
 	m_prjName = prjName;
 	m_prjDir = s.first;
 	m_prjFile = prjFile;
-	m_systemIncludes = systemIncludes;
+	m_systemIncs = systemIncs;
 }
 
 void NodeParser::finish()
@@ -240,7 +259,7 @@ bool NodeParser::parseLine(const std::string& line)
 	if (tryCompile(line))
 		return true;
 
-	if (tryInclude(line))
+	if (!m_outer.m_fastParser && tryInclude(line))
 		return true;
 
 	return false;
@@ -263,7 +282,8 @@ bool NodeParser::tryCompile(const std::string& line)
 			return false;
 	}
 
-	m_currClCompileParams = std::make_shared<Params>();
+	m_currDefines.clear();
+	m_currUserIncs.clear();
 
 	//
 	// Extract all defines
@@ -286,7 +306,7 @@ bool NodeParser::tryCompile(const std::string& line)
 			if (s.back() == '"')
 				s.pop_back();
 			s = replace(s, "\\\"", "\"");
-			m_currClCompileParams->defines.push_back(s);
+			m_currDefines.push_back(std::move(s));
 		}
 	}
 
@@ -297,7 +317,7 @@ bool NodeParser::tryCompile(const std::string& line)
 	{
 		s = trim(s);
 		CZ_CHECK(fullPath(s, s, m_prjDir));
-		m_currClCompileParams->includes.push_back(std::move(s));
+		m_currUserIncs.push_back(std::move(s));
 	};
 
 	{
@@ -358,7 +378,7 @@ bool NodeParser::tryCompile(const std::string& line)
 			// Exit conditions are:
 			// - Token starts with /
 			//		- Additional, if token is a /D, then also drop the previously processor token (which is the macro)
-			printf("*%s*\n", token.c_str());
+			//printf("*%s*\n", token.c_str());
 			if (*token.begin() == '/')
 			{
 				if (token == "/D")
@@ -374,28 +394,30 @@ bool NodeParser::tryCompile(const std::string& line)
 	{
 		for (auto it = tokens.rbegin(); it != tokens.rend(); ++it)
 		{
-			ParsedFile f;
-			CZ_CHECK(fullPath(f.name, *it, m_prjDir));
-			f.prjName = m_prjName;
-			f.prjFile = m_prjFile;
-			f.systemIncludes = m_systemIncludes;
-			f.params = m_currClCompileParams;
-			m_outer.m_db.addFile(std::move(f), true);
+			std::string fullpath;
+			CZ_CHECK(fullPath(fullpath, *it, m_prjDir));
+			if (m_outer.m_fastParser)
+				triggerFastParser(fullpath);
+			m_outer.m_db.addFile(
+				fullpath, m_prjName, m_prjFile,
+				joinDefines(m_currDefines),
+				joinUserIncs(m_currUserIncs) + joinSystemIncludes(m_systemIncs),
+				true);
 		}
+
 	}
 
 	return true;
 }
 
-void NodeParser::addHeader(std::string fullpath)
+void NodeParser::triggerFastParser(const std::string& fullpath)
 {
-	ParsedFile f;
-	f.name = std::move(fullpath);
-	f.prjName = m_prjName;
-	f.prjFile = m_prjFile;
-	f.systemIncludes = m_systemIncludes;
-	f.params = m_currClCompileParams;
-	m_outer.m_db.addFile(std::move(f), true);
+	auto includeDirs = std::make_shared<buildgraph::IncludeDirs>();
+	includeDirs->addSystemInc(m_systemIncs);
+	includeDirs->addUserInc(m_currUserIncs);
+	includeDirs->pushParent(splitFolderAndFile(fullpath).first);
+	m_outer.m_graph.processIncludes(
+		buildgraph::Node::Type::Source, fullpath, includeDirs, m_currDefines, gAsync);
 }
 
 bool NodeParser::tryInclude(const std::string& line)
@@ -408,15 +430,16 @@ bool NodeParser::tryInclude(const std::string& line)
 	if (!std::regex_match(line, matches, rgx))
 		return false;
 
-	// At this point, we should have compile parameters set, since we are compiling a file
-	assert(m_currClCompileParams);
 	auto fname = matches[1].str();
 
 	if (!m_outer.m_updatedb)
 		return true;
 
 	CZ_CHECK(fullPath(fname, fname, m_prjDir));
-	addHeader(fname);
+	m_outer.m_db.addFile(
+		fname, m_prjName, m_prjFile,
+		joinDefines(m_currDefines),
+		joinUserIncs(m_currUserIncs) + joinSystemIncludes(m_systemIncs), true);
 	return true;
 }
 

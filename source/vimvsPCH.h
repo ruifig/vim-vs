@@ -23,6 +23,7 @@
 #define ENABLE_MEM_DEBUG 0
 
 #include <stdio.h>
+#include <set>
 #include <vector>
 #include <string>
 #include <queue>
