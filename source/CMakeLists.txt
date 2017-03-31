@@ -9,8 +9,6 @@ ucm_add_files(
 	"ChildProcessLauncher.h"
 	"Database.h"
 	"Database.cpp"
-	"IncludeGraph.cpp"
-	"IncludeGraph.h"
 	"IniFile.cpp"
 	"IniFile.h"
 	"Logging.cpp"
