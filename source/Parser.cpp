@@ -4,7 +4,7 @@
 namespace cz
 {
 
-static const bool gAsync = false;
+static const bool gAsync = true;
 
 //////////////////////////////////////////////////////////////////////////
 //		Parser
@@ -150,6 +150,13 @@ bool Parser::tryError(const std::string& line)
 		std::regex::optimize
 	);
 
+	// This one is used to retrieve the project after we know it's an error message e.g:
+	// 6>..\..\src\tiff\libtiff\tif_pixarlog.c(908): warning C4244: '=': conversion from 'tmsize_t' to 'uInt', possible loss of data [B:\temp\wxWidgets.3.1.0\build\msw\wx_wxtiff.vcxproj]
+	static std::regex rgx3(
+		// 1   2   3
+		"(.+)(\\[(.*)\\])",
+		std::regex::optimize);
+
 	std::smatch matches;
 	Error err;
 	if (std::regex_match(line, matches, rgx))
@@ -171,12 +178,21 @@ bool Parser::tryError(const std::string& line)
 		return false;
 	}
 
+	// If we can get the project from the message, then we can resolve relative file paths
+	if (std::regex_match(err.msg, matches, rgx3))
+	{
+		auto prjFile = matches[3].str();
+		auto prjDir = splitFolderAndFile(prjFile).first;
+		fullPath(err.file, err.file, prjDir);
+	}
+
 	// Look for repeated errors/warnings
 	for (auto&& e : m_errors)
 	{
 		if (e.line == err.line && e.file == err.file && e.code == err.code)
 			return true;
 	}
+
 	m_errors.push_back(std::move(err));
 
 

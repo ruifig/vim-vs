@@ -401,7 +401,7 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 
 	ChildProcessLauncher launcher;
 	auto exitCode = launcher.launch(
-		gCfg->getUtilityPath("vim-vs.msbuild.bat"),
+		gCfg->getUtilityPath("vimvs.msbuild.bat"),
 		genParams(launchParams),
 		[&](bool iscmdline, const std::string& str)
 	{
