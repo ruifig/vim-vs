@@ -71,6 +71,7 @@ const char* formatString(_Printf_format_string_ const char* format, ...);
 const char* formatStringVA(const char* format, va_list argptr);
 
 void ensureTrailingSlash(std::string& str);
+std::string removeTrailingSlash(std::string str);
 
 std::string getCWD();
 
@@ -127,6 +128,44 @@ bool endsWith(const std::string& str, const char* ending);
 //		If not nullptr, it will contain the string with the specified begin stripped (if the function returned true)
 bool beginsWith(const std::string& str, const std::string& begins, std::string* dst = nullptr);
 bool beginsWith(const std::string& str, const char* begins, std::string* dst = nullptr);
+
+int64_t hash(const std::string& s);
+int64_t hash(const std::vector<std::string>& v);
+
+template <class T, class MTX=std::mutex>
+class Monitor
+{
+private:
+	mutable T m_t;
+	mutable MTX m_mtx;
+
+public:
+	using Type = T;
+	Monitor() {}
+	Monitor(T t_) : m_t(std::move(t_)) {}
+	template <typename F>
+	auto operator()(F f) const -> decltype(f(m_t))
+	{
+		std::lock_guard<std::mutex> hold{ m_mtx };
+		return f(m_t);
+	}
+};
+
+template<class T>
+void moveAppend(std::vector<T>& src, std::vector<T>& dst)
+{
+	assert(&dst != &src);
+	if (dst.empty())
+	{
+		dst = std::move(src);
+	}
+	else
+	{
+		dst.reserve(dst.size() + src.size());
+		std::move(std::begin(src), std::end(src), std::back_inserter(dst));
+	}
+	src.clear();
+}
 
 } // namesapce cz
 

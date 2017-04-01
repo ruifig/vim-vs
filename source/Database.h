@@ -5,79 +5,34 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <set>
+#include "BuildGraph.h"
 
 namespace cz
 {
 
-struct SystemIncludes
+inline std::string joinParamsDB(const char* prefix, const std::vector<std::string>& v)
 {
-	std::vector<std::string> dirs;
-	std::string ready; // #TODO : Remove this
-	std::string readyDB;
-	const std::string& getIncludes()
-	{
-		if (ready.size())
-			return ready;
+	std::string res;
+	for (auto&& i : v)
+		res += prefix + i + "|";
+	return res;
+}
 
-		for (auto&& i : dirs)
-			ready += "\"-isystem" + i + "\" ";
-		return ready;
-	}
-
-	const std::string& getIncludesDB()
-	{
-		if (readyDB.size())
-			return readyDB;
-
-		for (auto&& i : dirs)
-			readyDB += "-isystem" + i + "|";
-		return readyDB;
-	}
-};
-
-struct Params
+inline std::string joinDefines(const std::vector<std::string>& v)
 {
-	std::vector<std::string> defines;
-	std::vector<std::string> includes;
-	std::string readyParams; // #TODO : Remove this
-	std::string readyParamsDB;
-	const std::string& getReadyParams()
-	{
-		if (readyParams.size())
-			return readyParams;
+	return joinParamsDB("-D", v);
+}
 
-		for (auto&& i : defines)
-			readyParams += "\"-D" + i + "\" ";
-
-		for (auto&& i : includes)
-			readyParams += "\"-I" + i + "\" ";
-
-		return readyParams;
-	}
-
-	const std::string& getReadyParamsDB()
-	{
-		if (readyParamsDB.size())
-			return readyParamsDB;
-
-		for (auto&& i : defines)
-			readyParamsDB += "-D" + i + "|";
-
-		for (auto&& i : includes)
-			readyParamsDB += "-I" + i + "|";
-
-		return readyParamsDB;
-	}
-};
-
-struct ParsedFile
+inline std::string joinSystemIncludes(const std::vector<std::string>& v)
 {
-	std::string name;
-	std::string prjName; // Project name (as seen inside VS).
-	std::string prjFile; // Full path to the project file
-	std::shared_ptr<Params> params;
-	std::shared_ptr<SystemIncludes> systemIncludes;
-};
+	return joinParamsDB("-isystem", v);
+}
+
+inline std::string joinUserIncs(const std::vector<std::string>& v)
+{
+	return joinParamsDB("-I", v);
+}
 
 struct SourceFile
 {
@@ -97,7 +52,12 @@ public:
 	Database();
 	bool open(const std::string& dbfname);
 
-	void addFile(const ParsedFile& file, bool insertOrReplace);
+	void addFile(
+		const std::string& fullpath,
+		const std::string& prjName, const std::string& prjFile,
+		const std::string& defines,
+		const std::string& includes,
+		bool insertOrReplace);
 	SourceFile getFile(const std::string& filename);
 	std::vector<SourceFile> getWithBasename(const std::string& filename);
 private:
@@ -106,7 +66,7 @@ private:
 	SqStmt m_sqlGetFile;
 	SqStmt m_sqlGetWithBasename;
 	SqStmt m_sqlAddFile;
-	std::unordered_map<uint64_t, ParsedFile> m_cache;
+	std::set<uint64_t> m_inserted;
 };
 
 }

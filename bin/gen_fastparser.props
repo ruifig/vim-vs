@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <ShowIncludes>true</ShowIncludes>
+    </ClCompile>
+    <PreBuildEvent>
+      <Command>
+rem vim-vs-begin: ProjectName="$(ProjectName)", ProjectPath="$(ProjectPath)", IncludePath=$(IncludePath)
+rem
+	  </Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+rem vim-vs-end: ProjectName="$(ProjectName)"
+rem
+	  </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+</Project>
+

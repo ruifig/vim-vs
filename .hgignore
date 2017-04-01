@@ -21,6 +21,7 @@ syntax: glob
 syntax: regexp
 
 ^bin/vimvs.exe
+^bin/vimvs-dummy-*
 ^plugin/vimvs.pyc
 ^.vimvs.log
 ^.vimvs.msbuild.log

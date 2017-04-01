@@ -6,6 +6,7 @@
 #include "ChildProcessLauncher.h"
 #include "ScopeGuard.h"
 #include "SqLiteWrapper.h"
+#include "BuildGraph.h"
 
 #define VIMVS_CFG_FILE ".vimvs_conf.ini"
 #define VIMVS_LOG_FILE ".vimvs.log"
@@ -35,7 +36,7 @@ namespace cz
 class ConsoleLogger : LogOutput
 {
 private:
-	virtual void log(const char* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const char* msg) override
+	virtual void log(const char* /*file*/, int line, const LogCategoryBase* category, LogVerbosity verbosity, const char* msg) override
 	{
 		printf("%s\n", msg);
 	}
@@ -77,6 +78,7 @@ struct Config
 	std::string exeRoot;
 	std::string root;
 	std::string slnfile; // full path to the solution file to use
+	bool fastParser = true;
 	std::unique_ptr<FileLogger> fileLogger;
 	std::string commonYcmParams;
 
@@ -140,6 +142,8 @@ struct Config
 			CZ_LOG(logDefault, Log, "common_ycm_params option not found in the config file");
 		}
 		CZ_LOG(logDefault, Log, "Using '%s' as common_ycm_params", commonYcmParams.c_str());
+
+		fastParser = cfg.getValue<bool>("General", "fast_parser", true);
 
 		return true;
 	}
@@ -320,6 +324,7 @@ bool cmd_getalt(const Cmd& cmd, const std::string& val)
 bool cmd_build(const Cmd& cmd, const std::string& val)
 {
 	bool builddb = std::string(cmd.cmd) == "builddb";
+	auto fastParser = gParams.has("fastparser");
 	std::ofstream quickfix(widen(gCfg->root + VIMVS_QUICKFIX_FILE), std::ofstream::out);
 	std::ofstream msbuildlog(widen(gCfg->root + VIMVS_MSBUILDLOG_FILE), std::ofstream::out);
 
@@ -370,17 +375,33 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 	if (platform != "")
 		launchParams.push_back(formatString("/p:Platform=\"%s\"", platform.c_str()));
 
+	Parser parser(*gDb, builddb, true, fastParser);
 	if (builddb)
 	{
-		launchParams.push_back(std::string("/p:ForceImportBeforeCppTargets=") + gCfg->getUtilityPath("gen.props", true));
+		if (fastParser)
+		{
+			launchParams.push_back("/p:TrackFileAccess=false");
+			launchParams.push_back(formatString("/p:CLToolExe=%s.exe", VIMVS_FAST_PARSER_CL));
+			launchParams.push_back(formatString("/p:LIBToolExe=%s.exe", VIMVS_FAST_PARSER_LIB));
+			launchParams.push_back(formatString("/p:LINKToolExe=%s.exe", VIMVS_FAST_PARSER_LINK));
+			auto dummyPath = splitFolderAndFile(gCfg->getUtilityPath((std::string(VIMVS_FAST_PARSER_CL) + ".exe").c_str())).first;
+			dummyPath = removeTrailingSlash(dummyPath);
+			launchParams.push_back("/p:CLToolPath=" + dummyPath);
+			launchParams.push_back("/p:LIBToolPath=" + dummyPath);
+			launchParams.push_back("/p:LINKToolPath=" + dummyPath);
+			launchParams.push_back(std::string("/p:ForceImportBeforeCppTargets=") + gCfg->getUtilityPath("gen_fastparser.props", true));
+		}
+		else
+		{
+			launchParams.push_back(std::string("/p:ForceImportBeforeCppTargets=") + gCfg->getUtilityPath("gen.props", true));
+		}
 	}
 
 	launchParams.push_back("/maxcpucount");
 
-	Parser parser(*gDb, builddb, true);
 	ChildProcessLauncher launcher;
 	auto exitCode = launcher.launch(
-		gCfg->getUtilityPath("vim-vs.msbuild.bat"),
+		gCfg->getUtilityPath("vimvs.msbuild.bat"),
 		genParams(launchParams),
 		[&](bool iscmdline, const std::string& str)
 	{
@@ -394,6 +415,11 @@ bool cmd_build(const Cmd& cmd, const std::string& val)
 			msbuildlog << str;
 		}
 	});
+
+	if (fastParser)
+		printf("Parsing for header dependencies...\n");
+	parser.finishWork();
+	printf("Done!");
 
 	for (auto&& e : parser.getErrors())
 	{
@@ -501,6 +527,27 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 	}
 	SCOPE_EXIT{ gCfg.reset(); };
 	SCOPE_EXIT{ gDb.reset(); };
+
+	if (gParams.has("test"))
+	{
+#if 0
+		buildgraph::Graph graph;
+		auto includeDirs = std::make_shared<buildgraph::IncludeDirs>();
+		includeDirs->addI("C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/include/");
+		includeDirs->addI("C:/Program Files (x86)/Microsoft Visual Studio 14.0/VC/atlmfc/include/");
+		includeDirs->addI("C:/Program Files (x86)/Windows Kits/10/Include/10.0.14393.0/ucrt/");
+		includeDirs->addI("C:/Program Files (x86)/Windows Kits/10/Include/10.0.14393.0/um/");
+		includeDirs->addI("C:/Program Files (x86)/Windows Kits/10/Include/10.0.14393.0/shared/");
+		includeDirs->addI("C:/Program Files (x86)/Windows Kits/10/Include/10.0.14393.0/winrt/");
+		includeDirs->addI("C:/Program Files (x86)/Windows Kits/NETFXSDK/4.6.2/Include/um/");
+		includeDirs->addI("C:\\Work\\crazygaze\\vim-vs\\dummy\\..\\dummy\\d0\\d1\\d2\\d3\\");
+		std::string f("C:\\Work\\crazygaze\\vim-vs\\dummy\\dummy.cpp");
+		includeDirs->pushParent(splitFolderAndFile(f).first);
+		graph.processIncludes(buildgraph::Node::Type::Source, f, includeDirs, true);
+		graph.finishWork();
+#endif
+		return EXIT_SUCCESS;
+	}
 
 	auto cmd = &gCmds[0];
 	while (cmd->cmd)

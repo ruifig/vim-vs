@@ -17,6 +17,15 @@ if !exists('g:vimvs_platform')
 	let g:vimvs_platform = "x64"
 endif
 
+" If 1, it will save all files before running any build/compile commands
+if !exists('g:vimvs_wa')
+	let g:vimvs_wa = 0
+endif
+
+if !exists('g:ycm_global_ycm_extra_conf')
+	let g:ycm_global_ycm_extra_conf = g:vimvs_plugin_root + 'plugin/.ycm_extran_conf.py'
+endif
+
 " TODO: Why do I have the 1 in [1, 'g:vimvs_exe'] ? Seems like garbage.
 " Add "g:vimvs_exe" to g:ycm:extra_conf_vim_data
 if exists('g:ycm_extra_conf_vim_data')
@@ -111,6 +120,9 @@ function! vimvs#Build()
 	if empty(vimvs#GetRoot())
 		return
 	endif
+	if g:vimvs_wa
+		wa
+	endif
 	let cmd = g:vimvs_exe . ' -build' . vimvs#GetConfigurationAndPlatformCmd()
 	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
 endfunction
@@ -121,17 +133,27 @@ function! vimvs#Rebuild()
 	if empty(vimvs#GetRoot())
 		return
 	endif
+	if g:vimvs_wa
+		wa
+	endif
 	let cmd = g:vimvs_exe . ' -build=prj:Rebuild' . vimvs#GetConfigurationAndPlatformCmd()
 	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
 endfunction
 
 "
 "
-function! vimvs#BuildDB()
+function! vimvs#BuildDB(fastparser)
 	if empty(vimvs#GetRoot())
 		return
 	endif
-	let cmd = g:vimvs_exe . ' -builddb=prj:Rebuild' . vimvs#GetConfigurationAndPlatformCmd()
+	if g:vimvs_wa
+		wa
+	endif
+	if a:fastparser
+		let cmd = g:vimvs_exe . ' -fastparser -builddb' . vimvs#GetConfigurationAndPlatformCmd()
+	else
+		let cmd = g:vimvs_exe . ' -builddb=prj:Rebuild' . vimvs#GetConfigurationAndPlatformCmd()
+	endif
 	execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
 endfunction
 
@@ -140,6 +162,9 @@ endfunction
 function! vimvs#Clean()
 	if empty(vimvs#GetRoot())
 		return
+	endif
+	if g:vimvs_wa
+		wa
 	endif
 	let cmd = g:vimvs_exe . ' -build=prj:Clean' . vimvs#GetConfigurationAndPlatformCmd()
 	<execute 'AsyncRun -post=:call\ vimvs\#LoadQuickfix() @' . cmd
@@ -150,6 +175,9 @@ endfunction
 function! vimvs#CompileFile(file)
 	if empty(vimvs#GetRoot())
 		return
+	endif
+	if g:vimvs_wa
+		wa
 	endif
 	let cmd = g:vimvs_exe . ' -build=file:"' . a:file . '"' . vimvs#GetConfigurationAndPlatformCmd()
 	echo cmd
@@ -187,7 +215,8 @@ command! -nargs=1 VimvsSetConfiguration execute("let g:vimvs_configuration='" . 
 command! -nargs=1 VimvsSetPlatform execute("let g:vimvs_platform='" . <f-args> . "'")
 command! VimvsBuild call vimvs#Build()
 command! VimvsRebuild call vimvs#Rebuild()
-command! VimvsBuildDB call vimvs#BuildDB()
+command! VimvsBuildDB call vimvs#BuildDB(0)
+command! VimvsBuildDBFast call vimvs#BuildDB(1)
 command! VimvsClean call vimvs#Clean()
 command! VimvsCompile call vimvs#CompileFile(expand("%:p"))
 command! VimvsGetAlt call vimvs#GetAlt(expand("%:p"))
