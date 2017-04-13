@@ -36,7 +36,7 @@ namespace cz
 class ConsoleLogger : LogOutput
 {
 private:
-	virtual void log(const char* /*file*/, int line, const LogCategoryBase* category, LogVerbosity verbosity, const char* msg) override
+	virtual void log(const char* /*file*/, int /*line*/, const LogCategoryBase* /*category*/, LogVerbosity /*verbosity*/, const char* msg) override
 	{
 		printf("%s\n", msg);
 	}
@@ -64,7 +64,7 @@ public:
 	}
 private:
 
-	virtual void log(const char* file, int line, const LogCategoryBase* category, LogVerbosity verbosity, const char* msg) override
+	virtual void log(const char* /*file*/, int /*line*/, const LogCategoryBase* /*category*/, LogVerbosity /*verbosity*/, const char* msg) override
 	{
 		m_out << msg << std::endl;
 	}
@@ -78,7 +78,6 @@ struct Config
 	std::string exeRoot;
 	std::string root;
 	std::string slnfile; // full path to the solution file to use
-	bool fastParser = true;
 	std::unique_ptr<FileLogger> fileLogger;
 	std::string commonYcmParams;
 
@@ -142,8 +141,6 @@ struct Config
 			CZ_LOG(logDefault, Log, "common_ycm_params option not found in the config file");
 		}
 		CZ_LOG(logDefault, Log, "Using '%s' as common_ycm_params", commonYcmParams.c_str());
-
-		fastParser = cfg.getValue<bool>("General", "fast_parser", true);
 
 		return true;
 	}

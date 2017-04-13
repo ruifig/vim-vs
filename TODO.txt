@@ -1,0 +1,3 @@
+
+
+- Setting "solution" in the config file to point to a non-existent file, and then doing a "VimvsGetAlt", causes a vimvs.exe to show a dialog.
