@@ -18,7 +18,7 @@ Supported features:
 Requirements to use:
 
 * VIM >=8.0
-* AsyncRun plugin [](https://github.com/skywind3000/asyncrun.vim)
+* AsyncRun plugin [https://github.com/skywind3000/asyncrun.vim]
 	* This is required so that vim-vs doesn't block VIM while building
 * Visual Studio >=2013
 
