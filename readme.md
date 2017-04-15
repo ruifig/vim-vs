@@ -17,15 +17,21 @@ Supported features:
 
 Requirements to use:
 
-* VIM >=8.0
+* VIM >=8.0 with Python 2
 * AsyncRun plugin [https://github.com/skywind3000/asyncrun.vim]
 	* This is required so that vim-vs doesn't block VIM while building
 * Visual Studio >=2013
 
+
+Installation
+------------
+
+FILL ME (install AsyncRun if required, add whatever is necessary to vimrc)
+	
 Quick start
 -----------
 
-Create a **.vimvs.ini** file at the root of your project with the following contents:
+Create a ```.vimvs.ini``` file at the root of your project with the following contents:
 
 ```
 [General]
@@ -34,7 +40,16 @@ common_ycm_params=-std=c++14|-Wall|-Wextra|-fexceptions|-Wno-microsoft|
 ```
 
 Tweak **common_ycm_params** as required for your project if necessary. Individual parameters should be seperated by ```|```
+Take a look at vim-vs's own ```.vimvs.ini``` for a working example.
 
+When you start VIM, vim-vs defaults to "Debug|x64". You can change the active Configuration and platform with:
+
+* ```:VimvsSetConfiguration <Configuration>```
+	* E.g: ```:VimvsSetConfiguration Release```
+* ```:VimvsSetPlatform <Platform>```
+	* E.g: ```:VimvsSetPlatform x86```
+
+Use ```:VimvsBuild``` to build the active Configuration|Platform. Current progress will be shown in the quickfix list. Once the command finishes, the quickfix list is reset to show any errors/warnings.
 
 Behind the scenes
 ---
