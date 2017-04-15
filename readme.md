@@ -22,7 +22,21 @@ Requirements to use:
 	* This is required so that vim-vs doesn't block VIM while building
 * Visual Studio >=2013
 
-Use
+Quick start
+-----------
+
+Create a **.vimvs.ini** file at the root of your project with the following contents:
+
+```
+[General]
+solution=<Path to your sln file>
+common_ycm_params=-std=c++14|-Wall|-Wextra|-fexceptions|-Wno-microsoft|
+```
+
+Tweak **common_ycm_params** as required for your project if necessary. Individual parameters should be seperated by ```|```
+
+
+Behind the scenes
 ---
 
 FILL ME
