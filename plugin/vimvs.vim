@@ -215,9 +215,10 @@ command! -nargs=1 VimvsSetConfiguration execute("let g:vimvs_configuration='" . 
 command! -nargs=1 VimvsSetPlatform execute("let g:vimvs_platform='" . <f-args> . "'")
 command! VimvsBuild call vimvs#Build()
 command! VimvsRebuild call vimvs#Rebuild()
-command! VimvsBuildDB call vimvs#BuildDB(0)
-command! VimvsBuildDBFast call vimvs#BuildDB(1)
+command! VimvsUpdateDBSlow call vimvs#BuildDB(0)
+command! VimvsUpdateDB call vimvs#BuildDB(1)
 command! VimvsClean call vimvs#Clean()
 command! VimvsCompile call vimvs#CompileFile(expand("%:p"))
 command! VimvsGetAlt call vimvs#GetAlt(expand("%:p"))
 command! VimvsOpenAlt call vimvs#OpenAlt(expand("%:p"))
+

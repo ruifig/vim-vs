@@ -1,3 +1,10 @@
 
-- Setting "solution" in the config file to point to a non-existent file, and then doing a "VimvsGetAlt", causes a vimvs.exe to show a dialog.
+- BUGS
+	- Setting "solution" in the config file to point to a non-existent file, and then doing a "VimvsGetAlt", causes a vimvs.exe to show a dialog.
+
+- Create README
+- Create documentation
+- Rename VimvsBuildDB/VimvsBuildDBFast to something else
+
+
 
