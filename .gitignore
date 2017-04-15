@@ -1,1 +1,9 @@
 build/
+
+# vim-vs temporary files
+/.vimvs-tmp*
+
+# Binaries that are copies to /bin
+/bin/vimvs-dummy*
+/bin/vimvs.exe
+

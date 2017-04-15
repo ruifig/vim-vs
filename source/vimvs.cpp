@@ -8,11 +8,11 @@
 #include "SqLiteWrapper.h"
 #include "BuildGraph.h"
 
-#define VIMVS_CFG_FILE ".vimvs_conf.ini"
-#define VIMVS_LOG_FILE ".vimvs.log"
-#define VIMVS_MSBUILDLOG_FILE ".vimvs.msbuild.log"
-#define VIMVS_QUICKFIX_FILE ".vimvs.quickfix"
-#define VIMVS_DB_FILE ".vimvs.sqlite"
+#define VIMVS_CFG_FILE			".vimvs.ini"
+#define VIMVS_LOG_FILE			".vimvs-tmp.log"
+#define VIMVS_MSBUILDLOG_FILE	".vimvs-tmp.msbuild.log"
+#define VIMVS_QUICKFIX_FILE		".vimvs-tmp.quickfix"
+#define VIMVS_DB_FILE			".vimvs-tmp.sqlite"
 
 //
 // -DCINTERFACE

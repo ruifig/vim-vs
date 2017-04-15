@@ -1,3 +1,9 @@
 
+- Rename .vimvs_conf.ini to .vimvs.ini
+- Rename:
+	.vimvs.msbuild.log -> .vimvs-tmp.msbuild.log
+	.vimvs.sqlite -> .vimvs-tmp.sqlite
+	.vimvs.quickfix -> .vimvs-tmp.quickfix
+	.vimvs.log -> vimvs-tmp.log
 
 - Setting "solution" in the config file to point to a non-existent file, and then doing a "VimvsGetAlt", causes a vimvs.exe to show a dialog.
