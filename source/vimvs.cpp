@@ -86,7 +86,18 @@ struct Config
 		// First look in the the process's directory
 		auto s = exeRoot + name;
 		if (!isExistingFile(s))
+		{
+			// If the file can't be found where vimvs's executable is, then look as if running under the debugger.
+			// This assumes that we have the following folders (with the cmake created projects):
+			// root
+			//     \-bin
+			//          ... various utilities ...
+			//     \-build
+			//          \-bin
+			//               ... various utilities ...
+			// 
 			s = exeRoot + "../../bin/" + name;
+		}
 
 		fullPath(s, s, "");
 		if (!isExistingFile(s))
