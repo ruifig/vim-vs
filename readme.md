@@ -78,11 +78,11 @@ Take a look at vim-vs's own ```.vimvs.ini``` for a working example.
 
 Commands that involve building anything will show current progress in the quickfix list. Once the command finishes, the quickfix list is reset to show any errors/warnings.
 
-** Using with YouCompleteMe **
+**Using with YouCompleteMe**
 
 To have vim-vs profile compile flags for YouCompleteMe, copy the provided ```plugin\.ycm_extra_conf.py``` to your project root. That is just the barebones to query vim-vs for compile flags for a file, and should be adequate for most projects.
 
-** Setting shortcuts similar to Visual Studio **
+**Setting shortcuts similar to Visual Studio**
 
 I recommend you create some shortcuts to emulate Visual Studio. Example:
 
