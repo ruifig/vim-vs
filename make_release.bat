@@ -1,6 +1,8 @@
 @echo off
 setlocal
 
+rem call "make_release zip" to also zip the contents of the resulting folder
+
 set BUILDDIR=build_release
 set PACKAGEDIR=release
 set ZIP="C:\Program Files\7-Zip\7z.exe"
@@ -45,5 +47,4 @@ exit /b %errorlevel%
 
 :End
 endlocal
-
 
