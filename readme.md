@@ -25,8 +25,17 @@ Requirements to use:
 Installation
 ------------
 
-FILL ME (install AsyncRun if required, add whatever is necessary to vimrc)
-	
+* Download the latest release ZIP from [https://github.com/ruifig/vim-vs/releases] .
+	* If you are using [Pathogen](https://github.com/tpope/vim-pathogen), extract the contents to your ```vimfiles/bundle``` folder
+	* If not using any plugin manager, extract the contents to your ```vimfiles``` folder
+* Install the AsyncRun plugin [https://github.com/skywind3000/asyncrun.vim]
+* If you wish to use vim-vs to provide compile flags for [YouCompleteMe](https://github.com/Valloric/YouCompleteMe), add this to your ```vimrc``` file:
+	* ```let g:ycm_extra_conf_vim_data = ['g:vimvs_exe']```
+	* If you already that variable specified, append the ```g:vimvs_exe``` to it;
+
+If you wish to build from the latest source code, you need Cmake and Visual Studio 2015 (Or higher if you modify the script). Run "make_release.bat", and it will build and create a folder "release" with everything you need to install.
+
+
 How to use
 -----------
 
@@ -69,8 +78,19 @@ Take a look at vim-vs's own ```.vimvs.ini``` for a working example.
 
 Commands that involve building anything will show current progress in the quickfix list. Once the command finishes, the quickfix list is reset to show any errors/warnings.
 
-Behind the scenes
----
+** Using with YouCompleteMe **
 
-FILL ME
+To have vim-vs profile compile flags for YouCompleteMe, copy the provided ```plugin\.ycm_extra_conf.py``` to your project root. That is just the barebones to query vim-vs for compile flags for a file, and should be adequate for most projects.
+
+** Setting shortcuts similar to Visual Studio **
+
+I recommend you create some shortcuts to emulate Visual Studio. Example:
+
+```
+noremap <silent> <F7> :VimvsBuild<CR>
+noremap <silent> <C-F7> :VimvsCompile<CR>
+noremap <silent> <C-A-F7> :VimvsRebuild<CR>
+noremap <silent> <A-o> :VimvsOpenAlt<CR>
+```
+
 
