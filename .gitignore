@@ -1,5 +1,8 @@
 build/
 x64/
+build_release/
+release/
+release.zip
 
 # vim-vs temporary files
 /.vimvs-tmp*

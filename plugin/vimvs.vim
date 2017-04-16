@@ -1,3 +1,8 @@
+"
+" vim-vs
+" Check [https://github.com/ruifig/vim-vs] for updates
+"
+
 if !has('python')
 	echoerr "vimvs requires Python support"
 	finish
@@ -210,13 +215,13 @@ function! vimvs#OpenAlt(file)
 endfunction
 
 command! VimvsRoot echo vimvs#GetRoot()
+command! VimvsUpdateDB call vimvs#BuildDB(1)
+command! VimvsUpdateDBSlow call vimvs#BuildDB(0) " This should not be needed. It uses the old way of building the database, by running a real build
 command! VimvsActiveConfig echo vimvs#GetConfiguration() "|" vimvs#GetPlatform()
 command! -nargs=1 VimvsSetConfiguration execute("let g:vimvs_configuration='" . <f-args> . "'")
 command! -nargs=1 VimvsSetPlatform execute("let g:vimvs_platform='" . <f-args> . "'")
 command! VimvsBuild call vimvs#Build()
 command! VimvsRebuild call vimvs#Rebuild()
-command! VimvsUpdateDBSlow call vimvs#BuildDB(0)
-command! VimvsUpdateDB call vimvs#BuildDB(1)
 command! VimvsClean call vimvs#Clean()
 command! VimvsCompile call vimvs#CompileFile(expand("%:p"))
 command! VimvsGetAlt call vimvs#GetAlt(expand("%:p"))

@@ -22,13 +22,12 @@ Requirements to use:
 	* This is required so that vim-vs doesn't block VIM while building
 * Visual Studio >=2013
 
-
 Installation
 ------------
 
 FILL ME (install AsyncRun if required, add whatever is necessary to vimrc)
 	
-Quick start
+How to use
 -----------
 
 Create a ```.vimvs.ini``` file at the root of your project with the following contents:
@@ -42,14 +41,33 @@ common_ycm_params=-std=c++14|-Wall|-Wextra|-fexceptions|-Wno-microsoft|
 Tweak **common_ycm_params** as required for your project if necessary. Individual parameters should be seperated by ```|```
 Take a look at vim-vs's own ```.vimvs.ini``` for a working example.
 
-When you start VIM, vim-vs defaults to "Debug|x64". You can change the active Configuration and platform with:
+**Commands**
 
+* ```:VimvsRoot```
+	* Display the directory where ```.vimvs.ini``` is found
+* ```:VimvsUpdateDB```
+	* This will perform a fake build using to build the database vim-vs requires for any other commands.
+	* You need to run this when you feel vim-vs is not up to date, such as when you add/remove files, or add/remove #include statements. For example, if you add a new source file to a project, you won't be able to compile that file (aka: Ctr-F7 in Visual Studio) until you run this command.
+* ```:VimvsActiveConfig```
+	* Displays what Configuration|Platform is active.
 * ```:VimvsSetConfiguration <Configuration>```
-	* E.g: ```:VimvsSetConfiguration Release```
+	* Set the configuration to use. E.g: ```:VimvsSetConfiguration Release```
+	* Default is ```Debug```
 * ```:VimvsSetPlatform <Platform>```
-	* E.g: ```:VimvsSetPlatform x86```
+	* Set the platform to use. E.g: ```:VimvsSetPlatform x86```
+	* Default is ```x64```
+* ```:VimvsBuild```
+	* Perform a build
+* ```:VimvsRebuild```
+	* Perform a rebuild
+* ```:VimvsClean```
+	* Perform a rebuild
+* ```:VimvsCompile```
+	* Compile only the current file
+* ```:VimvsOpenAlt```
+	* Swaps between a header/source file
 
-Use ```:VimvsBuild``` to build the active Configuration|Platform. Current progress will be shown in the quickfix list. Once the command finishes, the quickfix list is reset to show any errors/warnings.
+Commands that involve building anything will show current progress in the quickfix list. Once the command finishes, the quickfix list is reset to show any errors/warnings.
 
 Behind the scenes
 ---
