@@ -26,7 +26,7 @@ Installation
 ------------
 
 * Download the latest release ZIP from [https://github.com/ruifig/vim-vs/releases] .
-	* If you are using [Pathogen](https://github.com/tpope/vim-pathogen), extract the contents to your ```vimfiles/bundle``` folder
+	* If you are using [Pathogen](https://github.com/tpope/vim-pathogen), create a ```vim-vs``` folder in your ```vimfiles/bundle``` folder, and extract the contents of the zip there
 	* If not using any plugin manager, extract the contents to your ```vimfiles``` folder
 * Install the AsyncRun plugin [https://github.com/skywind3000/asyncrun.vim]
 * If you wish to use vim-vs to provide compile flags for [YouCompleteMe](https://github.com/Valloric/YouCompleteMe), add this to your ```vimrc``` file:
