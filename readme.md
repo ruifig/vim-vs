@@ -96,7 +96,7 @@ noremap <silent> <A-o> :VimvsOpenAlt<CR>
 Donations
 ---------
 
-If you find vim-vs useful and would like to donate, check my Patreon at [](https://www.patreon.com/RuiMVFigueira).
+If you find vim-vs useful and would like to donate, check my Patreon at [https://www.patreon.com/RuiMVFigueira].
 
 
 
