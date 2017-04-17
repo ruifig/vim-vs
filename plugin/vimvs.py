@@ -44,7 +44,7 @@ def GetAlt(filename):
 	return strings.group(1).strip()
 
 def LoadQuickfix():
-	fname = GetRoot() + ".vimvs.quickfix";
+	fname = GetRoot() + ".vimvs-tmp.quickfix"
 	if not os.path.exists(fname):
 		return
 
