@@ -3,7 +3,7 @@ vim-vs
 
 Vim-vs is a vim plugin to make it easier to build Visual Studio's C/C++ solutions.
 
-Vim-vs only targets Windows and Visual Studio, since the target audience is programmers that needs to use Windows and Visual Studio but want use Vim for editing.
+Vim-vs only targets Windows and Visual Studio, since the target audience is programmers that need to use Windows and Visual Studio but prefer to use Vim for editing.
 
 Supported features:
 
