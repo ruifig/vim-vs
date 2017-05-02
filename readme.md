@@ -13,7 +13,7 @@ Supported features:
 * Support for Visual Studio 2013/2015/2017 solutions/projects
 	* Might work with earlier Visual Studio solutions
 	* No support for custom build commands (As-in: A file is compiled with something else other than CL.exe)
-* Build is done asynchronously to the quickfix window
+* Build is done asynchronously with output showing in the quickfix window
 
 Requirements to use:
 
@@ -31,7 +31,7 @@ Installation
 * Install the AsyncRun plugin [https://github.com/skywind3000/asyncrun.vim]
 * If you wish to use vim-vs to provide compile flags for [YouCompleteMe](https://github.com/Valloric/YouCompleteMe), add this to your ```vimrc``` file:
 	* ```let g:ycm_extra_conf_vim_data = ['g:vimvs_exe']```
-	* If you already that variable specified, append the ```g:vimvs_exe``` to it;
+	* If you already have that variable specified, append the ```g:vimvs_exe```
 
 If you wish to build from the latest source code, you need Cmake and Visual Studio 2015 (Or higher if you modify the script). Run "make_release.bat", and it will build and create a folder "release" with everything you need to install.
 
@@ -55,7 +55,7 @@ Take a look at vim-vs's own ```.vimvs.ini``` for a working example.
 * ```:VimvsRoot```
 	* Display the directory where ```.vimvs.ini``` is found
 * ```:VimvsUpdateDB```
-	* This will perform a fake build using to build the database vim-vs requires for any other commands.
+	* This will perform a fake build (by replacing the CL/LIB/LINKER tools) to build the database vim-vs requires for any other commands.
 	* You need to run this when you feel vim-vs is not up to date, such as when you add/remove files, or add/remove #include statements. For example, if you add a new source file to a project, you won't be able to compile that file (aka: Ctr-F7 in Visual Studio) until you run this command.
 * ```:VimvsActiveConfig```
 	* Displays what Configuration|Platform is active.
@@ -80,7 +80,7 @@ Commands that involve building anything will show current progress in the quickf
 
 **Using with YouCompleteMe**
 
-To have vim-vs profile compile flags for YouCompleteMe, copy the provided ```plugin\.ycm_extra_conf.py``` to your project root. That is just the barebones to query vim-vs for compile flags for a file, and should be adequate for most projects.
+To have vim-vs provide compile flags for YouCompleteMe, copy the provided ```plugin\.ycm_extra_conf.py``` to your project root. That is just the barebones to query vim-vs for compile flags for a file, and should be adequate for most projects.
 
 **Setting shortcuts similar to Visual Studio**
 
@@ -97,6 +97,4 @@ Donations
 ---------
 
 If you find vim-vs useful and would like to donate, check my Patreon at [https://www.patreon.com/RuiMVFigueira].
-
-
 
