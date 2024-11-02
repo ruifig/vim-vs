@@ -1,3 +1,5 @@
+**NOTE** : This is no longer under development.
+
 vim-vs
 ------
 
